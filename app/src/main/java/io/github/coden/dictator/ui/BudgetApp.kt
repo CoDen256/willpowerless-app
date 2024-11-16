@@ -24,9 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import io.github.coden.dictator.budget.BudgetService
 import io.github.coden.dictator.budget.SessionTimer
-import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
-import kotlin.time.DurationUnit
 
 @Composable
 fun BudgetApp(service: BudgetService) {
@@ -60,7 +58,7 @@ fun BudgetApp(service: BudgetService) {
             }
             sessionTimer.value?.start()
             // Set alarm to re-enable VPN after session duration
-            service.startTimer(sessionDuration)
+//            service.enableVpnAt(sessionDuration)
             isSessionActive = true
         }
     }

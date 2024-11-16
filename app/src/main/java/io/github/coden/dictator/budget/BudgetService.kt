@@ -3,7 +3,6 @@ package io.github.coden.dictator.budget
 import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.PendingIntent
-import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.app.PendingIntent.FLAG_MUTABLE
 import android.app.admin.DevicePolicyManager
 import android.content.ComponentName
@@ -12,13 +11,12 @@ import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
-import android.os.Build
 import android.os.UserManager
 import android.widget.Toast
 import io.github.coden.dictator.DictatorAdminReceiver
 import io.github.coden.dictator.ResetVpnTimeReceiver
 import io.github.coden.dictator.VpnReenableReceiver
-import io.github.coden.dictator.VpnTrackingService
+import java.time.LocalDateTime
 import java.util.Calendar
 
 class BudgetService(
@@ -37,20 +35,20 @@ class BudgetService(
     }
 
     companion object {
-        const val WEEKLY_BUDGET_SECONDS = 5 * 60 * 60 // 5 hours
+        const val WEEKLY_BUDGET_SECONDS = 5 * 60 * 60L // 5 hours
     }
 
-    fun getRemainingBudget(): Int {
-        return sharedPrefs.getInt("remaining_budget_seconds", WEEKLY_BUDGET_SECONDS)
+    fun getRemainingBudget(): Long {
+        return sharedPrefs.getLong("budget", WEEKLY_BUDGET_SECONDS)
     }
 
-    fun reduceBudget(seconds: Int) {
+    fun reduceBudget(seconds: Long) {
         val remaining = getRemainingBudget() - seconds
-        sharedPrefs.edit().putInt("remaining_budget_seconds", remaining.coerceAtLeast(0)).apply()
+        sharedPrefs.edit().putLong("budget", remaining.coerceAtLeast(0)).apply()
     }
 
     fun resetWeeklyBudget() {
-        sharedPrefs.edit().putInt("remaining_budget_seconds", WEEKLY_BUDGET_SECONDS).apply()
+        sharedPrefs.edit().putLong("budget", WEEKLY_BUDGET_SECONDS).apply()
     }
 
     fun enableVPN() {
@@ -61,20 +59,42 @@ class BudgetService(
         devicePolicyManager.setAlwaysOnVpnPackage(adminComponent, null, true)
     }
 
-    fun startTimer(duration: Int) {
-        Toast.makeText(context, "Set for $duration seconds", Toast.LENGTH_SHORT).show()
-        setVpnReenableAlarm(context, duration)
+    fun enableVpnAt(time: LocalDateTime) {
+        setVpnReenableAlarmAt(context, time)
+        Toast.makeText(context, "Set alarm at $time", Toast.LENGTH_SHORT).show()
     }
 
     @SuppressLint("ScheduleExactAlarm")
-    fun setVpnReenableAlarm(context: Context, sessionDuration: Int) {
+    fun setVpnReenableAlarmIn(context: Context, sessionDuration: kotlin.time.Duration) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(context, VpnReenableReceiver::class.java)
         val pendingIntent = PendingIntent.getBroadcast(context, 0, intent, FLAG_MUTABLE)
 
         // Set the alarm for the session duration
-        val triggerAtMillis = System.currentTimeMillis() + (sessionDuration * 1000L)
+        val triggerAtMillis = System.currentTimeMillis() + sessionDuration.inWholeMilliseconds
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent)
+    }
+
+    @SuppressLint("ScheduleExactAlarm")
+    fun setVpnReenableAlarmAt(context: Context, time: LocalDateTime){
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.HOUR_OF_DAY, time.hour)
+        calendar.set(Calendar.MINUTE, time.minute)
+        calendar.set(Calendar.SECOND, time.second)
+        calendar.set(Calendar.DAY_OF_YEAR, time.dayOfYear)
+        calendar.set(Calendar.YEAR, time.year)
+
+        // Create an Intent to fire when the alarm triggers
+        val intent = Intent(context, VpnReenableReceiver::class.java)
+
+        // Create a PendingIntent that will trigger the intent when the alarm goes off
+        val pendingIntent = PendingIntent.getBroadcast(context, 0, intent, FLAG_MUTABLE)
+
+        // Get the AlarmManager system service
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+        // Set an exact alarm at the specific time
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
     }
 
 

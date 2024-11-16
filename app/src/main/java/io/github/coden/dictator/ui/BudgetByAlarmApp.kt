@@ -11,20 +11,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TimeInput
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerState
 import androidx.compose.material3.rememberTimePickerState
@@ -37,6 +31,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.ParagraphStyle
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -46,7 +46,6 @@ import java.time.Duration
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
-import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toKotlinDuration
 
@@ -75,8 +74,9 @@ fun BudgetAlarmApp(service: BudgetService) {
 
         LaunchedEffect(Unit) {
             while (true) {
-                delay(2000) // Delay for 2 seconds before checking the VPN status again
+                delay(1000) // Delay for 2 seconds before checking the VPN status again
                 vpnStatus.value = service.isVpnEnabled() // Update the state with current VPN status
+                untilSessionEnd.value =  Duration.between(LocalDateTime.now(), selectedTime).toKotlinDuration()
             }
         }
         Text(text = "VPN Status: ${if (vpnStatus.value) "Enabled" else "Disabled"}",
@@ -96,6 +96,8 @@ fun BudgetAlarmApp(service: BudgetService) {
         ) {
             Text(if (!vpnStatus.value) "Enable" else "Disable")
         }
+
+        HorizontalDivider()
 
         // Trigger to show the time picker dialog
         Button(onClick = { timeDialogVisible = true }) {
@@ -123,14 +125,21 @@ fun BudgetAlarmApp(service: BudgetService) {
         }
 
         Text("Request a session until:")
-        Text("${selectedTime.format(dateFormat)}")
+        Text("${selectedTime.format(dateFormat)}", fontWeight = FontWeight.Bold)
 
         untilSessionEnd.value.toComponents { hours: Long, minutes: Int, seconds: Int, nanoseconds: Int ->
-            Text(text = "Duration: ${hours}h ${minutes}m ${seconds}s")
+            Text(text =buildAnnotatedString {
+                // Highlighted portion
+                withStyle(style = SpanStyle(fontWeight= FontWeight.Bold)) {
+                    append("Duration: ${hours}h ${minutes}m ${seconds}s")
+                }
+            } )
         }
         Button(
             onClick = {
-                 // Example input
+                service.enableVpnAt(selectedTime)
+                service.reduceBudget(untilSessionEnd.value.inWholeSeconds)
+                service.disableVPN()
             }
         ) {
             Text(text = "Request")
