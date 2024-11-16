@@ -103,6 +103,9 @@ fun BudgetAlarmApp(service: BudgetService) {
                     Toast.makeText(service.context, "Exceeds budget!", Toast.LENGTH_LONG).show()
                     selectedTime = LocalDateTime.now().plusSeconds(remainingBudget.value)
                 }
+                if (untilSelected.value.isNegative()){
+                    selectedTime = LocalDateTime.now().plusMinutes(15)
+                }
                 untilSelected.value = Duration.between(now, selectedTime).toKotlinDuration()
 
             }

@@ -19,13 +19,13 @@ class MainActivity : ComponentActivity() {
         val pack = "com.celzero.bravedns"
 
         val service = BudgetService(this, pack)
-        if (service.isFirstStart()) {
+        if (service.isFirstStart() || true) {
             try {
                 service.cancelResetAlarm()
             } catch (e: Exception) {
             }
 
-            service.setWeeklyVpnResetAlarm(LocalTime.of(23, 25))
+            service.setWeeklyVpnResetAlarm(LocalTime.of(23, 39))
         }
         val a = service.getAlarm()
         if (a != null) {

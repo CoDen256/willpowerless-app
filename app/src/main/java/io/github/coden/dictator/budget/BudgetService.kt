@@ -17,8 +17,12 @@ import androidx.core.content.edit
 import io.github.coden.dictator.DictatorAdminReceiver
 import io.github.coden.dictator.ResetVpnTimeReceiver
 import io.github.coden.dictator.VpnReenableReceiver
+import java.time.DayOfWeek
+import java.time.Instant
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.ZoneId
+import java.time.temporal.TemporalAdjusters
 import java.util.Calendar
 
 class BudgetService(
@@ -114,18 +118,17 @@ class BudgetService(
 
     fun setWeeklyVpnResetAlarm(time: LocalTime) {
 
+        val now = LocalDateTime.now()
+        var base = now.withHour(time.hour).withSecond(time.second).withMinute(time.minute).with(TemporalAdjusters.next(DayOfWeek.MONDAY))
 
         // Get the current time to calculate the next Monday at 8:00 AM
         val calendar = Calendar.getInstance()
-        calendar.set(Calendar.HOUR_OF_DAY, time.hour) // Set time to 8:00 AM
-        calendar.set(Calendar.MINUTE, time.hour)
-        calendar.set(Calendar.SECOND,time.second)
+        calendar.set(Calendar.YEAR, base.year)
+        calendar.set(Calendar.DAY_OF_YEAR, base.dayOfYear)
+        calendar.set(Calendar.HOUR_OF_DAY, base.hour) // Set time to 8:00 AM
+        calendar.set(Calendar.MINUTE, base.minute)
+        calendar.set(Calendar.SECOND,base.second)
         calendar.set(Calendar.MILLISECOND,0)
-
-        // If today is Monday but the time has already passed, schedule for the next Monday
-        if (calendar.before(Calendar.getInstance())) {
-            calendar.add(Calendar.WEEK_OF_YEAR, 1) // Move to the next Monday
-        }
 
         // Schedule the alarm to repeat weekly
         alarmManager.setRepeating(
@@ -134,6 +137,8 @@ class BudgetService(
             AlarmManager.INTERVAL_DAY * 7, // Repeat weekly
             createResetIntent()
         )
+        Toast.makeText(context, "Set reset alarm at ${Instant.ofEpochMilli(calendar.timeInMillis).atZone(
+            ZoneId.of("CET")).toLocalDateTime()}", Toast.LENGTH_SHORT).show()
     }
 
      fun cancelAlarm(){
@@ -186,7 +191,7 @@ class BudgetService(
             context,
             0,
             intent,
-            PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_MUTABLE
         )
         return pendingIntent
     }
