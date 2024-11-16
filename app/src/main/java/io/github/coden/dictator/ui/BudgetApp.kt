@@ -24,6 +24,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import io.github.coden.dictator.budget.BudgetService
 import io.github.coden.dictator.budget.SessionTimer
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.DurationUnit
 
 @Composable
 fun BudgetApp(service: BudgetService) {
@@ -63,19 +66,23 @@ fun BudgetApp(service: BudgetService) {
     }
 
     Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Text(text = "Remaining Budget: ${remainingBudget.value} seconds")
+        remainingBudget.value.seconds.toComponents { hours: Long, minutes: Int, seconds: Int, nanoseconds: Int ->
+            Text(text = "Remaining Budget: ${hours}h ${minutes}m ${seconds}s")
+        }
         Text(text = "VPN Status: ${if (vpnStatus.value) "Enabled" else "Disabled"}")
 
         Button(
-            colors =  ButtonDefaults.buttonColors(if (vpnStatus.value) Color.Red else Color.Green),
+            colors = ButtonDefaults.buttonColors(if (vpnStatus.value) Color.Red else Color.Green),
             onClick = {
                 if (remainingBudget.value > 0 && vpnStatus.value) {
                     vpnStatus.value = false
                     service.disableVPN()
-                }else if (!vpnStatus.value){
+                } else if (!vpnStatus.value) {
                     vpnStatus.value = true
                     service.enableVPN()
                 }
@@ -88,14 +95,14 @@ fun BudgetApp(service: BudgetService) {
             Text(text = "Session Time Left: ${currentSessionTime.value} seconds")
         }
 
-        DurationSliderPicker({h, m ->
+        DurationSliderPicker({ h, m ->
             selectedHours = h
             selectedMinutes = m
         })
 
         Button(
             onClick = {
-                val requestedTime = (selectedHours * 60 + selectedMinutes)*60 // Example input
+                val requestedTime = (selectedHours * 60 + selectedMinutes) * 60 // Example input
                 if (remainingBudget.value >= requestedTime) {
                     remainingBudget.value = service.getRemainingBudget()
                     // Start the session and timer
@@ -110,9 +117,10 @@ fun BudgetApp(service: BudgetService) {
         }
     }
 }
+
 @Composable
 fun DurationSliderPicker(
-    onDurationChange: (Int,Int) -> Unit
+    onDurationChange: (Int, Int) -> Unit
 ) {
     var selectedHours by remember { mutableStateOf(0f) }
     var selectedMinutes by remember { mutableStateOf(0f) }
