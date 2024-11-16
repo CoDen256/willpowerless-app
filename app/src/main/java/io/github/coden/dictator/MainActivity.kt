@@ -4,6 +4,7 @@ import android.app.admin.DevicePolicyManager
 import android.content.ComponentName
 import android.content.Context
 import android.os.Bundle
+import android.os.UserManager
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -43,7 +44,7 @@ class MainActivity : ComponentActivity() {
         // Check if the app is set as Device Owner
         if (devicePolicyManager.isDeviceOwnerApp(packageName)) {
             Toast.makeText(this, "App is a device owner, success", Toast.LENGTH_SHORT).show()
-            preventUninstall("com.reddit.frontpage")
+            preventUninstall("com.celzero.bravedns")
         } else {
             Toast.makeText(this, "App is not Device Owner", Toast.LENGTH_SHORT).show()
         }
@@ -53,8 +54,13 @@ class MainActivity : ComponentActivity() {
         // Enable the uninstall block policy for the app
 //        devicePolicyManager.setUsbDataSignalingEnabled()
 //        devicePolicyManager.setApplicationRestrictions()
-        devicePolicyManager.setRecommendedGlobalProxy()
-        devicePolicyManager.setApplicationHidden(adminComponent, packageName, true)
+//        devicePolicyManager.setRecommendedGlobalProxy()
+        devicePolicyManager.clearUserRestriction(adminComponent, UserManager.DISALLOW_APPS_CONTROL)
+        devicePolicyManager.addUserRestriction(adminComponent, UserManager.DISALLOW_CONFIG_VPN)
+        devicePolicyManager.setApplicationHidden(adminComponent, packageName, false)
+        devicePolicyManager.setAlwaysOnVpnPackage(adminComponent, packageName, true)
+//        devicePolicyManager.enableSystemApp()
+//        devicePolicyManager.addUserRestriction(adminComponent, UserManager.DISALLOW_CONFIG_VPN)
         devicePolicyManager.setUninstallBlocked(adminComponent, packageName, true)
         Toast.makeText(this, "$packageName is protected from uninstallation", Toast.LENGTH_SHORT).show()
     }

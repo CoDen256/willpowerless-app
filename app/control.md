@@ -3,7 +3,7 @@
 * hide an app
 * disable usb debugging
 * force proxy
-* force vpn
+* force vpn, which does local filtering and disable uninstalling of that vpn and hide
 * disable mobile data
 * disable developer options
 * block installing apps from unknown sources
@@ -17,6 +17,7 @@
 * kiosk mode
 * disable factory reset
 * disable nfc, hide wallet
+* check connected wifi and disable
 
 
 # steam 
@@ -34,9 +35,10 @@ family view
 
 ---
 # punishers
+* disable PC access/games access
 * disable my internet access (openwrt router)
 * disable A's internet access/reject packets (openwrt router)
-* disable access to the phone(how to use wellpass, dticket?)
+* disable access to the phone(how to use wellpass, dticket? -> kiosk mode only certain apps)
 * disable access to apps(wallet)/domains
 * disable mobile data, AP mode
 
