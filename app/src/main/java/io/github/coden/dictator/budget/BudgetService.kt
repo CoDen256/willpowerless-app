@@ -3,9 +3,11 @@ package io.github.coden.dictator.budget
 import android.app.admin.DevicePolicyManager
 import android.content.ComponentName
 import android.content.Context
+import android.health.connect.datatypes.units.Length
 import android.os.Handler
 import android.os.Looper
 import android.os.UserManager
+import android.widget.Toast
 import io.github.coden.dictator.DictatorAdminReceiver
 
 class BudgetService(
@@ -47,6 +49,7 @@ class BudgetService(
     }
 
     fun startTimer(duration: Int, onFinish: () -> Unit) {
+        Toast.makeText(context, "Set for $duration minutes", Toast.LENGTH_SHORT).show()
         Handler(Looper.getMainLooper()).postDelayed(onFinish, duration * 60 * 1000L)
     }
 }
