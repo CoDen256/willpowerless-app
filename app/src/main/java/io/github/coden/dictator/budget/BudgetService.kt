@@ -9,6 +9,10 @@ import android.app.admin.DevicePolicyManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.os.Build
 import android.os.UserManager
 import android.widget.Toast
 import io.github.coden.dictator.DictatorAdminReceiver
@@ -19,7 +23,8 @@ import java.util.Calendar
 
 class BudgetService(
     private val context: Context,
-    private val packageName: String) {
+    private val packageName: String
+) {
     private val sharedPrefs = context.getSharedPreferences("BudgetPrefs", Context.MODE_PRIVATE)
     private val devicePolicyManager = context.getSystemService(DevicePolicyManager::class.java)
     private val adminComponent = ComponentName(context, DictatorAdminReceiver::class.java)
@@ -51,6 +56,7 @@ class BudgetService(
     fun enableVPN() {
         devicePolicyManager.setAlwaysOnVpnPackage(adminComponent, packageName, true)
     }
+
     fun disableVPN() {
         devicePolicyManager.setAlwaysOnVpnPackage(adminComponent, null, true)
     }
@@ -103,5 +109,19 @@ class BudgetService(
             AlarmManager.INTERVAL_DAY * 7, // Repeat weekly
             pendingIntent
         )
+    }
+
+    fun isVpnEnabled(): Boolean {
+        val connectivityManager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+        val networks: Array<Network> = connectivityManager.allNetworks
+        for (network in networks) {
+            val capabilities = connectivityManager.getNetworkCapabilities(network)
+            if (capabilities != null && capabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN)) {
+                return true // VPN is enabled
+            }
+        }
+        return false // VPN is not enabled
     }
 }

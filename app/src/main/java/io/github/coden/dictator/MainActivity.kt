@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import io.github.coden.dictator.budget.BudgetService
+import io.github.coden.dictator.ui.BudgetAlarmApp
 import io.github.coden.dictator.ui.BudgetApp
 import io.github.coden.dictator.ui.theme.DictatorTheme
 
@@ -20,7 +21,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             DictatorTheme {
-                BudgetApp(service)
+                BudgetAlarmApp(service)
             }
         }
     }
