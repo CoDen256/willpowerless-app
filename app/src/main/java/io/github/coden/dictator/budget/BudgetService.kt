@@ -12,7 +12,10 @@ import android.content.Intent
 import android.os.UserManager
 import android.widget.Toast
 import io.github.coden.dictator.DictatorAdminReceiver
+import io.github.coden.dictator.ResetVpnTimeReceiver
 import io.github.coden.dictator.VpnReenableReceiver
+import io.github.coden.dictator.VpnTrackingService
+import java.util.Calendar
 
 class BudgetService(
     private val context: Context,
@@ -66,5 +69,39 @@ class BudgetService(
         // Set the alarm for the session duration
         val triggerAtMillis = System.currentTimeMillis() + (sessionDuration * 1000L)
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent)
+    }
+
+
+    fun setWeeklyVpnResetAlarm(context: Context) {
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val intent = Intent(context, ResetVpnTimeReceiver::class.java)
+
+        // Create a PendingIntent for the BroadcastReceiver
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            0,
+            intent,
+            PendingIntent.FLAG_IMMUTABLE
+        )
+
+        // Get the current time to calculate the next Monday at 8:00 AM
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.HOUR_OF_DAY, 8) // Set time to 8:00 AM
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+
+        // If today is Monday but the time has already passed, schedule for the next Monday
+        if (calendar.before(Calendar.getInstance())) {
+            calendar.add(Calendar.WEEK_OF_YEAR, 1) // Move to the next Monday
+        }
+
+        // Schedule the alarm to repeat weekly
+        alarmManager.setRepeating(
+            AlarmManager.RTC_WAKEUP,
+            calendar.timeInMillis,
+            AlarmManager.INTERVAL_DAY * 7, // Repeat weekly
+            pendingIntent
+        )
     }
 }
