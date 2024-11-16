@@ -13,6 +13,7 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import android.os.UserManager
 import android.widget.Toast
+import androidx.core.content.edit
 import io.github.coden.dictator.DictatorAdminReceiver
 import io.github.coden.dictator.ResetVpnTimeReceiver
 import io.github.coden.dictator.VpnReenableReceiver
@@ -20,12 +21,13 @@ import java.time.LocalDateTime
 import java.util.Calendar
 
 class BudgetService(
-    private val context: Context,
+     val context: Context,
     private val packageName: String
 ) {
     private val sharedPrefs = context.getSharedPreferences("BudgetPrefs", Context.MODE_PRIVATE)
     private val devicePolicyManager = context.getSystemService(DevicePolicyManager::class.java)
     private val adminComponent = ComponentName(context, DictatorAdminReceiver::class.java)
+    val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
     init {
         devicePolicyManager.clearUserRestriction(adminComponent, UserManager.DISALLOW_APPS_CONTROL)
@@ -40,6 +42,10 @@ class BudgetService(
 
     fun getRemainingBudget(): Long {
         return sharedPrefs.getLong("budget", WEEKLY_BUDGET_SECONDS)
+    }
+
+    fun setRemainingBudget(seconds: Long){
+        sharedPrefs.edit().putLong("budget", seconds.coerceAtLeast(0)).apply()
     }
 
     fun reduceBudget(seconds: Long) {
@@ -84,22 +90,17 @@ class BudgetService(
         calendar.set(Calendar.DAY_OF_YEAR, time.dayOfYear)
         calendar.set(Calendar.YEAR, time.year)
 
-        // Create an Intent to fire when the alarm triggers
-        val intent = Intent(context, VpnReenableReceiver::class.java)
-
-        // Create a PendingIntent that will trigger the intent when the alarm goes off
-        val pendingIntent = PendingIntent.getBroadcast(context, 0, intent, FLAG_MUTABLE)
 
         // Get the AlarmManager system service
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
         // Set an exact alarm at the specific time
-        alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, createAlarmIntent())
+        saveAlarm(calendar.timeInMillis)
     }
 
 
     fun setWeeklyVpnResetAlarm(context: Context) {
-        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(context, ResetVpnTimeReceiver::class.java)
 
         // Create a PendingIntent for the BroadcastReceiver
@@ -131,6 +132,11 @@ class BudgetService(
         )
     }
 
+     fun cancelAlarm(){
+        alarmManager.cancel(createAlarmIntent())
+        removeAlarm()
+    }
+
     fun isVpnEnabled(): Boolean {
         val connectivityManager =
             context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -143,5 +149,27 @@ class BudgetService(
             }
         }
         return false // VPN is not enabled
+    }
+
+     fun saveAlarm(timeInMillis: Long) {
+        sharedPrefs.edit().putLong("alarm", timeInMillis).apply()
+    }
+
+     fun removeAlarm() {
+        sharedPrefs.edit().putLong("alarm", -1).apply()
+    }
+
+     fun getAlarm(): Long? {
+        return sharedPrefs
+            .getLong("alarm", -1)
+            .let { if(it == -1L) null else it }
+    }
+
+    private fun createAlarmIntent(): PendingIntent {
+        // Create an Intent to fire when the alarm triggers
+        val intent = Intent(context, VpnReenableReceiver::class.java)
+
+        // Create a PendingIntent that will trigger the intent when the alarm goes off
+        return PendingIntent.getBroadcast(context, 0, intent, FLAG_MUTABLE)
     }
 }

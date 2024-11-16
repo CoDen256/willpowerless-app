@@ -9,5 +9,6 @@ class VpnReenableReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val service = BudgetService(context, "com.celzero.bravedns")
         service.enableVPN()
+        service.removeAlarm()
     }
 }

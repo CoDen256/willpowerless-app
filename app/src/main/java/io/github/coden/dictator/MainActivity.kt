@@ -17,7 +17,11 @@ class MainActivity : ComponentActivity() {
         val pack = "com.celzero.bravedns"
 
         val service = BudgetService(this, pack)
-        service.enableVPN()
+        if (service.getAlarm() != null){
+            service.disableVPN()
+        }else{
+            service.enableVPN()
+        }
 
         setContent {
             DictatorTheme {

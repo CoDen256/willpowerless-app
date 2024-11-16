@@ -1,5 +1,6 @@
 package io.github.coden.dictator.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -31,9 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
@@ -43,7 +42,9 @@ import androidx.compose.ui.window.DialogProperties
 import io.github.coden.dictator.budget.BudgetService
 import kotlinx.coroutines.delay
 import java.time.Duration
+import java.time.Instant
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import kotlin.time.Duration.Companion.seconds
@@ -57,9 +58,23 @@ fun BudgetAlarmApp(service: BudgetService) {
     val vpnStatus = remember { mutableStateOf(service.isVpnEnabled()) }
     var timeDialogVisible by remember { mutableStateOf(false) }
     var selectedTime by remember { mutableStateOf(LocalDateTime.now().plusMinutes(15)) }
-    var untilSessionEnd = remember { mutableStateOf(
-        Duration.between(LocalDateTime.now(), selectedTime).toKotlinDuration()
-    ) }
+    var untilSelected = remember {
+        mutableStateOf(
+            Duration.between(LocalDateTime.now(), selectedTime).toKotlinDuration()
+        )
+    }
+
+    var currentAlarm by remember {
+        mutableStateOf(service.getAlarm()
+            ?.let { Instant.ofEpochMilli(it).atZone(ZoneId.of("CET")) })
+    }
+
+    var untilAlarm by remember {
+        mutableStateOf(currentAlarm?.let {
+            Duration.between(LocalDateTime.now(), it).toKotlinDuration()
+        }
+        )
+    }
 
     Column(
         modifier = Modifier
@@ -76,11 +91,20 @@ fun BudgetAlarmApp(service: BudgetService) {
             while (true) {
                 delay(1000) // Delay for 2 seconds before checking the VPN status again
                 vpnStatus.value = service.isVpnEnabled() // Update the state with current VPN status
-                untilSessionEnd.value =  Duration.between(LocalDateTime.now(), selectedTime).toKotlinDuration()
+                untilSelected.value =
+                    Duration.between(LocalDateTime.now(), selectedTime).toKotlinDuration()
+                currentAlarm = service.getAlarm()?.let {
+                    val a = Instant.ofEpochMilli(it).atZone(ZoneId.of("CET"))
+                    untilAlarm = Duration.between(LocalDateTime.now(), a).toKotlinDuration()
+                    a
+                }
+
             }
         }
-        Text(text = "VPN Status: ${if (vpnStatus.value) "Enabled" else "Disabled"}",
-            color = if (!vpnStatus.value) Color.Red else Color.Green)
+        Text(
+            text = "VPN Status: ${if (vpnStatus.value) "Enabled" else "Disabled"}",
+            color = if (!vpnStatus.value) Color.Red else Color.Green
+        )
 
         Button(
             colors = ButtonDefaults.buttonColors(if (vpnStatus.value) Color.Red else Color.Green),
@@ -97,6 +121,26 @@ fun BudgetAlarmApp(service: BudgetService) {
             Text(if (!vpnStatus.value) "Enable" else "Disable")
         }
 
+        currentAlarm?.let {
+            Text("Current Session ends at: ${it.format(dateFormat)}")
+            untilAlarm?.toComponents { hours: Long, minutes: Int, seconds: Int, nanoseconds: Int ->
+                Text(text = "Time left: ${hours}h ${minutes}m ${seconds}s")
+            }
+
+            Button(
+                onClick = {
+                    val left = Duration.between(LocalDateTime.now(), it)
+                    service.cancelAlarm()
+                    service.enableVPN()
+                    service.reduceBudget(-left.seconds)
+                    remainingBudget.value = service.getRemainingBudget()
+                },
+                colors = ButtonDefaults.buttonColors(Color.Red)
+            ) {
+                Text("Terminate this session")
+            }
+        }
+
         HorizontalDivider()
 
         // Trigger to show the time picker dialog
@@ -110,10 +154,15 @@ fun BudgetAlarmApp(service: BudgetService) {
                 onConfirm = { state ->
                     val now = LocalDateTime.now()
                     selectedTime = now.withHour(state.hour).withMinute(state.minute)
-                    if (selectedTime.isBefore(now)){
+                    if (selectedTime.isBefore(now)) {
                         selectedTime = selectedTime.plusDays(1)
                     }
-                    untilSessionEnd.value =  Duration.between(LocalDateTime.now(), selectedTime).toKotlinDuration()
+                    untilSelected.value =
+                        Duration.between(now, selectedTime).toKotlinDuration()
+                    if (remainingBudget.value < untilSelected.value.inWholeSeconds){
+                        selectedTime = selectedTime.plusSeconds(remainingBudget.value)
+                        untilSelected.value = Duration.between(now, selectedTime).toKotlinDuration()
+                    }
                     // Handle time confirmation
                     timeDialogVisible = false
                     // You can get the selected time from the timePickerState here
@@ -124,23 +173,31 @@ fun BudgetAlarmApp(service: BudgetService) {
                 })
         }
 
-        Text("Request a session until:")
-        Text("${selectedTime.format(dateFormat)}", fontWeight = FontWeight.Bold)
+        if (currentAlarm == null){
+            Text("Request a new session until:")
+            Text("${selectedTime.format(dateFormat)}", fontWeight = FontWeight.Bold)
 
-        untilSessionEnd.value.toComponents { hours: Long, minutes: Int, seconds: Int, nanoseconds: Int ->
-            Text(text =buildAnnotatedString {
-                // Highlighted portion
-                withStyle(style = SpanStyle(fontWeight= FontWeight.Bold)) {
-                    append("Duration: ${hours}h ${minutes}m ${seconds}s")
-                }
-            } )
+            untilSelected.value.toComponents { hours: Long, minutes: Int, seconds: Int, nanoseconds: Int ->
+                Text(text = buildAnnotatedString {
+                    // Highlighted portion
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append("Duration: ${hours}h ${minutes}m ${seconds}s")
+                    }
+                })
+            }
         }
+
         Button(
             onClick = {
-                service.enableVpnAt(selectedTime)
-                service.reduceBudget(untilSessionEnd.value.inWholeSeconds)
-                service.disableVPN()
-            }
+                service.reduceBudget(untilSelected.value.inWholeSeconds)
+                remainingBudget.value = service.getRemainingBudget()
+                if (remainingBudget.value <= 0){
+                    Toast.makeText(service.context, "No budget left!", Toast.LENGTH_LONG).show()
+                }else{
+                    service.enableVpnAt(selectedTime)
+                    service.disableVPN()
+                }
+            }, enabled = currentAlarm == null
         ) {
             Text(text = "Request")
         }
