@@ -19,7 +19,7 @@ class MainActivity : ComponentActivity() {
         val pack = "com.celzero.bravedns"
 
         val service = BudgetService(this, pack)
-        if (service.isFirstStart() || true) {
+        if (service.isFirstStart()) {
             try {
                 service.cancelResetAlarm()
             } catch (e: Exception) {
