@@ -13,6 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -22,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import io.github.coden.dictator.budget.BudgetService
+import io.github.coden.dictator.budget.SessionTimer
 
 @Composable
 fun BudgetApp(service: BudgetService) {
@@ -30,15 +32,45 @@ fun BudgetApp(service: BudgetService) {
     var selectedHours by remember { mutableStateOf(0) }
     var selectedMinutes by remember { mutableStateOf(0) }
 
+
+    val currentSessionTime = remember { mutableStateOf(0) }
+    val sessionTimer = remember { mutableStateOf<SessionTimer?>(null) }
+
+    var sessionDuration by remember { mutableStateOf(0) } // Store the requested session duration
+    var isSessionActive by remember { mutableStateOf(false) }
+
+    LaunchedEffect(sessionDuration) {
+        if (sessionDuration > 0) {
+            // Start session timer when session is requested
+            sessionTimer.value = SessionTimer(sessionDuration, { remainingTime ->
+                currentSessionTime.value = remainingTime
+                service.reduceBudget(1)
+                remainingBudget.value = service.getRemainingBudget()
+            }) {
+                // Re-enable VPN after session ends
+                vpnStatus.value = true
+//                service.enableVPN()
+                remainingBudget.value = service.getRemainingBudget()
+                sessionTimer.value = null
+                isSessionActive = false
+                sessionDuration = 0
+            }
+            sessionTimer.value?.start()
+            // Set alarm to re-enable VPN after session duration
+            service.startTimer(sessionDuration)
+            isSessionActive = true
+        }
+    }
+
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Text(text = "Remaining Budget: ${remainingBudget.value} minutes")
+        Text(text = "Remaining Budget: ${remainingBudget.value} seconds")
         Text(text = "VPN Status: ${if (vpnStatus.value) "Enabled" else "Disabled"}")
 
         Button(
-            colors =  ButtonDefaults.buttonColors(if (!vpnStatus.value) Color.Red else Color.Green),
+            colors =  ButtonDefaults.buttonColors(if (vpnStatus.value) Color.Red else Color.Green),
             onClick = {
                 if (remainingBudget.value > 0 && vpnStatus.value) {
                     vpnStatus.value = false
@@ -52,6 +84,10 @@ fun BudgetApp(service: BudgetService) {
             Text(if (!vpnStatus.value) "Enable" else "Disable")
         }
 
+        if (isSessionActive) {
+            Text(text = "Session Time Left: ${currentSessionTime.value} seconds")
+        }
+
         DurationSliderPicker({h, m ->
             selectedHours = h
             selectedMinutes = m
@@ -59,14 +95,14 @@ fun BudgetApp(service: BudgetService) {
 
         Button(
             onClick = {
-                val requestedTime = selectedHours * 60 + selectedMinutes // Example input
+                val requestedTime = (selectedHours * 60 + selectedMinutes)*60 // Example input
                 if (remainingBudget.value >= requestedTime) {
                     remainingBudget.value = service.getRemainingBudget()
+                    // Start the session and timer
+                    sessionTimer.value?.cancel()
+                    sessionDuration = requestedTime // Start timer with duration
                     service.disableVPN()
-                    service.startTimer(requestedTime) {
-                        vpnStatus.value = true
-                        service.enableVPN()
-                    }
+                    vpnStatus?.value = false
                 }
             }
         ) {
@@ -123,7 +159,7 @@ fun DurationSliderPicker(
                 onDurationChange(selectedHours.toInt(), selectedMinutes.toInt())
             },
             valueRange = 0f..59f,
-            steps = 58,
+            steps = 60,
             modifier = Modifier.fillMaxWidth()
         )
 
