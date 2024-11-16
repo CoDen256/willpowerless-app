@@ -11,12 +11,14 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import io.github.coden.dictator.ui.theme.DictatorTheme
+
 
 class MainActivity : ComponentActivity() {
 
@@ -32,14 +34,17 @@ class MainActivity : ComponentActivity() {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Greeting(
                         name = "Android",
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = Modifier.padding(innerPadding),
+                        handler = {
+                            devicePolicyManager.setAlwaysOnVpnPackage(adminComponent, packageName, it)
+                        }
                     )
                 }
             }
         }
 
         devicePolicyManager = getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
-        adminComponent = ComponentName(this, MyDeviceAdminReceiver::class.java)
+        adminComponent = ComponentName(this, DictatorAdminReceiver::class.java)
 
         // Check if the app is set as Device Owner
         if (devicePolicyManager.isDeviceOwnerApp(packageName)) {
@@ -61,23 +66,32 @@ class MainActivity : ComponentActivity() {
         devicePolicyManager.setAlwaysOnVpnPackage(adminComponent, packageName, true)
 //        devicePolicyManager.enableSystemApp()
 //        devicePolicyManager.addUserRestriction(adminComponent, UserManager.DISALLOW_CONFIG_VPN)
-        devicePolicyManager.setUninstallBlocked(adminComponent, packageName, true)
+        devicePolicyManager.setUninstallBlocked(adminComponent, packageName, false)
         Toast.makeText(this, "$packageName is protected from uninstallation", Toast.LENGTH_SHORT).show()
+
+//        val launchIntent = applicationContext.packageManager.getLaunchIntentForPackage("$packageName") ?:  return
+//        launchIntent.putExtra("ENDPOINT", "https://max.rethinkdns.com/"); //
+//        startActivity(launchIntent);
+//        Toast.makeText(this, "$packageName launched", Toast.LENGTH_SHORT).show()
+//        finish();
     }
 }
 
+fun interface Handler{
+    fun handle(on: Boolean)
+}
+
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
+fun Greeting(handler: Handler, name: String, modifier: Modifier = Modifier) {
     Text(
         text = "Hello $name!",
         modifier = modifier
     )
-}
+    Button(onClick =  {
+        handler.handle(true)
+    }, content = { Text("on") })
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    DictatorTheme {
-        Greeting("Android")
-    }
+    Button(onClick =  {
+        handler.handle(false)
+    }, content = { Text("off") })
 }

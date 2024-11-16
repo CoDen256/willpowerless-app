@@ -6,6 +6,6 @@ adb shell
 pm list users
 pm remove-user <999>
 
-dpm set-device-owner io.github.coden.dictator/.MyDeviceAdminReceiver
+dpm set-device-owner io.github.coden.dictator/.DictatorAdminReceiver
 
-dpm remove-active-admin io.github.coden.dictator/.MyDeviceAdminReceiver
+dpm remove-active-admin io.github.coden.dictator/.DictatorAdminReceiver
