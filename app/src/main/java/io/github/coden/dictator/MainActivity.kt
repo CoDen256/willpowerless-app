@@ -8,6 +8,8 @@ import io.github.coden.dictator.budget.BudgetService
 import io.github.coden.dictator.ui.BudgetAlarmApp
 import io.github.coden.dictator.ui.BudgetApp
 import io.github.coden.dictator.ui.theme.DictatorTheme
+import java.time.Instant
+import java.time.LocalTime
 
 
 class MainActivity : ComponentActivity() {
@@ -17,9 +19,20 @@ class MainActivity : ComponentActivity() {
         val pack = "com.celzero.bravedns"
 
         val service = BudgetService(this, pack)
-        if (service.getAlarm() != null){
-            service.disableVPN()
-        }else{
+        if (service.isFirstStart()) {
+            try {
+                service.cancelResetAlarm()
+            } catch (e: Exception) {
+            }
+
+            service.setWeeklyVpnResetAlarm(LocalTime.of(23, 25))
+        }
+        val a = service.getAlarm()
+        if (a != null) {
+            if (Instant.ofEpochMilli(a).isAfter(Instant.now())) {
+                service.disableVPN()
+            }
+        } else {
             service.enableVPN()
         }
 

@@ -18,6 +18,7 @@ import io.github.coden.dictator.DictatorAdminReceiver
 import io.github.coden.dictator.ResetVpnTimeReceiver
 import io.github.coden.dictator.VpnReenableReceiver
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.util.Calendar
 
 class BudgetService(
@@ -38,6 +39,14 @@ class BudgetService(
 
     companion object {
         const val WEEKLY_BUDGET_SECONDS = 5 * 60 * 60L // 5 hours
+    }
+
+    fun isFirstStart(): Boolean{
+        if (sharedPrefs.getBoolean("first", true)){
+            sharedPrefs.edit().putBoolean("first", false).apply()
+            return true
+        }
+        return false
     }
 
     fun getRemainingBudget(): Long {
@@ -99,24 +108,19 @@ class BudgetService(
         saveAlarm(calendar.timeInMillis)
     }
 
+    fun cancelResetAlarm(){
+        alarmManager.cancel(createResetIntent())
+    }
 
-    fun setWeeklyVpnResetAlarm(context: Context) {
-        val intent = Intent(context, ResetVpnTimeReceiver::class.java)
+    fun setWeeklyVpnResetAlarm(time: LocalTime) {
 
-        // Create a PendingIntent for the BroadcastReceiver
-        val pendingIntent = PendingIntent.getBroadcast(
-            context,
-            0,
-            intent,
-            PendingIntent.FLAG_IMMUTABLE
-        )
 
         // Get the current time to calculate the next Monday at 8:00 AM
         val calendar = Calendar.getInstance()
-        calendar.set(Calendar.HOUR_OF_DAY, 8) // Set time to 8:00 AM
-        calendar.set(Calendar.MINUTE, 0)
-        calendar.set(Calendar.SECOND, 0)
-        calendar.set(Calendar.MILLISECOND, 0)
+        calendar.set(Calendar.HOUR_OF_DAY, time.hour) // Set time to 8:00 AM
+        calendar.set(Calendar.MINUTE, time.hour)
+        calendar.set(Calendar.SECOND,time.second)
+        calendar.set(Calendar.MILLISECOND,0)
 
         // If today is Monday but the time has already passed, schedule for the next Monday
         if (calendar.before(Calendar.getInstance())) {
@@ -128,7 +132,7 @@ class BudgetService(
             AlarmManager.RTC_WAKEUP,
             calendar.timeInMillis,
             AlarmManager.INTERVAL_DAY * 7, // Repeat weekly
-            pendingIntent
+            createResetIntent()
         )
     }
 
@@ -172,4 +176,20 @@ class BudgetService(
         // Create a PendingIntent that will trigger the intent when the alarm goes off
         return PendingIntent.getBroadcast(context, 0, intent, FLAG_MUTABLE)
     }
+
+
+    private fun createResetIntent(): PendingIntent {
+        val intent = Intent(context, ResetVpnTimeReceiver::class.java)
+
+        // Create a PendingIntent for the BroadcastReceiver
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            0,
+            intent,
+            PendingIntent.FLAG_IMMUTABLE
+        )
+        return pendingIntent
+    }
+
+
 }

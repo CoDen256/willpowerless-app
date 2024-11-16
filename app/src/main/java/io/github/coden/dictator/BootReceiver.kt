@@ -4,13 +4,20 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import io.github.coden.dictator.budget.BudgetService
+import java.time.Instant
 
-class ResetVpnTimeReceiver : BroadcastReceiver() {
-
+class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val pack = "com.celzero.bravedns"
         val service = BudgetService(context, pack)
-        service.removeAlarm()
-        service.resetWeeklyBudget()
+        val a = service.getAlarm()
+        if (a != null){
+            if (Instant.ofEpochMilli(a).isAfter(Instant.now())){
+                service.disableVPN()
+            }
+        }else{
+            service.enableVPN()
+        }
     }
+
 }

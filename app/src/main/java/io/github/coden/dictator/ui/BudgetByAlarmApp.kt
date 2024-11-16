@@ -91,13 +91,19 @@ fun BudgetAlarmApp(service: BudgetService) {
             while (true) {
                 delay(1000) // Delay for 2 seconds before checking the VPN status again
                 vpnStatus.value = service.isVpnEnabled() // Update the state with current VPN status
-                untilSelected.value =
-                    Duration.between(LocalDateTime.now(), selectedTime).toKotlinDuration()
+
                 currentAlarm = service.getAlarm()?.let {
                     val a = Instant.ofEpochMilli(it).atZone(ZoneId.of("CET"))
                     untilAlarm = Duration.between(LocalDateTime.now(), a).toKotlinDuration()
                     a
                 }
+
+                val now = LocalDateTime.now()
+                if (remainingBudget.value < untilSelected.value.inWholeSeconds){
+                    Toast.makeText(service.context, "Exceeds budget!", Toast.LENGTH_LONG).show()
+                    selectedTime = LocalDateTime.now().plusSeconds(remainingBudget.value)
+                }
+                untilSelected.value = Duration.between(now, selectedTime).toKotlinDuration()
 
             }
         }
@@ -129,11 +135,12 @@ fun BudgetAlarmApp(service: BudgetService) {
 
             Button(
                 onClick = {
-                    val left = Duration.between(LocalDateTime.now(), it)
-                    service.cancelAlarm()
                     service.enableVPN()
+                    val left = Duration.between(LocalDateTime.now(), it)
                     service.reduceBudget(-left.seconds)
                     remainingBudget.value = service.getRemainingBudget()
+                    vpnStatus.value = true
+                    service.cancelAlarm()
                 },
                 colors = ButtonDefaults.buttonColors(Color.Red)
             ) {
@@ -159,10 +166,12 @@ fun BudgetAlarmApp(service: BudgetService) {
                     }
                     untilSelected.value =
                         Duration.between(now, selectedTime).toKotlinDuration()
+
                     if (remainingBudget.value < untilSelected.value.inWholeSeconds){
-                        selectedTime = selectedTime.plusSeconds(remainingBudget.value)
-                        untilSelected.value = Duration.between(now, selectedTime).toKotlinDuration()
+                        Toast.makeText(service.context, "Exceeds budget!", Toast.LENGTH_LONG).show()
+                        selectedTime = LocalDateTime.now().plusSeconds(remainingBudget.value)
                     }
+                    untilSelected.value = Duration.between(now, selectedTime).toKotlinDuration()
                     // Handle time confirmation
                     timeDialogVisible = false
                     // You can get the selected time from the timePickerState here
@@ -196,6 +205,7 @@ fun BudgetAlarmApp(service: BudgetService) {
                 }else{
                     service.enableVpnAt(selectedTime)
                     service.disableVPN()
+                    vpnStatus.value = false
                 }
             }, enabled = currentAlarm == null
         ) {
