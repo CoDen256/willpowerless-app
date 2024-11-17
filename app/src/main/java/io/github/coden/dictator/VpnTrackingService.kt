@@ -39,7 +39,7 @@ class VpnTrackingService : Service() {
         val notification = NotificationCompat.Builder(this, "VPN_TRACKING_CHANNEL")
             .setContentTitle("VPN Tracking")
             .setContentText("Tracking VPN usage time.")
-            .setSmallIcon(R.drawable.ic_launcher_foreground) // Replace with your own icon
+            .setSmallIcon(R.mipmap.ic_launcher) // Replace with your own icon
             .build()
 
         startForeground(1, notification)

@@ -153,37 +153,62 @@ fun BudgetAlarmApp(service: BudgetService) {
 
         HorizontalDivider()
 
-        // Trigger to show the time picker dialog
-        Button(onClick = { timeDialogVisible = true }) {
-            Text("Pick Time")
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Button(
+                onClick = {
+                    service.reduceBudget(untilSelected.value.inWholeSeconds)
+                    remainingBudget.value = service.getRemainingBudget()
+                    if (remainingBudget.value <= 0){
+                        Toast.makeText(service.context, "No budget left!", Toast.LENGTH_LONG).show()
+                    }else{
+                        service.enableVpnAt(selectedTime)
+                        service.disableVPN()
+                        vpnStatus.value = false
+                    }
+                }, enabled = currentAlarm == null
+            ) {
+                Text(text = "Request")
+            }
+
+            // Trigger to show the time picker dialog
+            Button(onClick = { timeDialogVisible = true }, enabled = currentAlarm == null) {
+                Text("Pick Time")
+            }
+
+            // Show the TimeDial composable when dialogVisible is true
+            if (timeDialogVisible) {
+                AlarmPicker(
+                    onConfirm = { state ->
+                        val now = LocalDateTime.now()
+                        selectedTime = now.withHour(state.hour).withMinute(state.minute)
+                        if (selectedTime.isBefore(now)) {
+                            selectedTime = selectedTime.plusDays(1)
+                        }
+                        untilSelected.value =
+                            Duration.between(now, selectedTime).toKotlinDuration()
+
+                        if (remainingBudget.value < untilSelected.value.inWholeSeconds){
+                            Toast.makeText(service.context, "Exceeds budget!", Toast.LENGTH_LONG).show()
+                            selectedTime = LocalDateTime.now().plusSeconds(remainingBudget.value)
+                        }
+                        untilSelected.value = Duration.between(now, selectedTime).toKotlinDuration()
+                        // Handle time confirmation
+                        timeDialogVisible = false
+                        // You can get the selected time from the timePickerState here
+                    },
+                    onDismiss = {
+                        // Handle time picker dismissal
+                        timeDialogVisible = false
+                    })
+            }
+
+
         }
 
-        // Show the TimeDial composable when dialogVisible is true
-        if (timeDialogVisible) {
-            AlarmPicker(
-                onConfirm = { state ->
-                    val now = LocalDateTime.now()
-                    selectedTime = now.withHour(state.hour).withMinute(state.minute)
-                    if (selectedTime.isBefore(now)) {
-                        selectedTime = selectedTime.plusDays(1)
-                    }
-                    untilSelected.value =
-                        Duration.between(now, selectedTime).toKotlinDuration()
-
-                    if (remainingBudget.value < untilSelected.value.inWholeSeconds){
-                        Toast.makeText(service.context, "Exceeds budget!", Toast.LENGTH_LONG).show()
-                        selectedTime = LocalDateTime.now().plusSeconds(remainingBudget.value)
-                    }
-                    untilSelected.value = Duration.between(now, selectedTime).toKotlinDuration()
-                    // Handle time confirmation
-                    timeDialogVisible = false
-                    // You can get the selected time from the timePickerState here
-                },
-                onDismiss = {
-                    // Handle time picker dismissal
-                    timeDialogVisible = false
-                })
-        }
 
         if (currentAlarm == null){
             Text("Request a new session until:")
@@ -199,21 +224,7 @@ fun BudgetAlarmApp(service: BudgetService) {
             }
         }
 
-        Button(
-            onClick = {
-                service.reduceBudget(untilSelected.value.inWholeSeconds)
-                remainingBudget.value = service.getRemainingBudget()
-                if (remainingBudget.value <= 0){
-                    Toast.makeText(service.context, "No budget left!", Toast.LENGTH_LONG).show()
-                }else{
-                    service.enableVpnAt(selectedTime)
-                    service.disableVPN()
-                    vpnStatus.value = false
-                }
-            }, enabled = currentAlarm == null
-        ) {
-            Text(text = "Request")
-        }
+
     }
 
 }
