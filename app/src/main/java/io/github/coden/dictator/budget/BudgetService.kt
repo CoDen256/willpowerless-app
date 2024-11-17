@@ -36,13 +36,14 @@ class BudgetService(
 
     init {
         devicePolicyManager.clearUserRestriction(adminComponent, UserManager.DISALLOW_APPS_CONTROL)
-        devicePolicyManager.addUserRestriction(adminComponent, UserManager.DISALLOW_CONFIG_VPN)
+        devicePolicyManager.clearUserRestriction(adminComponent, UserManager.DISALLOW_CONFIG_VPN)
         devicePolicyManager.setApplicationHidden(adminComponent, packageName, false)
-        devicePolicyManager.setUninstallBlocked(adminComponent, packageName, false)
+        devicePolicyManager.setUninstallBlocked(adminComponent, packageName, true)
+        devicePolicyManager.setBackupServiceEnabled(adminComponent, true)
     }
 
     companion object {
-        const val WEEKLY_BUDGET_SECONDS = 5 * 60 * 60L // 5 hours
+        const val WEEKLY_BUDGET_SECONDS = 3 * 60 * 60L // 5 hours
     }
 
     fun isFirstStart(): Boolean{

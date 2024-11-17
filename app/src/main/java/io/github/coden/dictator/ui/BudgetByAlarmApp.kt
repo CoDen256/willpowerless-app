@@ -79,7 +79,7 @@ fun BudgetAlarmApp(service: BudgetService) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(vertical = 50.dp, horizontal = 25.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
 
@@ -115,20 +115,20 @@ fun BudgetAlarmApp(service: BudgetService) {
             color = if (!vpnStatus.value) Color.Red else Color.Green
         )
 
-        Button(
-            colors = ButtonDefaults.buttonColors(if (vpnStatus.value) Color.Red else Color.Green),
-            onClick = {
-                if (vpnStatus.value) {
-                    service.disableVPN()
-                    vpnStatus.value = false
-                } else {
-                    service.enableVPN()
-                    vpnStatus.value = true
-                }
-            }
-        ) {
-            Text(if (!vpnStatus.value) "Enable" else "Disable")
-        }
+//        Button(
+//            colors = ButtonDefaults.buttonColors(if (vpnStatus.value) Color.Red else Color.Green),
+//            onClick = {
+//                if (vpnStatus.value) {
+//                    service.disableVPN()
+//                    vpnStatus.value = false
+//                } else {
+//                    service.enableVPN()
+//                    vpnStatus.value = true
+//                }
+//            }
+//        ) {
+//            Text(if (!vpnStatus.value) "Enable" else "Disable")
+//        }
 
         currentAlarm?.let {
             Text("Current Session ends at: ${it.format(dateFormat)}")
