@@ -16,6 +16,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -32,6 +33,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -40,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import io.github.coden.dictator.budget.BudgetService
+import io.github.coden.dictator.budget.BudgetService.Companion.WEEKLY_BUDGET_SECONDS
 import kotlinx.coroutines.delay
 import java.time.Duration
 import java.time.Instant
@@ -82,6 +85,7 @@ fun BudgetAlarmApp(service: BudgetService) {
             .padding(vertical = 50.dp, horizontal = 25.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        PrettyProgressBar({ remainingBudget.value / WEEKLY_BUDGET_SECONDS.toFloat(); })
 
         remainingBudget.value.seconds.toComponents { hours: Long, minutes: Int, seconds: Int, nanoseconds: Int ->
             Text(text = "Remaining Budget: ${hours}h ${minutes}m ${seconds}s")
@@ -111,8 +115,14 @@ fun BudgetAlarmApp(service: BudgetService) {
             }
         }
         Text(
-            text = "VPN Status: ${if (vpnStatus.value) "Enabled" else "Disabled"}",
-            color = if (!vpnStatus.value) Color.Red else Color.Green
+            text = buildAnnotatedString {
+                append("Restriction Status (VPN): ")
+
+                // Highlighted portion
+                withStyle(SpanStyle(color = if (!vpnStatus.value) Color	(217,58,128) else Color	(54,184,145))) {
+                    append(if (vpnStatus.value) "Enabled" else "Disabled")
+                }
+            }
         )
 
 //        Button(
@@ -305,4 +315,17 @@ fun AlarmPickerDialog(
             }
         }
     }
+}
+@Composable
+fun PrettyProgressBar(percentage: () -> Float) {
+    LinearProgressIndicator(
+        progress = {
+            percentage() // Convert percentage to 0.0 - 1.0
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(16.dp), // Adjust height for a prettier look
+        color = Color(0xFFB2DFDB), // Pretty green color
+        strokeCap = StrokeCap.Round
+    )
 }
