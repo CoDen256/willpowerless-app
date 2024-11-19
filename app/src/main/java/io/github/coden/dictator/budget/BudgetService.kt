@@ -13,10 +13,9 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import android.os.UserManager
 import android.widget.Toast
-import androidx.core.content.edit
 import io.github.coden.dictator.DictatorAdminReceiver
-import io.github.coden.dictator.ResetVpnTimeReceiver
-import io.github.coden.dictator.VpnReenableReceiver
+import io.github.coden.dictator.alarms.ResetVpnTimeReceiver
+import io.github.coden.dictator.alarms.VpnReenableReceiver
 import java.time.DayOfWeek
 import java.time.Instant
 import java.time.LocalDateTime
@@ -35,11 +34,20 @@ class BudgetService(
     val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
     init {
-        devicePolicyManager.clearUserRestriction(adminComponent, UserManager.DISALLOW_APPS_CONTROL)
-        devicePolicyManager.clearUserRestriction(adminComponent, UserManager.DISALLOW_CONFIG_VPN)
-        devicePolicyManager.setApplicationHidden(adminComponent, packageName, false)
-        devicePolicyManager.setUninstallBlocked(adminComponent, packageName, true)
-        devicePolicyManager.setBackupServiceEnabled(adminComponent, true)
+        if (devicePolicyManager.isDeviceOwnerApp(packageName)) {
+
+            devicePolicyManager.clearUserRestriction(
+                adminComponent,
+                UserManager.DISALLOW_APPS_CONTROL
+            )
+            devicePolicyManager.clearUserRestriction(
+                adminComponent,
+                UserManager.DISALLOW_CONFIG_VPN
+            )
+            devicePolicyManager.setApplicationHidden(adminComponent, packageName, false)
+            devicePolicyManager.setUninstallBlocked(adminComponent, packageName, true)
+            devicePolicyManager.setBackupServiceEnabled(adminComponent, true)
+        }
     }
 
     companion object {
@@ -47,11 +55,11 @@ class BudgetService(
     }
 
     fun isFirstStart(): Boolean{
-        if (sharedPrefs.getBoolean("first", true)){
-            sharedPrefs.edit().putBoolean("first", false).apply()
-            return true
-        }
-        return false
+        return sharedPrefs.getBoolean("firstStart", true)
+    }
+
+    fun setFirstStart(firstStart: Boolean) {
+        sharedPrefs.edit().putBoolean("firstStart", firstStart).apply()
     }
 
     fun getRemainingBudget(): Long {

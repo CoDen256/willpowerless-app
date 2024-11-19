@@ -1,4 +1,4 @@
-package io.github.coden.dictator
+package io.github.coden.dictator.alarms
 
 import android.content.BroadcastReceiver
 import android.content.Context
