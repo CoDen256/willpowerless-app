@@ -2,6 +2,7 @@ package io.github.coden.dictator
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -22,6 +23,11 @@ class MainActivity : ComponentActivity() {
         startService(Intent(this, DictatorService::class.java))
 
         val service = BudgetService(this, pack)
+        if (service.isAdmin.not()){
+            Toast.makeText(this, "Not an admin, finishing...", Toast.LENGTH_LONG).show()
+            finish()
+            return
+        }
         if (service.isFirstStart()) {
             try {
                 service.cancelResetAlarm()

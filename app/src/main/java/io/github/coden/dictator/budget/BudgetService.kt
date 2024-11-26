@@ -32,9 +32,10 @@ class BudgetService(
     private val devicePolicyManager = context.getSystemService(DevicePolicyManager::class.java)
     private val adminComponent = ComponentName(context, DictatorAdminReceiver::class.java)
     val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    val isAdmin: Boolean = devicePolicyManager.isDeviceOwnerApp(context.packageName)
 
     init {
-        if (devicePolicyManager.isDeviceOwnerApp(packageName)) {
+        if (isAdmin) {
 
             devicePolicyManager.clearUserRestriction(
                 adminComponent,
@@ -47,6 +48,8 @@ class BudgetService(
             devicePolicyManager.setApplicationHidden(adminComponent, packageName, false)
             devicePolicyManager.setUninstallBlocked(adminComponent, packageName, true)
             devicePolicyManager.setBackupServiceEnabled(adminComponent, true)
+        }else {
+            Toast.makeText(context, "Not an admin, sorry :(", Toast.LENGTH_LONG).show()
         }
     }
 

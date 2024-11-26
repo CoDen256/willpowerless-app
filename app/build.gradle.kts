@@ -5,6 +5,13 @@ plugins {
 }
 
 android {
+    signingConfigs {
+        getByName("debug") {
+            storeFile = file("C:\\Users\\denbl\\.android\\avd\\debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+        }
+    }
     namespace = "io.github.coden.dictator"
     compileSdk = 34
 

@@ -14,15 +14,7 @@
     <uses-permission android:name="android.permission.BACKUP" />
     <uses-permission android:name="android.permission.CONFIRM_FULL_BACKUP" />
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
-    <uses-permission android:name="android.permission.BIND_EXTERNAL_SERVICE" />
-    <permission
-            android:name="io.github.coden.PERMISSION"
-            android:protectionLevel="signature" />
-    <queries>
-        <package android:name="com.celzero.bravedns" />
-        <package android:name="com.coden.dictator.client" />
-    </queries>
-
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
     <application
             android:testOnly="true"
             android:allowBackup="true"
@@ -38,13 +30,19 @@
                 android:process=":remote"
                 android:name=".service.DictatorService"
                 android:enabled="true"
-                android:permission="io.github.coden.PERMISSION"
                 android:exported="true">
             <intent-filter>
                 <action android:name="io.github.coden.dictator.DICTATE"/>
             </intent-filter>
-
         </service>
+
+        <receiver android:name=".DictatorPackageReceiver"
+                android:enabled="true"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_ADDED" />
+            </intent-filter>
+        </receiver>
 
         <receiver
                 android:name=".DictatorAdminReceiver"
