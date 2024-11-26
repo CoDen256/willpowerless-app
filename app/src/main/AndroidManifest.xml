@@ -16,6 +16,7 @@
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
     <application
+            android:name=".App"
             android:testOnly="true"
             android:allowBackup="true"
             android:dataExtractionRules="@xml/data_extraction_rules"
@@ -36,11 +37,12 @@
             </intent-filter>
         </service>
 
-        <receiver android:name=".DictatorPackageReceiver"
+        <receiver android:name=".DictatorPackageUpdateReceiver"
                 android:enabled="true"
-                android:exported="true">
+                android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.PACKAGE_ADDED" />
+                <data android:scheme="package" />
             </intent-filter>
         </receiver>
 
