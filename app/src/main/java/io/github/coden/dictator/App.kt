@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.IntentFilter
 import android.util.Log
 
-
 class App: Application(){
     override fun attachBaseContext(base: Context?) {
         super.attachBaseContext(base)

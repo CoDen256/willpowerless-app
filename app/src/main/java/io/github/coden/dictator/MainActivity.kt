@@ -22,12 +22,15 @@ class MainActivity : ComponentActivity() {
 
         startService(Intent(this, DictatorService::class.java))
 
-        val service = BudgetService(this, pack)
-        if (service.isAdmin.not()){
+        val owner = Owner(this)
+        if (owner.isAdmin.not()){
             Toast.makeText(this, "Not an admin, finishing...", Toast.LENGTH_LONG).show()
             finish()
             return
         }
+
+        val service = BudgetService(this, owner, pack)
+
         if (service.isFirstStart()) {
             try {
                 service.cancelResetAlarm()

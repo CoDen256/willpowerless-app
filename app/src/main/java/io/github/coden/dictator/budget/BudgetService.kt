@@ -14,6 +14,7 @@ import android.net.NetworkCapabilities
 import android.os.UserManager
 import android.widget.Toast
 import io.github.coden.dictator.DictatorAdminReceiver
+import io.github.coden.dictator.Owner
 import io.github.coden.dictator.alarms.ResetVpnTimeReceiver
 import io.github.coden.dictator.alarms.VpnReenableReceiver
 import java.time.DayOfWeek
@@ -26,31 +27,20 @@ import java.util.Calendar
 
 class BudgetService(
      val context: Context,
+     val owner: Owner,
     private val packageName: String
 ) {
     private val sharedPrefs = context.getSharedPreferences("BudgetPrefs", Context.MODE_PRIVATE)
-    private val devicePolicyManager = context.getSystemService(DevicePolicyManager::class.java)
-    private val adminComponent = ComponentName(context, DictatorAdminReceiver::class.java)
     val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-    val isAdmin: Boolean = devicePolicyManager.isDeviceOwnerApp(context.packageName)
 
     init {
-        if (isAdmin) {
-
-            devicePolicyManager.clearUserRestriction(
-                adminComponent,
-                UserManager.DISALLOW_APPS_CONTROL
-            )
-            devicePolicyManager.clearUserRestriction(
-                adminComponent,
-                UserManager.DISALLOW_CONFIG_VPN
-            )
-            devicePolicyManager.setApplicationHidden(adminComponent, packageName, false)
-            devicePolicyManager.setUninstallBlocked(adminComponent, packageName, true)
-            devicePolicyManager.setBackupServiceEnabled(adminComponent, true)
-        }else {
-            Toast.makeText(context, "Not an admin, sorry :(", Toast.LENGTH_LONG).show()
-        }
+        owner.priveleged {
+            clearUserRestriction(UserManager.DISALLOW_APPS_CONTROL)
+            clearUserRestriction(UserManager.DISALLOW_CONFIG_VPN)
+            hide(packageName, false)
+            blockUninstall(packageName, true)
+            enableBackupService(true)
+        } ?: Toast.makeText(context, "Not an admin, sorry :(", Toast.LENGTH_LONG).show()
     }
 
     companion object {
@@ -83,11 +73,11 @@ class BudgetService(
     }
 
     fun enableVPN() {
-        devicePolicyManager.setAlwaysOnVpnPackage(adminComponent, packageName, true)
+        owner.priveleged { forceVpn(packageName) }
     }
 
     fun disableVPN() {
-        devicePolicyManager.setAlwaysOnVpnPackage(adminComponent, null, true)
+        owner.priveleged { freeVpnForce() }
     }
 
     fun enableVpnAt(time: LocalDateTime) {
