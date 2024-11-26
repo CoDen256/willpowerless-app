@@ -20,7 +20,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         val pack = "com.celzero.bravedns"
 
-        startService(Intent(this, DictatorService::class.java))
 
         val owner = Owner(this)
         if (owner.isAdmin.not()){

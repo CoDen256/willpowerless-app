@@ -35,11 +35,7 @@ class BudgetService(
 
     init {
         owner.priveleged {
-            clearUserRestriction(UserManager.DISALLOW_APPS_CONTROL)
-            clearUserRestriction(UserManager.DISALLOW_CONFIG_VPN)
-            hide(packageName, false)
-            blockUninstall(packageName, true)
-            enableBackupService(true)
+
         } ?: Toast.makeText(context, "Not an admin, sorry :(", Toast.LENGTH_LONG).show()
     }
 
