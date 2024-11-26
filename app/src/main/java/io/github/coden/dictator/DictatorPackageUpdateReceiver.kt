@@ -14,7 +14,7 @@ import io.github.coden.dictator.filter.FileProvider
 class DictatorPackageUpdateReceiver : BroadcastReceiver() {
 
     val provider = FileProvider {
-        it.assets.open("blocked.txt")
+        it.resources.openRawResource(R.raw.blocked)
     }
     val filter = FilePackageFilter(provider)
 
