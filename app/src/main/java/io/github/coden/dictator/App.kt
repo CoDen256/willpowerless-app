@@ -35,7 +35,7 @@ class App: Application(){
 
                 clearUserRestriction(UserManager.DISALLOW_APPS_CONTROL)
                 clearUserRestriction(UserManager.DISALLOW_CONFIG_VPN)
-//                hide("org.telegram.messenger", false)
+                hide("org.telegram.messenger", false)
                 enableBackupService(true)
             }
         }catch (e: Exception){

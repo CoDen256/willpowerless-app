@@ -179,7 +179,7 @@ fun BudgetAlarmApp(service: BudgetService) {
                         service.disableVPN()
                         vpnStatus.value = false
                     }
-                }, enabled = false && currentAlarm == null
+                }, enabled = currentAlarm == null
             ) {
                 Text(text = "Request")
             }

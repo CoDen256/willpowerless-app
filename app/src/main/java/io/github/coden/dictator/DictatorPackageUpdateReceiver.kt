@@ -36,7 +36,7 @@ class DictatorPackageUpdateReceiver : BroadcastReceiver() {
         if (!allowed){
             asOwner(ctx) {
                 Log.i("DictatorPackageUpdateReceiver", "Uh-oh, hiding $packageName")
-                hide(packageName)
+//                hide(packageName)
             }
         }
 

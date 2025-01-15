@@ -40,7 +40,7 @@ class BudgetService(
     }
 
     companion object {
-        const val WEEKLY_BUDGET_SECONDS = 3 * 60 * 60L // 5 hours
+        const val WEEKLY_BUDGET_SECONDS = 15 * 60L  // 5 hours
     }
 
     fun isFirstStart(): Boolean{
@@ -52,20 +52,20 @@ class BudgetService(
     }
 
     fun getRemainingBudget(): Long {
-        return sharedPrefs.getLong("budget", WEEKLY_BUDGET_SECONDS)
+        return sharedPrefs.getLong("time___)budget", WEEKLY_BUDGET_SECONDS)
     }
 
     fun setRemainingBudget(seconds: Long){
-        sharedPrefs.edit().putLong("budget", seconds.coerceAtLeast(0)).apply()
+        sharedPrefs.edit().putLong("time___)budget", seconds.coerceAtLeast(0)).apply()
     }
 
     fun reduceBudget(seconds: Long) {
         val remaining = getRemainingBudget() - seconds
-        sharedPrefs.edit().putLong("budget", remaining.coerceAtLeast(0)).apply()
+        sharedPrefs.edit().putLong("time___)budget", remaining.coerceAtLeast(0)).apply()
     }
 
     fun resetWeeklyBudget() {
-        sharedPrefs.edit().putLong("budget", WEEKLY_BUDGET_SECONDS).apply()
+        sharedPrefs.edit().putLong("time___)budget", WEEKLY_BUDGET_SECONDS).apply()
     }
 
     fun enableVPN() {

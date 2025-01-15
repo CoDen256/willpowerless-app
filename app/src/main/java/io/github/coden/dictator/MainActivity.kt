@@ -32,13 +32,13 @@ class MainActivity : ComponentActivity() {
 
         if (service.isFirstStart()) {
             try {
-                service.cancelResetAlarm()
             } catch (e: Exception) {
             }
 
-            service.setWeeklyVpnResetAlarm(LocalTime.of(23, 39))
             service.setFirstStart(false)
         }
+        service.cancelResetAlarm()
+        service.setWeeklyVpnResetAlarm(LocalTime.of(6, 0))
         val a = service.getAlarm()
         if (a != null) {
             if (Instant.ofEpochMilli(a).isAfter(Instant.now())) {
