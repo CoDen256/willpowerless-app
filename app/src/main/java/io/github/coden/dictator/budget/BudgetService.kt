@@ -69,7 +69,7 @@ class BudgetService(
     }
 
     fun enableVPN() {
-        owner.priveleged { forceVpn(packageName) }
+        owner.priveleged { freeVpnForce() } //forceVpn(packageName)
     }
 
     fun disableVPN() {

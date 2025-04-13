@@ -39,6 +39,16 @@
             </intent-filter>
         </service>
 
+        <service
+            android:process=":remote"
+            android:name=".service.GuardService"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="io.github.coden.dictator.GUARD"/>
+            </intent-filter>
+        </service>
+
         <receiver android:name=".DictatorPackageUpdateReceiver"
                 android:enabled="true"
                 android:exported="false">

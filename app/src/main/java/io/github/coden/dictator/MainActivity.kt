@@ -1,13 +1,11 @@
 package io.github.coden.dictator
 
-import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import io.github.coden.dictator.budget.BudgetService
-import io.github.coden.dictator.service.DictatorService
 import io.github.coden.dictator.ui.BudgetAlarmApp
 import io.github.coden.dictator.ui.theme.DictatorTheme
 import java.time.Instant

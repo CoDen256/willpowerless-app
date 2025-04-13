@@ -52,7 +52,7 @@ class Owner(private val context: Context) {
     }
 
     fun freeVpnForce(){
-        devicePolicyManager.setAlwaysOnVpnPackage(adminComponent, null, true)
+        devicePolicyManager.setAlwaysOnVpnPackage(adminComponent, null, false)
     }
     fun verify(op: String = "unspecified"){
         if (!isAdmin){

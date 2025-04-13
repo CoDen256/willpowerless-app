@@ -8,6 +8,7 @@ import android.os.UserManager
 import android.util.Log
 import io.github.coden.dictator.Owner.Companion.asOwner
 import io.github.coden.dictator.service.DictatorService
+import io.github.coden.dictator.service.GuardService
 
 class App: Application(){
     override fun attachBaseContext(base: Context?) {
@@ -25,13 +26,14 @@ class App: Application(){
 
     private fun registerService(context: Context) {
         startService(Intent(context, DictatorService::class.java))
+        startService(Intent(context, GuardService::class.java))
     }
 
     private fun initApps(context: Context){
         try {
             asOwner(context){
-                blockUninstall("org.telegram.messenger.beta", true)
-                blockUninstall("com.celzero.bravedns", true)
+                blockUninstall("org.telegram.messenger.beta", false)
+                blockUninstall("com.celzero.bravedns", false)
 
                 clearUserRestriction(UserManager.DISALLOW_APPS_CONTROL)
                 clearUserRestriction(UserManager.DISALLOW_CONFIG_VPN)
