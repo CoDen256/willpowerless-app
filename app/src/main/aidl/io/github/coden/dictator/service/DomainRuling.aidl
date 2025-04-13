@@ -3,6 +3,6 @@ package io.github.coden.dictator.service;
 
 
 parcelable DomainRuling {
-    String dns;
+    String domain;
     String action;
 }

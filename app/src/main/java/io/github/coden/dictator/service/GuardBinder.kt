@@ -1,12 +1,24 @@
 package io.github.coden.dictator.service
 
+import kotlin.random.Random
+
 object GuardBinder: Guard.Stub() {
 
     override fun dnsRulings(): List<DNSRuling> {
-        TODO("Not yet implemented")
+        return listOf(
+            DNSRuling().also {
+                it.dns = "1-bdaacaaaeaaia"
+                it.action = "FORCE"
+            }
+        )
     }
 
     override fun domainRulings(): List<DomainRuling> {
-        TODO("Not yet implemented")
+        return listOf(
+            DomainRuling().also {
+                it.domain = "*.reddit.com"
+                it.action = "BLOCK"
+            }
+        )
     }
 }
