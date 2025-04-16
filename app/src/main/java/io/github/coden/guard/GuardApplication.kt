@@ -6,9 +6,8 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.UserManager
 import android.util.Log
-import androidx.work.PeriodicWorkRequest
 import io.github.coden.guard.core.Owner.Companion.asOwner
-import io.github.coden.guard.services.GuardPackageUpdateReceiver
+import io.github.coden.guard.services.PackageUpdateReceiver
 import io.github.coden.guard.services.GuardService
 
 class GuardApplication: Application(){
@@ -47,7 +46,7 @@ class GuardApplication: Application(){
         val intentFilter = IntentFilter()
         intentFilter.addAction("android.intent.action.PACKAGE_ADDED")
         intentFilter.addDataScheme("package")
-        val service = GuardPackageUpdateReceiver()
+        val service = PackageUpdateReceiver()
         registerReceiver(service, intentFilter)
         Log.i("Guard", "GuardPackageReceiver registered")
     }

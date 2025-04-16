@@ -19,4 +19,12 @@ object GuardBinder: Guard.Stub() {
             }
         )
     }
+
+    override fun telegramChatRulings(): List<TelegramChatRuling> {
+        TODO("Not yet implemented")
+    }
+
+    override fun telegramUserRulings(): List<TelegramUserRuling> {
+        TODO("Not yet implemented")
+    }
 }

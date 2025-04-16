@@ -11,7 +11,7 @@ import io.github.coden.guard.core.filter.FilePackageFilter
 import io.github.coden.guard.core.filter.FileProvider
 
 
-class GuardPackageUpdateReceiver : BroadcastReceiver() {
+class PackageUpdateReceiver : BroadcastReceiver() {
 
     val provider = FileProvider {
         it.resources.openRawResource(R.raw.blocked)
