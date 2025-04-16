@@ -5,9 +5,14 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.lifecycle.lifecycleScope
 import io.github.coden.dictator.budget.BudgetService
 import io.github.coden.dictator.ui.BudgetAlarmApp
 import io.github.coden.dictator.ui.theme.DictatorTheme
+import io.github.coden.judge.OkHttpJudge
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import okhttp3.OkHttpClient
 import java.time.Instant
 import java.time.LocalTime
 
@@ -17,6 +22,25 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         val pack = "com.celzero.bravedns"
+
+        io {
+
+            val judge = OkHttpJudge(OkHttpClient())
+
+            val tree = judge.getRulingTree("/dev/mi").getOrThrow()
+            val ruling = tree.getRuling("/vpn/com.celzero.bravedns")
+            val ruling2 = tree.getRuling("/vpn/com.celzero.bravedns/ruling/")
+            val ruling3 = tree.getRuling("/apps/com.celzero.bravedns/ruling")
+            val ruling4 = tree.getRuling("/apps/com.celzero.bravedns/")
+
+            ruling4;ruling3;ruling2;ruling
+            val rulings = tree.getRulings("/apps")
+            val rulings2 = tree.getRulings("/vpn")
+            val rulings3 = tree.getRulings("/apps/com.celzero.bravedns/")
+
+            rulings2;rulings;rulings3
+
+        }
 
 
         val owner = Owner(this)
@@ -51,6 +75,10 @@ class MainActivity : ComponentActivity() {
                 BudgetAlarmApp(service)
             }
         }
+    }
+
+    private fun io(f: suspend () -> Unit) {
+        lifecycleScope.launch(Dispatchers.IO) { f() }
     }
 
 }

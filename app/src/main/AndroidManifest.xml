@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <uses-permission android:name="android.permission.MANAGE_DEVICE_ADMINS" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.MANAGE_USERS" />
@@ -29,15 +31,6 @@
             android:supportsRtl="true"
             android:theme="@style/Theme.Dictator"
             tools:targetApi="31">
-        <service
-                android:process=":remote"
-                android:name=".service.DictatorService"
-                android:enabled="true"
-                android:exported="true">
-            <intent-filter>
-                <action android:name="io.github.coden.dictator.DICTATE"/>
-            </intent-filter>
-        </service>
 
         <service
             android:process=":remote"
