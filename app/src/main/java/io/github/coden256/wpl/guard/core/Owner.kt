@@ -55,6 +55,12 @@ class Owner(private val context: Context) {
     fun freeVpnForce(){
         devicePolicyManager.setAlwaysOnVpnPackage(adminComponent, null, false)
     }
+
+    fun transferOwnership(pkg: String, adminReceiver: String){
+        val targetAdmin = ComponentName(pkg, "$pkg$adminReceiver")
+        devicePolicyManager.transferOwnership(adminComponent, targetAdmin, null)
+    }
+
     fun verify(op: String = "unspecified"){
         if (!isAdmin){
             Log.i("Guard", "Not an admin, operation denied: <$op>")
