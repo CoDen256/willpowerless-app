@@ -1,22 +1,18 @@
-package io.github.coden.guard.budget
+package io.github.coden.guard.core.budget
 
 import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.app.PendingIntent.FLAG_MUTABLE
-import android.app.admin.DevicePolicyManager
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
-import android.os.UserManager
 import android.widget.Toast
-import io.github.coden.guard.GuardAdminReceiver
-import io.github.coden.guard.Owner
-import io.github.coden.guard.alarms.ResetVpnTimeReceiver
-import io.github.coden.guard.alarms.VpnReenableReceiver
+import io.github.coden.guard.core.Owner
+import io.github.coden.guard.services.ResetVpnTimeReceiver
+import io.github.coden.guard.services.VpnReenableAlarm
 import java.time.DayOfWeek
 import java.time.Instant
 import java.time.LocalDateTime
@@ -26,8 +22,8 @@ import java.time.temporal.TemporalAdjusters
 import java.util.Calendar
 
 class BudgetService(
-     val context: Context,
-     val owner: Owner,
+    val context: Context,
+    val owner: Owner,
     private val packageName: String
 ) {
     private val sharedPrefs = context.getSharedPreferences("BudgetPrefs", Context.MODE_PRIVATE)
@@ -84,7 +80,7 @@ class BudgetService(
     @SuppressLint("ScheduleExactAlarm")
     fun setVpnReenableAlarmIn(context: Context, sessionDuration: kotlin.time.Duration) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val intent = Intent(context, VpnReenableReceiver::class.java)
+        val intent = Intent(context, VpnReenableAlarm::class.java)
         val pendingIntent = PendingIntent.getBroadcast(context, 0, intent, FLAG_MUTABLE)
 
         // Set the alarm for the session duration
@@ -174,7 +170,7 @@ class BudgetService(
 
     private fun createAlarmIntent(): PendingIntent {
         // Create an Intent to fire when the alarm triggers
-        val intent = Intent(context, VpnReenableReceiver::class.java)
+        val intent = Intent(context, VpnReenableAlarm::class.java)
 
         // Create a PendingIntent that will trigger the intent when the alarm goes off
         return PendingIntent.getBroadcast(context, 0, intent, FLAG_MUTABLE)

@@ -1,4 +1,4 @@
-package io.github.coden.guard
+package io.github.coden.guard.core
 
 import android.app.admin.DevicePolicyManager
 import android.content.ComponentName
@@ -7,12 +7,13 @@ import android.content.pm.PackageManager
 import android.os.UserManager
 import android.util.Log
 import android.widget.Toast
+import io.github.coden.guard.services.AdminReceiver
 import java.util.concurrent.Executors
 
 class Owner(private val context: Context) {
     private val executor = Executors.newSingleThreadExecutor()
     private val devicePolicyManager = context.getSystemService(DevicePolicyManager::class.java)
-    private val adminComponent = ComponentName(context, GuardAdminReceiver::class.java)
+    private val adminComponent = ComponentName(context, AdminReceiver::class.java)
     val isAdmin: Boolean = devicePolicyManager.isDeviceOwnerApp(context.packageName)
 
     init {

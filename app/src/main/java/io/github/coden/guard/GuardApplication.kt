@@ -6,21 +6,20 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.UserManager
 import android.util.Log
-import io.github.coden.guard.Owner.Companion.asOwner
-import io.github.coden.guard.service.GuardService
+import androidx.work.PeriodicWorkRequest
+import io.github.coden.guard.core.Owner.Companion.asOwner
+import io.github.coden.guard.services.GuardPackageUpdateReceiver
+import io.github.coden.guard.services.GuardService
 
-class App: Application(){
+class GuardApplication: Application(){
     override fun attachBaseContext(base: Context?) {
         super.attachBaseContext(base)
-        Log.i("Guard", "App Launched")
-        if (base == null){
-            Log.e("Guard", "Context not provided")
-            return
-        }
+        Log.i("GuardApplication", "App Launched")
+        if (base == null){ Log.e("GuardApplication", "Context not provided"); return }
 
-        initApps(base)
-        registerPackageReceiver()
-        registerServices(base)
+//        initApps(base)
+//        registerPackageReceiver()
+//        registerServices(base)
     }
 
     private fun registerServices(context: Context) {

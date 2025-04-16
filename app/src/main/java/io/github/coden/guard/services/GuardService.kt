@@ -1,9 +1,10 @@
-package io.github.coden.guard.service
+package io.github.coden.guard.services
 
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
+import io.github.coden.guard.external.GuardBinder
 
 class GuardService : Service() {
 

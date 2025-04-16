@@ -1,6 +1,5 @@
-// Guard.aidl
-package io.github.coden.guard.service;
-
+// DomainRuling.aidl
+package io.github.coden.guard.external;
 
 parcelable DomainRuling {
     String domain;

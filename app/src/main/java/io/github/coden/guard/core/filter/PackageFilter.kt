@@ -1,4 +1,4 @@
-package io.github.coden.guard.filter
+package io.github.coden.guard.core.filter
 
 import android.content.Context
 

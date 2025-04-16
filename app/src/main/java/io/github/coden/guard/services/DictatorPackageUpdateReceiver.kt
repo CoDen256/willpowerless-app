@@ -1,14 +1,14 @@
-package io.github.coden.guard
+package io.github.coden.guard.services
 
 import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import android.widget.Toast
-import io.github.coden.guard.Owner.Companion.asOwner
-import io.github.coden.guard.filter.FilePackageFilter
-import io.github.coden.guard.filter.FileProvider
+import io.github.coden.guard.core.Owner.Companion.asOwner
+import io.github.coden.guard.R
+import io.github.coden.guard.core.filter.FilePackageFilter
+import io.github.coden.guard.core.filter.FileProvider
 
 
 class GuardPackageUpdateReceiver : BroadcastReceiver() {

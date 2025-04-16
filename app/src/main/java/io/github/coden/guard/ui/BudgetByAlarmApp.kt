@@ -41,8 +41,8 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import io.github.coden.guard.budget.BudgetService
-import io.github.coden.guard.budget.BudgetService.Companion.WEEKLY_BUDGET_SECONDS
+import io.github.coden.guard.core.budget.BudgetService
+import io.github.coden.guard.core.budget.BudgetService.Companion.WEEKLY_BUDGET_SECONDS
 import kotlinx.coroutines.delay
 import java.time.Duration
 import java.time.Instant

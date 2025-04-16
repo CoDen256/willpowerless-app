@@ -1,5 +1,5 @@
-// Guard.aidl
-package io.github.coden.guard.service;
+// DNSRuling.aidl
+package io.github.coden.guard.external;
 
 parcelable DNSRuling {
     String dns;

@@ -1,6 +1,4 @@
-package io.github.coden.guard.service
-
-import kotlin.random.Random
+package io.github.coden.guard.external
 
 object GuardBinder: Guard.Stub() {
 

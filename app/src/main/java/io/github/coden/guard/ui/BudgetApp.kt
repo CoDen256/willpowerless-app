@@ -22,8 +22,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import io.github.coden.guard.budget.BudgetService
-import io.github.coden.guard.budget.SessionTimer
+import io.github.coden.guard.core.budget.BudgetService
+import io.github.coden.guard.core.budget.SessionTimer
 import kotlin.time.Duration.Companion.seconds
 
 @Composable

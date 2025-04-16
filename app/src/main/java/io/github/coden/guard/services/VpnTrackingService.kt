@@ -1,4 +1,4 @@
-package io.github.coden.guard
+package io.github.coden.guard.services
 
 import android.app.Service
 import android.content.Intent
@@ -6,6 +6,7 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import androidx.core.app.NotificationCompat
+import io.github.coden.guard.R
 
 class VpnTrackingService : Service() {
 
