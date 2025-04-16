@@ -12,11 +12,11 @@ android {
             keyAlias = "androiddebugkey"
         }
     }
-    namespace = "io.github.coden.guard"
+    namespace = "io.github.coden256.wpl.guard"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "io.github.coden.guard"
+        applicationId = "io.github.coden256.wpl.guard"
         minSdk = 28
         targetSdk = 34
         versionCode = 1

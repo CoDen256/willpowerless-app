@@ -12,7 +12,7 @@ pm list users
 pm remove-user <999>
 # install app, then
 # FIRST SET, THEN REMOVE
-dpm set-device-owner io.github.coden.guard/.services.AdminReceiver
+dpm set-device-owner io.github.coden256.wpl.guard/.services.AdminReceiver
 
 ## VERIFY PACKAGE NAME!!!!!!
 dpm remove-active-admin io.github.coden.guard/.GuardAdminReceiver

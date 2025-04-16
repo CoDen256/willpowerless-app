@@ -62,7 +62,7 @@
 <!--            android:enabled="true"-->
 <!--            android:exported="true">-->
 <!--            <intent-filter>-->
-<!--                <action android:name="io.github.coden.guard.GUARD"/>-->
+<!--                <action android:name="io.github.coden256.wpl.guard.GUARD"/>-->
 <!--            </intent-filter>-->
 <!--        </service>-->
 
