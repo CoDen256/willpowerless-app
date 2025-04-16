@@ -1,4 +1,4 @@
-package io.github.coden.dictator
+package io.github.coden.guard
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -19,6 +19,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("io.github.coden.dictator", appContext.packageName)
+        assertEquals("io.github.coden.guard", appContext.packageName)
     }
 }

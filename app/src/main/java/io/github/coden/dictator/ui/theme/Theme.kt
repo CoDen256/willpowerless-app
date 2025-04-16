@@ -1,4 +1,4 @@
-package io.github.coden.dictator.ui.theme
+package io.github.coden.guard.ui.theme
 
 import android.app.Activity
 import android.os.Build
@@ -34,7 +34,7 @@ private val LightColorScheme = lightColorScheme(
 )
 
 @Composable
-fun DictatorTheme(
+fun GuardTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,

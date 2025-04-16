@@ -12,11 +12,11 @@ android {
             keyAlias = "androiddebugkey"
         }
     }
-    namespace = "io.github.coden.dictator"
+    namespace = "io.github.coden.guard"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "io.github.coden.dictator"
+        applicationId = "io.github.coden.guard"
         minSdk = 28
         targetSdk = 34
         versionCode = 1

@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "dictator"
+rootProject.name = "guard"
 include(":app")
  

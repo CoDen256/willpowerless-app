@@ -1,4 +1,4 @@
-package io.github.coden.dictator.service
+package io.github.coden.guard.service
 
 import kotlin.random.Random
 

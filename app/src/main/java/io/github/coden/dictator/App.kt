@@ -1,4 +1,4 @@
-package io.github.coden.dictator
+package io.github.coden.guard
 
 import android.app.Application
 import android.content.Context
@@ -6,15 +6,15 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.UserManager
 import android.util.Log
-import io.github.coden.dictator.Owner.Companion.asOwner
-import io.github.coden.dictator.service.GuardService
+import io.github.coden.guard.Owner.Companion.asOwner
+import io.github.coden.guard.service.GuardService
 
 class App: Application(){
     override fun attachBaseContext(base: Context?) {
         super.attachBaseContext(base)
-        Log.i("Dictator", "App Launched")
+        Log.i("Guard", "App Launched")
         if (base == null){
-            Log.e("Dictator", "Context not provided")
+            Log.e("Guard", "Context not provided")
             return
         }
 
@@ -39,7 +39,7 @@ class App: Application(){
                 enableBackupService(true)
             }
         }catch (e: Exception){
-            Log.e("Dictator", "App Launch during init of apps failed", e)
+            Log.e("Guard", "App Launch during init of apps failed", e)
         }
 
     }
@@ -48,8 +48,8 @@ class App: Application(){
         val intentFilter = IntentFilter()
         intentFilter.addAction("android.intent.action.PACKAGE_ADDED")
         intentFilter.addDataScheme("package")
-        val service = DictatorPackageUpdateReceiver()
+        val service = GuardPackageUpdateReceiver()
         registerReceiver(service, intentFilter)
-        Log.i("Dictator", "DictatorPackageReceiver registered")
+        Log.i("Guard", "GuardPackageReceiver registered")
     }
 }

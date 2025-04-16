@@ -8,10 +8,10 @@ dumpsys account | grep "Account {"#,  maybe not what is needed
 pm list users
 pm remove-user <999>
 # install app, then
-dpm set-device-owner io.github.coden.dictator/.DictatorAdminReceiver
+dpm set-device-owner io.github.coden.guard/.GuardAdminReceiver
 
 ## VERIFY PACKAGE NAME!!!!!!
-dpm remove-active-admin io.github.coden.dictator/.DictatorAdminReceiver
+dpm remove-active-admin io.github.coden.guard/.GuardAdminReceiver
 pm list packages --user 0 # sometimes is needed when permission denied
 
 dpm list-owners

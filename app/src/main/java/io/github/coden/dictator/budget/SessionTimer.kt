@@ -1,4 +1,4 @@
-package io.github.coden.dictator.budget
+package io.github.coden.guard.budget
 
 import android.os.CountDownTimer
 

@@ -29,7 +29,7 @@
             android:label="@string/app_name"
             android:roundIcon="@mipmap/ic_launcher"
             android:supportsRtl="true"
-            android:theme="@style/Theme.Dictator"
+            android:theme="@style/Theme.Guard"
             tools:targetApi="31">
 
         <service
@@ -38,11 +38,11 @@
             android:enabled="true"
             android:exported="true">
             <intent-filter>
-                <action android:name="io.github.coden.dictator.GUARD"/>
+                <action android:name="io.github.coden.guard.GUARD"/>
             </intent-filter>
         </service>
 
-        <receiver android:name=".DictatorPackageUpdateReceiver"
+        <receiver android:name=".GuardPackageUpdateReceiver"
                 android:enabled="true"
                 android:exported="false">
             <intent-filter>
@@ -52,7 +52,7 @@
         </receiver>
 
         <receiver
-                android:name=".DictatorAdminReceiver"
+                android:name=".GuardAdminReceiver"
                 android:exported="true"
                 android:permission="android.permission.BIND_DEVICE_ADMIN">
             <meta-data
@@ -84,7 +84,7 @@
                 android:name=".MainActivity"
                 android:exported="true"
                 android:label="@string/app_name"
-                android:theme="@style/Theme.Dictator">
+                android:theme="@style/Theme.Guard">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -92,10 +92,10 @@
             </intent-filter>
         </activity>
         <activity
-                android:name=".DictatorActivity"
+                android:name=".GuardActivity"
                 android:exported="true">
             <intent-filter>
-                <action android:name="io.github.coden.dictator.REQUEST_RULE" />
+                <action android:name="io.github.coden.guard.REQUEST_RULE" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>

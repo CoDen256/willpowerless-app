@@ -1,5 +1,5 @@
-// Dictator.aidl
-package io.github.coden.dictator.service;
+// Guard.aidl
+package io.github.coden.guard.service;
 
 
 parcelable DomainRuling {

@@ -1,4 +1,4 @@
-package io.github.coden.dictator
+package io.github.coden.guard
 
 import org.junit.Test
 

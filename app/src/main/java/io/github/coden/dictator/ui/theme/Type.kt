@@ -1,4 +1,4 @@
-package io.github.coden.dictator.ui.theme
+package io.github.coden.guard.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

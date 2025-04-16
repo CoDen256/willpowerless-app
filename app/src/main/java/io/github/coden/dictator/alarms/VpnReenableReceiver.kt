@@ -1,10 +1,10 @@
-package io.github.coden.dictator.alarms
+package io.github.coden.guard.alarms
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import io.github.coden.dictator.Owner
-import io.github.coden.dictator.budget.BudgetService
+import io.github.coden.guard.Owner
+import io.github.coden.guard.budget.BudgetService
 
 class VpnReenableReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {

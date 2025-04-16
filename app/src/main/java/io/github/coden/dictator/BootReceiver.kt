@@ -1,9 +1,9 @@
-package io.github.coden.dictator
+package io.github.coden.guard
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import io.github.coden.dictator.budget.BudgetService
+import io.github.coden.guard.budget.BudgetService
 import java.time.Instant
 
 class BootReceiver : BroadcastReceiver() {

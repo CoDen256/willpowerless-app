@@ -1,4 +1,4 @@
-package io.github.coden.dictator.ui
+package io.github.coden.guard.ui
 
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -41,8 +41,8 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import io.github.coden.dictator.budget.BudgetService
-import io.github.coden.dictator.budget.BudgetService.Companion.WEEKLY_BUDGET_SECONDS
+import io.github.coden.guard.budget.BudgetService
+import io.github.coden.guard.budget.BudgetService.Companion.WEEKLY_BUDGET_SECONDS
 import kotlinx.coroutines.delay
 import java.time.Duration
 import java.time.Instant

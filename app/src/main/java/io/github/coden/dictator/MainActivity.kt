@@ -1,4 +1,4 @@
-package io.github.coden.dictator
+package io.github.coden.guard
 
 import android.os.Bundle
 import android.widget.Toast
@@ -6,9 +6,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.lifecycle.lifecycleScope
-import io.github.coden.dictator.budget.BudgetService
-import io.github.coden.dictator.ui.BudgetAlarmApp
-import io.github.coden.dictator.ui.theme.DictatorTheme
+import io.github.coden.guard.budget.BudgetService
+import io.github.coden.guard.ui.BudgetAlarmApp
+import io.github.coden.guard.ui.theme.GuardTheme
 import io.github.coden.judge.OkHttpJudge
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -71,7 +71,7 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            DictatorTheme {
+            GuardTheme {
                 BudgetAlarmApp(service)
             }
         }

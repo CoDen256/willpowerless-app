@@ -1,4 +1,4 @@
-package io.github.coden.dictator.ui
+package io.github.coden.guard.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,8 +22,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import io.github.coden.dictator.budget.BudgetService
-import io.github.coden.dictator.budget.SessionTimer
+import io.github.coden.guard.budget.BudgetService
+import io.github.coden.guard.budget.SessionTimer
 import kotlin.time.Duration.Companion.seconds
 
 @Composable

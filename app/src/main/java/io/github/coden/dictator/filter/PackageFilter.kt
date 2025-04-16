@@ -1,4 +1,4 @@
-package io.github.coden.dictator.filter
+package io.github.coden.guard.filter
 
 import android.content.Context
 

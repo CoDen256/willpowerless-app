@@ -1,4 +1,4 @@
-package io.github.coden.dictator.budget
+package io.github.coden.guard.budget
 
 import android.annotation.SuppressLint
 import android.app.AlarmManager
@@ -13,10 +13,10 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import android.os.UserManager
 import android.widget.Toast
-import io.github.coden.dictator.DictatorAdminReceiver
-import io.github.coden.dictator.Owner
-import io.github.coden.dictator.alarms.ResetVpnTimeReceiver
-import io.github.coden.dictator.alarms.VpnReenableReceiver
+import io.github.coden.guard.GuardAdminReceiver
+import io.github.coden.guard.Owner
+import io.github.coden.guard.alarms.ResetVpnTimeReceiver
+import io.github.coden.guard.alarms.VpnReenableReceiver
 import java.time.DayOfWeek
 import java.time.Instant
 import java.time.LocalDateTime
