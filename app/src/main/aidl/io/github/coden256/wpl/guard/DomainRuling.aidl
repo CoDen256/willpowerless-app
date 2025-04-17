@@ -1,5 +1,5 @@
 // DomainRuling.aidl
-package io.github.coden256.wpl.guard.external;
+package io.github.coden256.wpl.guard;
 
 parcelable DomainRuling {
     String domain;

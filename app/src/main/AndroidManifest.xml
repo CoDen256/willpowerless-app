@@ -20,6 +20,11 @@
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
     <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
 
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.PACKAGE_ADDED" />
+        </intent>
+    </queries>
     <application
             android:name=".GuardApplication"
             android:testOnly="true"
@@ -32,6 +37,7 @@
             android:supportsRtl="true"
             android:theme="@style/Theme.Guard"
             tools:targetApi="31">
+
         <activity
             android:name=".ui.MainActivity"
             android:exported="true"
@@ -50,11 +56,19 @@
             <meta-data
                 android:name="android.app.device_admin"
                 android:resource="@xml/device_admin_receiver" />
-
             <intent-filter>
                 <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
             </intent-filter>
         </receiver>
+
+<!--        <receiver android:name=".services.PackageUpdateReceiver"-->
+<!--            android:enabled="true"-->
+<!--            android:exported="true">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.PACKAGE_ADDED" />-->
+<!--                <data android:scheme="package" />-->
+<!--            </intent-filter>-->
+<!--        </receiver>-->
 
 <!--        <service-->
 <!--            android:process=":remote"-->
@@ -66,14 +80,6 @@
 <!--            </intent-filter>-->
 <!--        </service>-->
 
-        <receiver android:name=".services.PackageUpdateReceiver"
-                android:enabled="true"
-                android:exported="false">
-            <intent-filter>
-                <action android:name="android.intent.action.PACKAGE_ADDED" />
-                <data android:scheme="package" />
-            </intent-filter>
-        </receiver>
 
 
 <!--        <receiver-->

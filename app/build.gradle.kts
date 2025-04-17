@@ -17,7 +17,7 @@ android {
 
     defaultConfig {
         applicationId = "io.github.coden256.wpl.guard"
-        minSdk = 28
+        minSdk = 31
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"

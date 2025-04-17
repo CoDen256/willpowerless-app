@@ -2,27 +2,27 @@ package io.github.coden256.wpl.guard
 
 import android.app.Application
 import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
 import android.os.UserManager
 import android.util.Log
 import io.github.coden256.wpl.guard.core.Owner.Companion.asOwner
+import io.github.coden256.wpl.guard.core.registerReceiver
 import io.github.coden256.wpl.guard.services.PackageUpdateReceiver
-import io.github.coden256.wpl.guard.services.GuardService
 
 class GuardApplication: Application(){
-    override fun attachBaseContext(base: Context?) {
+    override fun attachBaseContext(base: Context) {
         super.attachBaseContext(base)
-        Log.i("GuardApplication", "App Launched")
-        if (base == null){ Log.e("GuardApplication", "Context not provided"); return }
+        Log.i("GuardApplication", "App has launched!")
 
-//        initApps(base)
-//        registerPackageReceiver()
-//        registerServices(base)
+        registerServicesAndReceivers(base)
     }
 
-    private fun registerServices(context: Context) {
-        startService(Intent(context, GuardService::class.java))
+    private fun registerServicesAndReceivers(context: Context) {
+//        startService(Intent(context, GuardService::class.java))
+
+        registerReceiver<PackageUpdateReceiver> {
+            addAction("android.intent.action.PACKAGE_ADDED")
+            addDataScheme("package")
+        }
     }
 
     private fun initApps(context: Context){
@@ -40,14 +40,5 @@ class GuardApplication: Application(){
             Log.e("Guard", "App Launch during init of apps failed", e)
         }
 
-    }
-
-    private fun registerPackageReceiver(){
-        val intentFilter = IntentFilter()
-        intentFilter.addAction("android.intent.action.PACKAGE_ADDED")
-        intentFilter.addDataScheme("package")
-        val service = PackageUpdateReceiver()
-        registerReceiver(service, intentFilter)
-        Log.i("Guard", "GuardPackageReceiver registered")
     }
 }
