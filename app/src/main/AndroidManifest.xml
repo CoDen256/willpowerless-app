@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools" tools:ignore="ProtectedPermissions" >
+        xmlns:tools="http://schemas.android.com/tools" tools:ignore="ProtectedPermissions">
+
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SYSTEM_EXEMPTED" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
 
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
@@ -10,6 +16,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.MANAGE_DEVICE_POLICY_USB_DATA_SIGNALLING" />
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
 
     <uses-permission android:name="android.permission.MANAGE_DEVICE_ADMINS" />
     <uses-permission android:name="android.permission.MANAGE_USERS" />
@@ -17,14 +25,9 @@
     <uses-permission android:name="android.permission.BACKUP" />
     <uses-permission android:name="android.permission.CONFIRM_FULL_BACKUP" />
 
-    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" tools:ignore="QueryAllPackagesPermission" />
     <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
 
-    <queries>
-        <intent>
-            <action android:name="android.intent.action.PACKAGE_ADDED" />
-        </intent>
-    </queries>
     <application
             android:name=".GuardApplication"
             android:testOnly="true"
@@ -36,12 +39,11 @@
             android:roundIcon="@mipmap/ic_launcher"
             android:supportsRtl="true"
             android:theme="@style/Theme.Guard"
-            tools:targetApi="31">
+            >
 
         <activity
             android:name=".ui.MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
             android:theme="@style/Theme.Guard">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -61,45 +63,17 @@
             </intent-filter>
         </receiver>
 
-<!--        <receiver android:name=".services.PackageUpdateReceiver"-->
-<!--            android:enabled="true"-->
-<!--            android:exported="true">-->
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.PACKAGE_ADDED" />-->
-<!--                <data android:scheme="package" />-->
-<!--            </intent-filter>-->
-<!--        </receiver>-->
-
-<!--        <service-->
-<!--            android:process=":remote"-->
-<!--            android:name=".services.GuardService"-->
-<!--            android:enabled="true"-->
-<!--            android:exported="true">-->
-<!--            <intent-filter>-->
-<!--                <action android:name="io.github.coden256.wpl.guard.GUARD"/>-->
-<!--            </intent-filter>-->
-<!--        </service>-->
-
-
-
-<!--        <receiver-->
-<!--                android:name=".services.VpnReenableAlarm"-->
-<!--                android:enabled="true"-->
-<!--                android:exported="true" />-->
-<!--        <receiver-->
-<!--                android:name=".services.ResetVpnTimeReceiver"-->
-<!--                android:enabled="true"-->
-<!--                android:exported="true" />-->
-<!--        <receiver-->
-<!--                android:name=".services.BootReceiver"-->
-<!--                android:enabled="true"-->
-<!--                android:exported="true">-->
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.BOOT_COMPLETED" />-->
-<!--            </intent-filter>-->
-<!--        </receiver>-->
-
-
+        <service
+            android:foregroundServiceType="systemExempted|connectedDevice"
+            android:name=".services.GuardService"
+            android:enabled="true"
+            android:exported="true"
+            android:stopWithTask="false"
+            tools:ignore="ExportedService">
+            <intent-filter>
+                <action android:name="io.github.coden256.wpl.guard.RULING_MANAGEMENT"/>
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>
