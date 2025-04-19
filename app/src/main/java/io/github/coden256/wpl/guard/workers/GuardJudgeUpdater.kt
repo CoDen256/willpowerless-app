@@ -4,29 +4,43 @@ import android.content.Context
 import android.util.Log
 import androidx.work.Worker
 import androidx.work.WorkerParameters
-import io.github.coden256.wpl.guard.core.isServiceRunning
-import io.github.coden256.wpl.guard.core.startForegroundService
-import io.github.coden256.wpl.guard.services.GuardService
+import io.github.coden256.wpl.guard.config.AppConfig
+import io.github.coden256.wpl.judge.Judge
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 class GuardJudgeUpdater(private val context: Context, params: WorkerParameters) :
-    Worker(context, params) {
+    Worker(context, params), KoinComponent {
+
+
+    private val bravedns = "com.celzero.bravedns"
+    private val telegramBeta = "org.telegram.messenger.beta"
+
+    private val appConfig by inject<AppConfig>()
+    private val judge by inject<Judge>()
+
     override fun doWork(): Result {
-        Log.i("GuardServiceHealthChecker", "Running as service worker...")
-        return run(context)
+        Log.i("GuardJudgeUpdater", "Running as service worker...")
+        try {
+            run()
+            return Result.success()
+        } catch (e: Exception) {
+            Log.e("GuardJudgeUpdater", "Unable to run judge updater: $e")
+            return Result.failure()
+        }
     }
 
-    companion object{
+    private fun run() {
 
-        fun run(context: Context): Result{
-            Log.i("GuardServiceHealthChecker", "Checking on guard")
-            if (context.isServiceRunning<GuardService>()) {
-                Log.i("GuardServiceHealthChecker", "Guard is running, all good :)")
-            } else{
-                Log.i("GuardServiceHealthChecker", "Guard is not running, restarting :(")
-                context.startForegroundService<GuardService> { }
-            }
-            return Result.success()
-        }
+        val tree = judge.getRulingTree("/dev/mi").getOrThrow()
 
+        Log.i("GuardJudgeUpdater", "Got tree: $tree, updating app config")
+
+        appConfig.appRulings = tree.getRulings("/apps").getOrNull() ?: emptyList()
+        appConfig.vpnRulings = tree.getRulings("/vpn").getOrNull() ?: emptyList()
+        appConfig.telegramUserRulings = tree.getRulings("/apps/$telegramBeta/user").getOrNull() ?: emptyList()
+        appConfig.telegramChatRulings = tree.getRulings("/apps/$telegramBeta/channels").getOrNull() ?: emptyList()
+        appConfig.domainRulings = tree.getRulings("/apps/$bravedns/domains").getOrNull() ?: emptyList()
+        appConfig.dnsRulings = tree.getRulings("/apps/$bravedns/dns").getOrNull() ?: emptyList()
     }
 }

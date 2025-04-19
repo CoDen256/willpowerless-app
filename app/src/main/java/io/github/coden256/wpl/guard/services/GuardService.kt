@@ -10,18 +10,13 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.os.IBinder
 import android.util.Log
 import androidx.annotation.RequiresPermission
-import hu.autsoft.krate.stringPref
-import io.github.coden256.wpl.guard.DNSRuling
-import io.github.coden256.wpl.guard.DomainRuling
-import io.github.coden256.wpl.guard.Guard
-import io.github.coden256.wpl.guard.TelegramChatRuling
-import io.github.coden256.wpl.guard.TelegramUserRuling
 import io.github.coden256.wpl.guard.config.AppConfig
 import io.github.coden256.wpl.guard.config.PersistentState
 import io.github.coden256.wpl.guard.core.enqueuePeriodic
 import io.github.coden256.wpl.guard.core.newNotificationChannel
 import io.github.coden256.wpl.guard.core.notify
 import io.github.coden256.wpl.guard.core.registerReceiver
+import io.github.coden256.wpl.guard.workers.GuardJudgeUpdater
 import io.github.coden256.wpl.guard.workers.GuardServiceHealthChecker
 import org.koin.android.ext.android.inject
 import java.time.Duration
@@ -34,6 +29,7 @@ class GuardService : Service(), OnSharedPreferenceChangeListener {
 
     private val appConfig by inject<AppConfig>()
     private val persistentState by inject<PersistentState>()
+    private val binder by inject<GuardBinder>()
 
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -52,7 +48,7 @@ class GuardService : Service(), OnSharedPreferenceChangeListener {
 
     override fun onBind(intent: Intent): IBinder {
         Log.i(TAG, "Guard Service received a new connection: $intent")
-        return GuardBinder
+        return binder
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
@@ -75,6 +71,7 @@ class GuardService : Service(), OnSharedPreferenceChangeListener {
 
     private fun registerWorkers(){
         enqueuePeriodic<GuardServiceHealthChecker>(Duration.ofMinutes(15), Duration.ofMinutes(15))
+        enqueuePeriodic<GuardJudgeUpdater>(Duration.ofMinutes(15), Duration.ZERO)
     }
 
     private fun registerListeners(){
@@ -112,30 +109,4 @@ class GuardService : Service(), OnSharedPreferenceChangeListener {
 //    }
 }
 
-object GuardBinder: Guard.Stub (){
-    override fun dnsRulings(): List<DNSRuling> {
-        return listOf(
-            DNSRuling().also {
-                it.dns = "1-bdaacaaaeaaia"
-                it.action = "FORCE"
-            }
-        )
-    }
 
-    override fun domainRulings(): List<DomainRuling> {
-        return listOf(
-            DomainRuling().also {
-                it.domain = "*.reddit.com"
-                it.action = "BLOCK"
-            }
-        )
-    }
-
-    override fun telegramChatRulings(): List<TelegramChatRuling> {
-        TODO("Not yet implemented")
-    }
-
-    override fun telegramUserRulings(): List<TelegramUserRuling> {
-        TODO("Not yet implemented")
-    }
-}

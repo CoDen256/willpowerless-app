@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
+import io.github.coden256.wpl.guard.config.AppConfig
 import io.github.coden256.wpl.guard.config.PersistentState
 import io.github.coden256.wpl.guard.ui.theme.GuardTheme
 import kotlinx.coroutines.Dispatchers
@@ -29,6 +30,7 @@ import org.koin.android.ext.android.inject
 
 class MainActivity : ComponentActivity() {
     private val persistentState by inject<PersistentState>()
+    private val appConfig by inject<AppConfig>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -84,7 +86,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             GuardTheme {
-                UpdatableTextComponent(this, persistentState)
+                UpdatableTextComponent(this, appConfig)
             }
         }
     }
@@ -96,9 +98,14 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun UpdatableTextComponent( context: Context, persistentState: PersistentState) {
+fun UpdatableTextComponent( context: Context, appConfig: AppConfig) {
     // State to hold our text value
-    var text by remember { mutableStateOf("Initial Text") }
+    var dns by remember { mutableStateOf("dns Text") }
+    var domains by remember { mutableStateOf("domains Text") }
+    var chats by remember { mutableStateOf("chats Text") }
+    var users by remember { mutableStateOf("users Text") }
+    var vpn by remember { mutableStateOf("vpn Text") }
+    var apps by remember { mutableStateOf("apps Text") }
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -107,7 +114,37 @@ fun UpdatableTextComponent( context: Context, persistentState: PersistentState) 
     ) {
         // Display the current text
         Text(
-            text = text,
+            text = dns,
+            fontSize = 24.sp,
+            modifier = Modifier.padding(16.dp)
+        )
+
+        Text(
+            text = domains,
+            fontSize = 24.sp,
+            modifier = Modifier.padding(16.dp)
+        )
+
+        Text(
+            text = chats,
+            fontSize = 24.sp,
+            modifier = Modifier.padding(16.dp)
+        )
+
+        Text(
+            text = users,
+            fontSize = 24.sp,
+            modifier = Modifier.padding(16.dp)
+        )
+
+        Text(
+            text = vpn,
+            fontSize = 24.sp,
+            modifier = Modifier.padding(16.dp)
+        )
+
+        Text(
+            text = apps,
             fontSize = 24.sp,
             modifier = Modifier.padding(16.dp)
         )
@@ -115,8 +152,12 @@ fun UpdatableTextComponent( context: Context, persistentState: PersistentState) 
         // Button to update the text
         Button(
             onClick = {
-                persistentState.firstTimeLaunch = !persistentState.firstTimeLaunch
-                text =  persistentState.firstTimeLaunch.toString()
+                dns = appConfig.dnsRulings.toString()
+                domains = appConfig.domainRulings.toString()
+                chats = appConfig.telegramChatRulings.toString()
+                users = appConfig.telegramUserRulings.toString()
+                vpn = appConfig.vpnRulings.toString()
+//                apps = appConfig.appRulings.toString()
             },
             modifier = Modifier.padding(16.dp)
         ) {

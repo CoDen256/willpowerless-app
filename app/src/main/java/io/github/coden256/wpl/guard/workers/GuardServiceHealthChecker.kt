@@ -12,12 +12,12 @@ class GuardServiceHealthChecker(private val context: Context, params: WorkerPara
     Worker(context, params) {
     override fun doWork(): Result {
         Log.i("GuardServiceHealthChecker", "Running as service worker...")
-        return run(context)
+        return runNow(context)
     }
 
     companion object{
 
-        fun run(context: Context): Result{
+        fun runNow(context: Context): Result{
             Log.i("GuardServiceHealthChecker", "Checking on guard")
             if (context.isServiceRunning<GuardService>()) {
                 Log.i("GuardServiceHealthChecker", "Guard is running, all good :)")
