@@ -74,6 +74,19 @@
                 <action android:name="io.github.coden256.wpl.guard.RULING_MANAGEMENT"/>
             </intent-filter>
         </service>
+
+        <receiver android:name=".services.SystemUpdateReceiver"
+            android:directBootAware="true"
+            android:enabled="false"
+            android:exported="true"
+            android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="android.intent.action.REBOOT" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

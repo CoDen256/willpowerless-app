@@ -16,6 +16,6 @@ class PackageUpdateReceiver : BroadcastReceiver() {
     }
 
     private fun onPackageAdded(context: Context, pkg: String) {
-        Log.i("GuardSystemUpdateReceiver", "Added package: $pkg")
+        Log.i("GuardPackageUpdateReceiver", "Added package: $pkg")
     }
 }

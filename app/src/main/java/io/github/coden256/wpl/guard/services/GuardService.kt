@@ -8,6 +8,8 @@ import android.app.PendingIntent
 import android.app.Service
 import android.app.TaskStackBuilder
 import android.content.Intent
+import android.content.Intent.ACTION_PACKAGE_ADDED
+import android.content.Intent.ACTION_PACKAGE_REMOVED
 import android.graphics.Color
 import android.os.IBinder
 import android.util.Log
@@ -20,8 +22,11 @@ import io.github.coden256.wpl.guard.Guard
 import io.github.coden256.wpl.guard.R
 import io.github.coden256.wpl.guard.TelegramChatRuling
 import io.github.coden256.wpl.guard.TelegramUserRuling
+import io.github.coden256.wpl.guard.core.enqueuePeriodic
+import io.github.coden256.wpl.guard.core.registerReceiver
 import io.github.coden256.wpl.guard.ui.MainActivity
-
+import io.github.coden256.wpl.guard.workers.GuardServiceHealthCheckWorker
+import java.time.Duration
 
 
 class GuardService : Service(){
@@ -30,6 +35,7 @@ class GuardService : Service(){
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.i("GuardService", "Guard Service started: $intent")
         createNotificationChannel("channel-1", "Channel")
+        registerWorkers()
         return START_STICKY
     }
 
@@ -46,6 +52,18 @@ class GuardService : Service(){
     override fun onRebind(intent: Intent?) {
         Log.i("GuardService", "Guard Service rebinding: $intent")
         super.onRebind(intent)
+    }
+
+    private fun registerReceivers(){
+        registerReceiver<PackageUpdateReceiver> {
+            addAction(ACTION_PACKAGE_ADDED)
+            addAction(ACTION_PACKAGE_REMOVED)
+            addDataScheme("package")
+        }
+    }
+
+    private fun registerWorkers(){
+        enqueuePeriodic<GuardServiceHealthCheckWorker>(Duration.ofMinutes(15), Duration.ofMinutes(15))
     }
 
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)

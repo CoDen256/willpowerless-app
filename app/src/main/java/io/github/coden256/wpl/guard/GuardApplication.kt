@@ -5,17 +5,18 @@ import android.content.Context
 import android.os.UserManager
 import android.util.Log
 import io.github.coden256.wpl.guard.core.Owner.Companion.asOwner
-import io.github.coden256.wpl.guard.core.startForegroundService
-import io.github.coden256.wpl.guard.services.GuardService
+import io.github.coden256.wpl.guard.workers.GuardServiceHealthCheckWorker
 
 class GuardApplication: Application(){
-    override fun attachBaseContext(base: Context) {
+    override fun attachBaseContext(base: Context?) {
         super.attachBaseContext(base)
-        Log.i("GuardApplication", "App has launched!")
+        Log.i("GuardApplication", "App has launched!!")
+        if (base == null){
+            Log.i("GuardApplication", "Didn't get any context :(")
+            return
+        }
 
-        startForegroundService<GuardService>()
-
-
+        GuardServiceHealthCheckWorker.run(base)
     }
 
     override fun onCreate() {
@@ -33,10 +34,7 @@ class GuardApplication: Application(){
 
 
 //
-//        registerReceiver<PackageUpdateReceiver> {
-//            addAction("android.intent.action.PACKAGE_ADDED")
-//            addDataScheme("package")
-//        }
+
     }
 
     private fun initApps(context: Context){
