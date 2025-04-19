@@ -8,18 +8,21 @@ import io.github.coden256.wpl.guard.core.isServiceRunning
 import io.github.coden256.wpl.guard.core.startForegroundService
 import io.github.coden256.wpl.guard.services.GuardService
 
-class GuardServiceHealthCheckWorker(private val context: Context, params: WorkerParameters) :
+class GuardServiceHealthChecker(private val context: Context, params: WorkerParameters) :
     Worker(context, params) {
-    override fun doWork(): Result = run(context)
+    override fun doWork(): Result {
+        Log.i("GuardServiceHealthChecker", "Running as service worker...")
+        return run(context)
+    }
 
     companion object{
 
         fun run(context: Context): Result{
-            Log.i("GuardServiceHealthCheckWorker", "Checking on guard")
+            Log.i("GuardServiceHealthChecker", "Checking on guard")
             if (context.isServiceRunning<GuardService>()) {
-                Log.i("GuardServiceHealthCheckWorker", "Guard is running, all good :)")
+                Log.i("GuardServiceHealthChecker", "Guard is running, all good :)")
             } else{
-                Log.i("GuardServiceHealthCheckWorker", "Guard is not running, restarting :(")
+                Log.i("GuardServiceHealthChecker", "Guard is not running, restarting :(")
                 context.startForegroundService<GuardService> { }
             }
             return Result.success()

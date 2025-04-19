@@ -6,9 +6,6 @@ import android.content.Intent
 import android.content.Intent.ACTION_BOOT_COMPLETED
 import android.content.Intent.ACTION_LOCKED_BOOT_COMPLETED
 import android.util.Log
-import io.github.coden256.wpl.guard.core.enqueuePeriodic
-import io.github.coden256.wpl.guard.workers.GuardServiceHealthCheckWorker
-import java.time.Duration
 
 
 class SystemUpdateReceiver : BroadcastReceiver() {
@@ -23,10 +20,6 @@ class SystemUpdateReceiver : BroadcastReceiver() {
 
     private fun onLockedBoot(context: Context){
         Log.i("GuardSystemUpdateReceiver", "Locked boot complete")
-        context.enqueuePeriodic<GuardServiceHealthCheckWorker>(
-            Duration.ofMinutes(15),
-            Duration.ofSeconds(30)
-        )
     }
 
     private fun onBoot(context: Context){

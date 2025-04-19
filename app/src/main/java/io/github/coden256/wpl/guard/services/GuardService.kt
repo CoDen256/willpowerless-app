@@ -25,7 +25,7 @@ import io.github.coden256.wpl.guard.TelegramUserRuling
 import io.github.coden256.wpl.guard.core.enqueuePeriodic
 import io.github.coden256.wpl.guard.core.registerReceiver
 import io.github.coden256.wpl.guard.ui.MainActivity
-import io.github.coden256.wpl.guard.workers.GuardServiceHealthCheckWorker
+import io.github.coden256.wpl.guard.workers.GuardServiceHealthChecker
 import java.time.Duration
 
 
@@ -63,7 +63,7 @@ class GuardService : Service(){
     }
 
     private fun registerWorkers(){
-        enqueuePeriodic<GuardServiceHealthCheckWorker>(Duration.ofMinutes(15), Duration.ofMinutes(15))
+        enqueuePeriodic<GuardServiceHealthChecker>(Duration.ofMinutes(15), Duration.ofMinutes(15))
     }
 
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)

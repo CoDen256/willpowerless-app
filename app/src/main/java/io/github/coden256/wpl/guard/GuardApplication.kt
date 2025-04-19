@@ -5,7 +5,7 @@ import android.content.Context
 import android.os.UserManager
 import android.util.Log
 import io.github.coden256.wpl.guard.core.Owner.Companion.asOwner
-import io.github.coden256.wpl.guard.workers.GuardServiceHealthCheckWorker
+import io.github.coden256.wpl.guard.workers.GuardServiceHealthChecker
 
 class GuardApplication: Application(){
     override fun attachBaseContext(base: Context?) {
@@ -16,7 +16,7 @@ class GuardApplication: Application(){
             return
         }
 
-        GuardServiceHealthCheckWorker.run(base)
+        GuardServiceHealthChecker.run(base)
     }
 
     override fun onCreate() {
