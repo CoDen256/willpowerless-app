@@ -48,6 +48,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.koin.android)
     implementation(libs.okhttp)
     implementation(libs.jackson.core)
     implementation(libs.jackson.databind)
@@ -61,6 +62,8 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.krate)
+    implementation(libs.androidx.preference.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

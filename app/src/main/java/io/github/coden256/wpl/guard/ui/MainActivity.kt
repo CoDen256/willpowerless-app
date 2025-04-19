@@ -21,11 +21,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
+import io.github.coden256.wpl.guard.config.PersistentState
 import io.github.coden256.wpl.guard.ui.theme.GuardTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
 
 class MainActivity : ComponentActivity() {
+    private val persistentState by inject<PersistentState>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -80,7 +84,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             GuardTheme {
-                UpdatableTextComponent(this)
+                UpdatableTextComponent(this, persistentState)
             }
         }
     }
@@ -92,7 +96,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun UpdatableTextComponent( context: Context) {
+fun UpdatableTextComponent( context: Context, persistentState: PersistentState) {
     // State to hold our text value
     var text by remember { mutableStateOf("Initial Text") }
 
@@ -111,7 +115,8 @@ fun UpdatableTextComponent( context: Context) {
         // Button to update the text
         Button(
             onClick = {
-                text =  "\n\n\n\n---\n\n"
+                persistentState.firstTimeLaunch = !persistentState.firstTimeLaunch
+                text =  persistentState.firstTimeLaunch.toString()
             },
             modifier = Modifier.padding(16.dp)
         ) {

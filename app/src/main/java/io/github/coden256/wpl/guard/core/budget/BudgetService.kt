@@ -30,9 +30,9 @@ class BudgetService(
     val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
     init {
-        owner.priveleged {
-
-        } ?: Toast.makeText(context, "Not an admin, sorry :(", Toast.LENGTH_LONG).show()
+        if (!owner.isAdmin){
+            Toast.makeText(context, "Not an admin, sorry :(", Toast.LENGTH_LONG).show()
+        }
     }
 
     companion object {
@@ -65,11 +65,11 @@ class BudgetService(
     }
 
     fun enableVPN() {
-        owner.priveleged { removeAlwaysOnVpn() } //forceVpn(packageName)
+//        owner.priveleged { removeAlwaysOnVpn() } //forceVpn(packageName)
     }
 
     fun disableVPN() {
-        owner.priveleged { removeAlwaysOnVpn() }
+//        owner.priveleged { removeAlwaysOnVpn() }
     }
 
     fun enableVpnAt(time: LocalDateTime) {
