@@ -1,30 +1,22 @@
 package io.github.coden256.wpl.guard.services
 
 import android.Manifest
-import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
 import android.app.Service
-import android.app.TaskStackBuilder
 import android.content.Intent
 import android.content.Intent.ACTION_PACKAGE_ADDED
 import android.content.Intent.ACTION_PACKAGE_REMOVED
-import android.graphics.Color
 import android.os.IBinder
 import android.util.Log
 import androidx.annotation.RequiresPermission
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import io.github.coden256.wpl.guard.DNSRuling
 import io.github.coden256.wpl.guard.DomainRuling
 import io.github.coden256.wpl.guard.Guard
-import io.github.coden256.wpl.guard.R
 import io.github.coden256.wpl.guard.TelegramChatRuling
 import io.github.coden256.wpl.guard.TelegramUserRuling
 import io.github.coden256.wpl.guard.core.enqueuePeriodic
+import io.github.coden256.wpl.guard.core.newNotificationChannel
+import io.github.coden256.wpl.guard.core.notify
 import io.github.coden256.wpl.guard.core.registerReceiver
-import io.github.coden256.wpl.guard.ui.MainActivity
 import io.github.coden256.wpl.guard.workers.GuardServiceHealthChecker
 import java.time.Duration
 
@@ -34,8 +26,10 @@ class GuardService : Service(){
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.i("GuardService", "Guard Service started: $intent")
-        createNotificationChannel("channel-1", "Channel")
+        newNotificationChannel<GuardService>()
+        startForeground(1, notify<GuardService>("Willpowerless Guard is on!", 1))
         registerWorkers()
+        registerReceivers()
         return START_STICKY
     }
 
@@ -66,37 +60,33 @@ class GuardService : Service(){
         enqueuePeriodic<GuardServiceHealthChecker>(Duration.ofMinutes(15), Duration.ofMinutes(15))
     }
 
-    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
-    private fun createNotificationChannel(channelId: String, channelName: String) {
-        val resultIntent = Intent(
-            this,
-            MainActivity::class.java
-        )
-        // Create the TaskStackBuilder and add the intent, which inflates the back stack
-        val stackBuilder: TaskStackBuilder = TaskStackBuilder.create(this)
-        stackBuilder.addNextIntentWithParentStack(resultIntent)
-        val resultPendingIntent: PendingIntent =
-            stackBuilder.getPendingIntent(0, PendingIntent.FLAG_IMMUTABLE)
 
-        val chan =
-            NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_DEFAULT)
-        chan.lightColor = Color.BLUE
-        chan.lockscreenVisibility = Notification.VISIBILITY_PRIVATE
-        val manager = checkNotNull(getSystemService(NOTIFICATION_SERVICE) as NotificationManager)
-        manager.createNotificationChannel(chan)
 
-        val notificationBuilder = NotificationCompat.Builder(this, channelId)
-        val notification: Notification = notificationBuilder.setOngoing(true)
-            .setSmallIcon(R.mipmap.ic_launcher)
-            .setContentTitle("App is running in background")
-            .setPriority(NotificationManager.IMPORTANCE_MIN)
-            .setCategory(Notification.CATEGORY_SERVICE)
-            .setContentIntent(resultPendingIntent) //intent
-            .build()
-        val notificationManager = NotificationManagerCompat.from(this)
-        notificationManager.notify(1, notificationBuilder.build())
-        startForeground(1, notification)
-    }
+    //        val pack = "com.celzero.bravedns"
+//        val service = BudgetService(context, Owner(context), pack)
+//        val a = service.getAlarm()
+//        if (a != null){
+//            if (Instant.ofEpochMilli(a).isAfter(Instant.now())){
+//                service.disableVPN()
+//            }
+//        }else{
+//            service.enableVPN()
+//        }
+
+
+//    try {
+//        asOwner(context){
+//            blockUninstall("org.telegram.messenger.beta", false)
+//            blockUninstall("com.celzero.bravedns", false)
+//
+//            clearUserRestriction(UserManager.DISALLOW_APPS_CONTROL)
+//            clearUserRestriction(UserManager.DISALLOW_CONFIG_VPN)
+//            hide("org.telegram.messenger", false)
+//            enableBackupService(true)
+//        }
+//    }catch (e: Exception){
+//        Log.e("Guard", "App Launch during init of apps failed", e)
+//    }
 }
 
 object GuardBinder: Guard.Stub (){

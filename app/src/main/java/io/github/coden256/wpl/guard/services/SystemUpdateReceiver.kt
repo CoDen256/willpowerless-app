@@ -24,17 +24,6 @@ class SystemUpdateReceiver : BroadcastReceiver() {
 
     private fun onBoot(context: Context){
         Log.i("GuardSystemUpdateReceiver", "Boot complete")
-
-//        val pack = "com.celzero.bravedns"
-//        val service = BudgetService(context, Owner(context), pack)
-//        val a = service.getAlarm()
-//        if (a != null){
-//            if (Instant.ofEpochMilli(a).isAfter(Instant.now())){
-//                service.disableVPN()
-//            }
-//        }else{
-//            service.enableVPN()
-//        }
     }
 
 }
