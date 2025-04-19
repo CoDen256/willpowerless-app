@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -25,30 +24,6 @@ import androidx.lifecycle.lifecycleScope
 import io.github.coden256.wpl.guard.ui.theme.GuardTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-
-object STATE {
-    var state: String = "init"
-
-    fun add(context: Context, state: String){
-        this.state += "\n"+state
-        writeFileInternal(context, "state", state)
-    }
-}
-
-fun writeFileInternal(context: Context, filename: String, content: String) {
-    context.openFileOutput(filename, Context.MODE_PRIVATE).use { stream ->
-        stream.write(content.toByteArray())
-    }
-}
-
-// Read from internal storage
-fun readFileInternal(context: Context, filename: String): String? {
-    try {
-        return context.openFileInput(filename).bufferedReader().use { it.readText() }
-    } catch (e: Exception) {
-        return null
-    }
-}
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -136,7 +111,7 @@ fun UpdatableTextComponent( context: Context) {
         // Button to update the text
         Button(
             onClick = {
-                text = STATE.state + "\n\n\n\n---\n\n"
+                text =  "\n\n\n\n---\n\n"
             },
             modifier = Modifier.padding(16.dp)
         ) {

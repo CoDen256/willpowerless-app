@@ -21,13 +21,19 @@ import io.github.coden256.wpl.guard.workers.GuardServiceHealthChecker
 import java.time.Duration
 
 
+private const val NOTIFICATION_ID = 1
+
 class GuardService : Service(){
 
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.i("GuardService", "Guard Service started: $intent")
+
+
         newNotificationChannel<GuardService>()
-        startForeground(1, notify<GuardService>("Willpowerless Guard is on!", 1))
+        val notification = notify<GuardService>("Willpowerless Guard is on!", NOTIFICATION_ID)
+        startForeground(NOTIFICATION_ID, notification)
+
         registerWorkers()
         registerReceivers()
         return START_STICKY
