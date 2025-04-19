@@ -11,6 +11,8 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import android.widget.Toast
 import io.github.coden256.wpl.guard.core.Owner
+import io.github.coden256.wpl.guard.services.ResetVpnTimeReceiver
+import io.github.coden256.wpl.guard.services.VpnReenableAlarm
 import java.time.DayOfWeek
 import java.time.Instant
 import java.time.LocalDateTime
@@ -63,11 +65,11 @@ class BudgetService(
     }
 
     fun enableVPN() {
-        owner.priveleged { freeVpnForce() } //forceVpn(packageName)
+        owner.priveleged { removeAlwaysOnVpn() } //forceVpn(packageName)
     }
 
     fun disableVPN() {
-        owner.priveleged { freeVpnForce() }
+        owner.priveleged { removeAlwaysOnVpn() }
     }
 
     fun enableVpnAt(time: LocalDateTime) {
