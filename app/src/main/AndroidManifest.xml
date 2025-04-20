@@ -28,6 +28,10 @@
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" tools:ignore="QueryAllPackagesPermission" />
     <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
 
+<!--    <queries>-->
+<!--        <package android:name="io.github.coden.dictator" />-->
+<!--    </queries>-->
+
     <application
             android:name=".GuardApplication"
             android:testOnly="true"
@@ -67,12 +71,8 @@
             android:foregroundServiceType="systemExempted|connectedDevice"
             android:name=".services.GuardService"
             android:enabled="true"
-            android:exported="true"
-            android:stopWithTask="false"
-            tools:ignore="ExportedService">
-            <intent-filter>
-                <action android:name="io.github.coden256.wpl.guard.RULING_MANAGEMENT"/>
-            </intent-filter>
+            android:exported="false"
+            android:stopWithTask="false">
         </service>
 
         <receiver android:name=".services.SystemUpdateReceiver"
@@ -80,7 +80,7 @@
             android:enabled="true"
             android:exported="true"
             android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
-            <intent-filter>
+            <intent-filter android:priority="999">
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
             </intent-filter>

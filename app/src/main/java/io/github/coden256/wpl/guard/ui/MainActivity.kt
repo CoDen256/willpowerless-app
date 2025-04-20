@@ -21,6 +21,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
+import io.github.coden256.wpl.guard.GuardClient
+import io.github.coden256.wpl.guard.GuardConnector
+import io.github.coden256.wpl.guard.Ruling
 import io.github.coden256.wpl.guard.config.AppConfig
 import io.github.coden256.wpl.guard.config.PersistentState
 import io.github.coden256.wpl.guard.ui.theme.GuardTheme
@@ -32,9 +35,13 @@ class MainActivity : ComponentActivity() {
     private val persistentState by inject<PersistentState>()
     private val appConfig by inject<AppConfig>()
 
+    private val connector = GuardConnector()
+    private val guardClient by connector
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        connector.connect(this)
 //        val pack = "com.celzero.bravedns"
 //
 //        io {
@@ -86,7 +93,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             GuardTheme {
-                UpdatableTextComponent(this, appConfig)
+                UpdatableTextComponent(this, appConfig, {guardClient})
             }
         }
     }
@@ -98,7 +105,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun UpdatableTextComponent( context: Context, appConfig: AppConfig) {
+fun UpdatableTextComponent( context: Context, appConfig: AppConfig, guardClient: () -> GuardClient?) {
     // State to hold our text value
     var dns by remember { mutableStateOf("dns Text") }
     var domains by remember { mutableStateOf("domains Text") }
@@ -157,11 +164,32 @@ fun UpdatableTextComponent( context: Context, appConfig: AppConfig) {
                 chats = appConfig.telegramChatRulings.toString()
                 users = appConfig.telegramUserRulings.toString()
                 vpn = appConfig.vpnRulings.toString()
+                guardClient()?.onRulings(listOf(Ruling().apply {
+                    this.path = "/domains/*.youtube.com"
+                    this.action = "BLOCK"
+                }, Ruling().apply {
+                    this.path = "/domains/*.reddits.com"
+                    this.action = "FORCE"
+                },Ruling().apply {
+                    this.path = "/domains/*.reddit.com/community"
+                    this.action = "BLOCK"},
+
+//                    ruling("/dns/max:", "FORCE"),
+                    ruling("/dns/1-bdaacaaaeaaia", "FORCE")
+                )
+                )
 //                apps = appConfig.appRulings.toString()
             },
             modifier = Modifier.padding(16.dp)
         ) {
             Text("Update Text")
         }
+    }
+}
+
+fun ruling(path: String, action: String): Ruling {
+    return  Ruling().apply {
+        this.path = path
+        this.action = action
     }
 }
