@@ -49,6 +49,23 @@ data class RulingTree(
     }
 
     fun getRulings(path: String): Result<List<JudgeRuling>> {
+        val node = root.at(path.removeSuffix("/"))
+        if (node == null || !node.isJsonObject) return Result.failure(IllegalArgumentException("Rulings container($path) should be object, but was: $node"))
+
+        return Result.success(
+            node
+                .asJsonObject
+                .entrySet()
+                .asSequence()
+                .mapNotNull { entry ->
+                    tryParse(entry.value.asJsonObject.get("ruling"), "").getOrNull()?.let { entry.key to it }
+                }
+                .map { JudgeRuling(it.second.action, it.first) }
+                .toList()
+        )
+    }
+
+    fun getSubRulings(path: String): Result<List<JudgeRuling>> {
         val baseNode = root.at(path.removeSuffix("/"))
         if (baseNode == null || !baseNode.isJsonObject) {
             return Result.failure(IllegalArgumentException("Rulings container($path) should be object, but was: $baseNode"))

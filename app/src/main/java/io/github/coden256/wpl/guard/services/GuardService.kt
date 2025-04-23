@@ -13,10 +13,11 @@ import io.github.coden256.wpl.guard.core.enqueuePeriodic
 import io.github.coden256.wpl.guard.core.newNotificationChannel
 import io.github.coden256.wpl.guard.core.notify
 import io.github.coden256.wpl.guard.core.registerReceiver
+import io.github.coden256.wpl.guard.listeners.AppController
 import io.github.coden256.wpl.guard.listeners.RemoteAppRulingListener
+import io.github.coden256.wpl.guard.listeners.VpnController
 import io.github.coden256.wpl.guard.workers.GuardJudgeUpdater
 import io.github.coden256.wpl.guard.workers.GuardServiceHealthChecker
-import io.github.coden256.wpl.judge.RulingTree
 import org.koin.android.ext.android.inject
 import java.time.Duration
 
@@ -27,6 +28,8 @@ private const val TAG = "GuardService"
 class GuardService : Service() {
 
     private val appConfig by inject<AppConfig>()
+    private val appController by inject<AppController>()
+    private val vpnController by inject<VpnController>()
 
     private val remoteListeners = listOf(
         RemoteAppRulingListener("com.celzero.bravedns"),
@@ -75,8 +78,10 @@ class GuardService : Service() {
         appConfig.rulingsLive.observeForever { tree ->
             Log.i("GuardService", "New rulings: $tree")
 
+            appController.onRulings(tree.getRulings("/apps/").getOrNull() ?: emptyList())
+            vpnController.onRulings(tree.getRulings("/vpn/").getOrNull() ?: emptyList())
             remoteListeners.forEach {
-                it.onRulings(tree.getRulings("/apps/${it.target}/").getOrNull() ?: emptyList())
+                it.onRulings(tree.getSubRulings("/apps/${it.target}/").getOrNull() ?: emptyList())
             }
         }
     }
