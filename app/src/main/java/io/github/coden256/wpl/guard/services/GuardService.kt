@@ -2,11 +2,9 @@ package io.github.coden256.wpl.guard.services
 
 import android.Manifest
 import android.app.Service
-import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_PACKAGE_ADDED
 import android.content.Intent.ACTION_PACKAGE_REMOVED
-import android.content.SharedPreferences
 import android.os.IBinder
 import android.util.Log
 import androidx.annotation.RequiresPermission
@@ -27,7 +25,6 @@ private const val TAG = "GuardService"
 class GuardService : Service() {
 
     private val appConfig by inject<AppConfig>()
-    private val binder by inject<GuardBinder>()
 
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -44,9 +41,9 @@ class GuardService : Service() {
         return START_STICKY
     }
 
-    override fun onBind(intent: Intent): IBinder {
+    override fun onBind(intent: Intent): IBinder? {
         Log.i(TAG, "Guard Service received a new connection: $intent")
-        return binder
+        return null
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
@@ -72,14 +69,10 @@ class GuardService : Service() {
         enqueuePeriodic<GuardJudgeUpdater>(Duration.ofMinutes(15), Duration.ZERO)
     }
 
-    private fun registerListeners(context: Context){
+    private fun registerListeners(){
         appConfig.rulingsLive.observeForever {
-
+            Log.i("GuardService", "New rulings: $it")
         }
-    }
-
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
-        Log.i(TAG, "Pref change, key: $key: ${appConfig[key]}")
     }
 
     //        val pack = "com.celzero.bravedns"

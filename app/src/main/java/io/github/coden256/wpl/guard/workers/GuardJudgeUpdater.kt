@@ -31,7 +31,7 @@ class GuardJudgeUpdater(context: Context, params: WorkerParameters) :
         val tree = judge.getRulingTree("/dev/mi").getOrThrow()
 
         Log.i("GuardJudgeUpdater", "Got tree: $tree, updating app config")
-        appConfig.rulings = tree.getRulings("/apps/com.celzero.bravedns/domains").getOrNull() ?: emptyList()
+        appConfig.rulings = tree
 
 //        appConfig.appRulings = tree.getRulings("/apps").getOrNull() ?: emptyList()
 //        appConfig.vpnRulings = tree.getRulings("/vpn").getOrNull() ?: emptyList()

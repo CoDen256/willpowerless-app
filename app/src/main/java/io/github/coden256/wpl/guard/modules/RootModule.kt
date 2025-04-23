@@ -1,7 +1,6 @@
 package io.github.coden256.wpl.guard.modules
 
 import io.github.coden256.wpl.guard.config.AppConfig
-import io.github.coden256.wpl.guard.services.GuardBinder
 import io.github.coden256.wpl.judge.Judge
 import io.github.coden256.wpl.judge.OkHttpJudge
 import okhttp3.OkHttpClient
@@ -12,12 +11,10 @@ object RootModule {
     private val coreModule = module {
         single { OkHttpClient() }
         single<Judge> { OkHttpJudge(get()) }
-        single { GuardBinder(get()) }
     }
 
     private val configModule = module {
         single { AppConfig(androidContext()) }
-        single { AppConfig(androidContext(), get()) }
     }
 
     val modules = listOf(coreModule, configModule)

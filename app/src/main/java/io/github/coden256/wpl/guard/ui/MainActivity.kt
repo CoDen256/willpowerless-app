@@ -109,7 +109,7 @@ fun UpdatableTextComponent(context: Context, appConfig: AppConfig, persistentSta
         // Display the current text
         Text(
             text = dns,
-            fontSize = 24.sp,
+            fontSize = 10.sp,
             modifier = Modifier.padding(16.dp)
         )
 
