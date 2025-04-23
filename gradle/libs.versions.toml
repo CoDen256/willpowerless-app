@@ -38,6 +38,7 @@ androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx"
 koin-android = { group  = "io.insert-koin", name = "koin-android", version.ref = "koinAndroid" }
 krate = { group = "hu.autsoft", name = "krate", version.ref = "krate" }
 androidx-preference-ktx = { group = "androidx.preference", name = "preference-ktx", version.ref = "preferenceKtx" }
+krate-gson = { group = "hu.autsoft", name = "krate-gson", version.ref = "krate" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

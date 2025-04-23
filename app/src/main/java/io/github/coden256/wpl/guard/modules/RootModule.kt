@@ -1,7 +1,6 @@
 package io.github.coden256.wpl.guard.modules
 
 import io.github.coden256.wpl.guard.config.AppConfig
-import io.github.coden256.wpl.guard.config.PersistentState
 import io.github.coden256.wpl.guard.services.GuardBinder
 import io.github.coden256.wpl.judge.Judge
 import io.github.coden256.wpl.judge.OkHttpJudge
@@ -17,7 +16,7 @@ object RootModule {
     }
 
     private val configModule = module {
-        single { PersistentState(androidContext()) }
+        single { AppConfig(androidContext()) }
         single { AppConfig(androidContext(), get()) }
     }
 

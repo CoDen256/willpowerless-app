@@ -1,18 +1,21 @@
 package io.github.coden256.wpl.guard.config
 
 import android.content.Context
-import io.github.coden256.wpl.judge.Ruling
+import hu.autsoft.krate.SimpleKrate
+import hu.autsoft.krate.booleanPref
+import hu.autsoft.krate.default.withDefault
+import hu.autsoft.krate.gson.gsonPref
+import io.github.coden256.wpl.guard.util.liveData
+import io.github.coden256.wpl.judge.JudgeRuling
+import org.koin.core.component.KoinComponent
 
-class AppConfig
-internal constructor(
-    private val context: Context,
-    private val persistentState: PersistentState
-) {
+class AppConfig(val context: Context) : SimpleKrate(context), KoinComponent {
+    var firstTimeLaunch by booleanPref("is_first_time_launch").withDefault(true)
 
-    var dnsRulings: List<Ruling> = emptyList()
-    var domainRulings: List<Ruling> = emptyList()
-    var vpnRulings: List<Ruling> = emptyList()
-    var appRulings: List<Ruling> = emptyList()
-    var telegramChatRulings: List<Ruling> = emptyList()
-    var telegramUserRulings: List<Ruling> = emptyList()
+    var rulings by gsonPref<List<JudgeRuling>>("rulings").withDefault(emptyList())
+    var rulingsLive = liveData(this::rulings){ rulings }
+
+    operator fun get(key: String?): Any? {
+        return sharedPreferences.all[key]
+    }
 }

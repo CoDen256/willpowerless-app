@@ -1,4 +1,4 @@
-// Guard.aidl
+// GuardClient.aidl
 package io.github.coden256.wpl.guard;
 
 import io.github.coden256.wpl.guard.Ruling;

@@ -20,48 +20,30 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import io.github.coden256.wpl.guard.GuardClient
 import io.github.coden256.wpl.guard.GuardConnector
 import io.github.coden256.wpl.guard.Ruling
 import io.github.coden256.wpl.guard.config.AppConfig
-import io.github.coden256.wpl.guard.config.PersistentState
 import io.github.coden256.wpl.guard.ui.theme.GuardTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 
+// (package: mine | package:com.celzero.bravedns | package:org.telegram.messenger.willpowerless ) tag:Guard
 class MainActivity : ComponentActivity() {
-    private val persistentState by inject<PersistentState>()
+    private val persistentState by inject<AppConfig>()
     private val appConfig by inject<AppConfig>()
 
-    private val connector = GuardConnector()
-    private val guardClient by connector
+    private val braveConnector = GuardConnector("com.celzero.bravedns")
+    private val telConnector = GuardConnector("org.telegram.messenger.willpowerless")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        connector.connect(this)
-//        val pack = "com.celzero.bravedns"
-//
-//        io {
-//
-//            val judge = OkHttpJudge(OkHttpClient())
-//
-//            val tree = judge.getRulingTree("/dev/mi").getOrThrow()
-//            val ruling = tree.getRuling("/vpn/com.celzero.bravedns")
-//            val ruling2 = tree.getRuling("/vpn/com.celzero.bravedns/ruling/")
-//            val ruling3 = tree.getRuling("/apps/com.celzero.bravedns/ruling")
-//            val ruling4 = tree.getRuling("/apps/com.celzero.bravedns/")
-//
-//            ruling4;ruling3;ruling2;ruling
-//            val rulings = tree.getRulings("/apps")
-//            val rulings2 = tree.getRulings("/vpn")
-//            val rulings3 = tree.getRulings("/apps/com.celzero.bravedns/")
-//
-//            rulings2;rulings;rulings3
-//
-//        }
+        braveConnector.connect(this)
+        telConnector.connect(this)
 //
 //
 //        val owner = Owner(this)
@@ -93,7 +75,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             GuardTheme {
-                UpdatableTextComponent(this, appConfig, {guardClient})
+                UpdatableTextComponent(this, appConfig, persistentState,telConnector, this)
             }
         }
     }
@@ -105,7 +87,8 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun UpdatableTextComponent( context: Context, appConfig: AppConfig, guardClient: () -> GuardClient?) {
+fun UpdatableTextComponent(context: Context, appConfig: AppConfig, persistentState: AppConfig,
+                           connect: () -> GuardClient?, owner: LifecycleOwner) {
     // State to hold our text value
     var dns by remember { mutableStateOf("dns Text") }
     var domains by remember { mutableStateOf("domains Text") }
@@ -113,6 +96,10 @@ fun UpdatableTextComponent( context: Context, appConfig: AppConfig, guardClient:
     var users by remember { mutableStateOf("users Text") }
     var vpn by remember { mutableStateOf("vpn Text") }
     var apps by remember { mutableStateOf("apps Text") }
+
+    persistentState.rulingsLive.observe(owner){
+        dns = it.toString()
+    }
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -126,58 +113,61 @@ fun UpdatableTextComponent( context: Context, appConfig: AppConfig, guardClient:
             modifier = Modifier.padding(16.dp)
         )
 
-        Text(
-            text = domains,
-            fontSize = 24.sp,
-            modifier = Modifier.padding(16.dp)
-        )
-
-        Text(
-            text = chats,
-            fontSize = 24.sp,
-            modifier = Modifier.padding(16.dp)
-        )
-
-        Text(
-            text = users,
-            fontSize = 24.sp,
-            modifier = Modifier.padding(16.dp)
-        )
-
-        Text(
-            text = vpn,
-            fontSize = 24.sp,
-            modifier = Modifier.padding(16.dp)
-        )
-
-        Text(
-            text = apps,
-            fontSize = 24.sp,
-            modifier = Modifier.padding(16.dp)
-        )
+//        Text(
+//            text = domains,
+//            fontSize = 24.sp,
+//            modifier = Modifier.padding(16.dp)
+//        )
+//
+//        Text(
+//            text = chats,
+//            fontSize = 24.sp,
+//            modifier = Modifier.padding(16.dp)
+//        )
+//
+//        Text(
+//            text = users,
+//            fontSize = 24.sp,
+//            modifier = Modifier.padding(16.dp)
+//        )
+//
+//        Text(
+//            text = vpn,
+//            fontSize = 24.sp,
+//            modifier = Modifier.padding(16.dp)
+//        )
+//
+//        Text(
+//            text = apps,
+//            fontSize = 24.sp,
+//            modifier = Modifier.padding(16.dp)
+//        )
 
         // Button to update the text
         Button(
             onClick = {
-                dns = appConfig.dnsRulings.toString()
-                domains = appConfig.domainRulings.toString()
-                chats = appConfig.telegramChatRulings.toString()
-                users = appConfig.telegramUserRulings.toString()
-                vpn = appConfig.vpnRulings.toString()
-                guardClient()?.onRulings(listOf(Ruling().apply {
-                    this.path = "/domains/*.youtube.com"
-                    this.action = "BLOCK"
-                }, Ruling().apply {
-                    this.path = "/domains/*.reddits.com"
-                    this.action = "FORCE"
-                },Ruling().apply {
-                    this.path = "/domains/*.reddit.com/community"
-                    this.action = "BLOCK"},
-
+                persistentState.firstTimeLaunch = !persistentState.firstTimeLaunch
+//                dns = appConfig.dnsRulings.toString()
+//                domains = appConfig.domainRulings.toString()
+//                chats = appConfig.telegramChatRulings.toString()
+////                users = appConfig.telegramUserRulings.toString()
+////                vpn = appConfig.vpnRulings.toString()
+//                connect()?.onRulings(listOf(Ruling().apply {
+//                    this.path = "/domains/*.youtube.com"
+//                    this.action = "BLOCK"
+//                }, Ruling().apply {
+//                    this.path = "/domains/*.reddits.com"
+//                    this.action = "FORCE"
+//                },Ruling().apply {
+//                    this.path = "/domains/*.reddit.com/community"
+//                    this.action = "BLOCK"},
+//
 //                    ruling("/dns/max:", "FORCE"),
-                    ruling("/dns/1-bdaacaaaeaaia", "FORCE")
-                )
-                )
+////                    ruling("/dns/1-bdaacaaaeaaia", "FORCE"),
+//                    ruling("/chats/*-p*-***", "BLOCK"),
+//                    ruling("/users/*-*", "FORCE")
+//                )
+//                )
 //                apps = appConfig.appRulings.toString()
             },
             modifier = Modifier.padding(16.dp)

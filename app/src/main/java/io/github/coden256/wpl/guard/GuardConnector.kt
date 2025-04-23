@@ -7,43 +7,45 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
 import android.util.Log
-import kotlin.properties.ReadOnlyProperty
-import kotlin.reflect.KProperty
 
-class GuardConnector: ReadOnlyProperty<Any?, GuardClient?> {
+class GuardConnector(val target: String): () -> GuardClient? {
+    companion object {
+        const val ACTION = "io.github.coden256.wpl.guard.RULING_SETTING"
+    }
 
-    private var value: GuardClient? = null
+    var client: GuardClient? = null
+
+    private val connection = guardConnection(
+        onConnected = {client = it},
+        onDisconnected = {client = null}
+    )
 
     fun connect(context: Context){
-        context.bindGuard(guardConnection(
-            onConnected = {value = it},
-            onDisconnected = {value = null}
-        ))
+        val intent = Intent(ACTION).apply { setPackage(target) }
+        context.bindService(intent, connection, BIND_AUTO_CREATE)
     }
 
-    override fun getValue(thisRef: Any?, property: KProperty<*>): GuardClient? {
-        return value
+    fun diconnect(context: Context){
+        context.unbindService(connection)
     }
 
-    private fun Context.bindGuard(connection: ServiceConnection){
-        val intent = Intent("io.github.coden256.wpl.guard.RULING_SETTING")
-        intent.setPackage("com.celzero.bravedns")
-        bindService(intent, connection, BIND_AUTO_CREATE)
+    override fun invoke(): GuardClient? {
+        return client
     }
 
     private fun guardConnection(onConnected: (GuardClient) -> Unit, onDisconnected: () -> Unit): ServiceConnection{
         return object: ServiceConnection {
             override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
                 service ?: return
-                Log.i("Guard", "Connected to Guard Service")
+                Log.i("GuardConnector", "Connected to Guard Client: $name")
                 onConnected(GuardClient.Stub.asInterface(service))
             }
 
             override fun onServiceDisconnected(name: ComponentName?) {
-                Log.w("Guard", "Disconnected from Guard Service")
+                Log.w("GuardConnector", "Disconnected from Guard Client: $name")
                 onDisconnected()
             }
-
         }
     }
+
 }

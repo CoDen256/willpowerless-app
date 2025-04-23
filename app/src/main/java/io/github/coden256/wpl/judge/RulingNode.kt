@@ -25,7 +25,7 @@ data class RulingTree(
         }
     }
 
-    fun getRulings(path: String): Result<List<Ruling>> {
+    fun getRulings(path: String): Result<List<JudgeRuling>> {
         val node = root.at(path.removeSuffix("/"))
         if (!node.isObject) return Result.failure(IllegalArgumentException("Rulings container($path) should be object, but was: $node"))
 
@@ -36,7 +36,7 @@ data class RulingTree(
             .mapNotNull { entry ->
                 tryParse(entry.value.get("ruling"), "").getOrNull()?.let { entry.key to it }
             }
-            .map { Ruling(it.second.action, it.first) }
+            .map { JudgeRuling(it.second.action, it.first) }
             .toList()
         )
     }
@@ -44,11 +44,11 @@ data class RulingTree(
 }
 
 data class RulingNode(val action: Action, val reason: String? = null) {}
-data class Ruling(val action: Action, val path: String){
+data class JudgeRuling(val action: Action, val path: String){
     override fun toString(): String {
         return "$path -> $action"
     }
 }
-enum class Action() {
+enum class Action {
     BLOCK, ALLOW, FORCE
 }

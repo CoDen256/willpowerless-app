@@ -9,12 +9,8 @@ import io.github.coden256.wpl.judge.Judge
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-class GuardJudgeUpdater(private val context: Context, params: WorkerParameters) :
+class GuardJudgeUpdater(context: Context, params: WorkerParameters) :
     Worker(context, params), KoinComponent {
-
-
-    private val bravedns = "com.celzero.bravedns"
-    private val telegramBeta = "org.telegram.messenger.beta"
 
     private val appConfig by inject<AppConfig>()
     private val judge by inject<Judge>()
@@ -35,12 +31,13 @@ class GuardJudgeUpdater(private val context: Context, params: WorkerParameters) 
         val tree = judge.getRulingTree("/dev/mi").getOrThrow()
 
         Log.i("GuardJudgeUpdater", "Got tree: $tree, updating app config")
+        appConfig.rulings = tree.getRulings("/apps/com.celzero.bravedns/domains").getOrNull() ?: emptyList()
 
-        appConfig.appRulings = tree.getRulings("/apps").getOrNull() ?: emptyList()
-        appConfig.vpnRulings = tree.getRulings("/vpn").getOrNull() ?: emptyList()
-        appConfig.telegramUserRulings = tree.getRulings("/apps/$telegramBeta/user").getOrNull() ?: emptyList()
-        appConfig.telegramChatRulings = tree.getRulings("/apps/$telegramBeta/channels").getOrNull() ?: emptyList()
-        appConfig.domainRulings = tree.getRulings("/apps/$bravedns/domains").getOrNull() ?: emptyList()
-        appConfig.dnsRulings = tree.getRulings("/apps/$bravedns/dns").getOrNull() ?: emptyList()
+//        appConfig.appRulings = tree.getRulings("/apps").getOrNull() ?: emptyList()
+//        appConfig.vpnRulings = tree.getRulings("/vpn").getOrNull() ?: emptyList()
+//        appConfig.telegramUserRulings = tree.getRulings("/apps/$telegramBeta/user").getOrNull() ?: emptyList()
+//        appConfig.telegramChatRulings = tree.getRulings("/apps/$telegramBeta/channels").getOrNull() ?: emptyList()
+//        appConfig.domainRulings = tree.getRulings("/apps/$bravedns/domains").getOrNull() ?: emptyList()
+//        appConfig.dnsRulings = tree.getRulings("/apps/$bravedns/dns").getOrNull() ?: emptyList()
     }
 }

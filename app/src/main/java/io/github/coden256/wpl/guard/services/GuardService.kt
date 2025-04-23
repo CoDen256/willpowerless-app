@@ -2,16 +2,15 @@ package io.github.coden256.wpl.guard.services
 
 import android.Manifest
 import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_PACKAGE_ADDED
 import android.content.Intent.ACTION_PACKAGE_REMOVED
 import android.content.SharedPreferences
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.os.IBinder
 import android.util.Log
 import androidx.annotation.RequiresPermission
 import io.github.coden256.wpl.guard.config.AppConfig
-import io.github.coden256.wpl.guard.config.PersistentState
 import io.github.coden256.wpl.guard.core.enqueuePeriodic
 import io.github.coden256.wpl.guard.core.newNotificationChannel
 import io.github.coden256.wpl.guard.core.notify
@@ -25,10 +24,9 @@ import java.time.Duration
 private const val NOTIFICATION_ID = 1
 private const val TAG = "GuardService"
 
-class GuardService : Service(), OnSharedPreferenceChangeListener {
+class GuardService : Service() {
 
     private val appConfig by inject<AppConfig>()
-    private val persistentState by inject<PersistentState>()
     private val binder by inject<GuardBinder>()
 
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
@@ -74,12 +72,14 @@ class GuardService : Service(), OnSharedPreferenceChangeListener {
         enqueuePeriodic<GuardJudgeUpdater>(Duration.ofMinutes(15), Duration.ZERO)
     }
 
-    private fun registerListeners(){
-        persistentState.sharedPreferences.registerOnSharedPreferenceChangeListener(this)
+    private fun registerListeners(context: Context){
+        appConfig.rulingsLive.observeForever {
+
+        }
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
-        Log.i(TAG, "Pref change, key: $key: ${persistentState[key]}")
+        Log.i(TAG, "Pref change, key: $key: ${appConfig[key]}")
     }
 
     //        val pack = "com.celzero.bravedns"

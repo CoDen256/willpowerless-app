@@ -6,7 +6,6 @@ import io.github.coden256.wpl.guard.DomainRuling
 import io.github.coden256.wpl.guard.TelegramChatRuling
 import io.github.coden256.wpl.guard.TelegramUserRuling
 import io.github.coden256.wpl.guard.Guard
-import io.github.coden256.wpl.guard.config.AppConfig
 
 class GuardBinder(val appConfig: AppConfig) : Guard.Stub() {
     override fun dnsRulings(): List<DNSRuling> {
