@@ -11,8 +11,8 @@ import com.google.gson.stream.JsonWriter
 
 
 data class RulingTree(
-    private val root: JsonElement,
-    private val gson: Gson
+     val root: JsonElement,
+     val gson: Gson
 ) {
     companion object {
         val EMPTY = RulingTree(JsonNull.INSTANCE, Gson())
@@ -55,28 +55,30 @@ data class RulingTree(
         }
 
         val rulings = mutableListOf<JudgeRuling>()
-        findRulingsRecursively(baseNode.asJsonObject, path.removeSuffix("/"), rulings)
+        findRulingsRecursively(baseNode.asJsonObject, "", rulings) // Start with empty relative path
 
         return Result.success(rulings)
     }
 
     private fun findRulingsRecursively(
         node: JsonObject,
-        currentPath: String,
+        relativePath: String,  // Path relative to the starting node
         results: MutableList<JudgeRuling>
     ) {
-        // Check if current node has a "ruling" field
-        node.get("ruling")?.takeIf { it.isJsonObject }?.let { rulingElement ->
-            tryParse(rulingElement, currentPath).getOrNull()?.let { rulingNode ->
-                results.add(JudgeRuling(rulingNode.action, currentPath))
-            }
-        }
-
-        // Recursively check all object children
+        // Check all children first (skip the root ruling)
         node.entrySet().forEach { (key, value) ->
             if (value.isJsonObject) {
-                val newPath = if (currentPath.isEmpty()) key else "$currentPath/$key"
-                findRulingsRecursively(value.asJsonObject, newPath, results)
+                val newRelativePath = if (relativePath.isEmpty()) key else "$relativePath/$key"
+
+                // Check if this child has a "ruling" field
+                value.asJsonObject.get("ruling")?.takeIf { it.isJsonObject }?.let { rulingElement ->
+                    tryParse(rulingElement, newRelativePath).getOrNull()?.let { rulingNode ->
+                        results.add(JudgeRuling(rulingNode.action, "/$newRelativePath"))
+                    }
+                }
+
+                // Recurse deeper
+                findRulingsRecursively(value.asJsonObject, newRelativePath, results)
             }
         }
     }

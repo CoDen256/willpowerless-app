@@ -42,14 +42,9 @@ class MainActivity : ComponentActivity() {
     private val persistentState by inject<AppConfig>()
     private val appConfig by inject<AppConfig>()
 
-    private val braveConnector = GuardClientConnector("com.celzero.bravedns")
-    private val telConnector = GuardClientConnector("org.telegram.messenger.willpowerless")
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        braveConnector.connect(this)
-        telConnector.connect(this)
 //
 //
 //        val owner = Owner(this)
@@ -81,7 +76,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             GuardTheme {
-                UpdatableTextComponent(this, appConfig, persistentState,telConnector, this)
+                UpdatableTextComponent(this, appConfig, persistentState, this)
             }
         }
     }
@@ -93,8 +88,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun UpdatableTextComponent(context: Context, appConfig: AppConfig, persistentState: AppConfig,
-                           connect: () -> GuardClient?, owner: LifecycleOwner) {
+fun UpdatableTextComponent(context: Context, appConfig: AppConfig, persistentState: AppConfig, owner: LifecycleOwner) {
     // State to hold our text value
     var dns by remember { mutableStateOf("dns Text") }
     var domains by remember { mutableStateOf("domains Text") }
@@ -153,7 +147,6 @@ fun UpdatableTextComponent(context: Context, appConfig: AppConfig, persistentSta
         Button(
             onClick = {
                 persistentState.firstTimeLaunch = !persistentState.firstTimeLaunch
-                appConfig.rulings = RulingTree.EMPTY
                 context.enqueueOnce<GuardJudgeUpdater>()
 //                dns = appConfig.dnsRulings.toString()
 //                domains = appConfig.domainRulings.toString()

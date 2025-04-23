@@ -27,17 +27,13 @@ class GuardJudgeUpdater(context: Context, params: WorkerParameters) :
     }
 
     private fun run() {
-
-        val tree = judge.getRulingTree("/dev/mi").getOrThrow()
-
-        Log.i("GuardJudgeUpdater", "Got tree: $tree, updating app config")
-        appConfig.rulings = tree
-
-//        appConfig.appRulings = tree.getRulings("/apps").getOrNull() ?: emptyList()
-//        appConfig.vpnRulings = tree.getRulings("/vpn").getOrNull() ?: emptyList()
-//        appConfig.telegramUserRulings = tree.getRulings("/apps/$telegramBeta/user").getOrNull() ?: emptyList()
-//        appConfig.telegramChatRulings = tree.getRulings("/apps/$telegramBeta/channels").getOrNull() ?: emptyList()
-//        appConfig.domainRulings = tree.getRulings("/apps/$bravedns/domains").getOrNull() ?: emptyList()
-//        appConfig.dnsRulings = tree.getRulings("/apps/$bravedns/dns").getOrNull() ?: emptyList()
+        judge.getRulingTree("/dev/mi")
+            .onSuccess { tree ->
+                Log.i("GuardJudgeUpdater", "Judge returned: $tree")
+                tree.root.asJsonObject.addProperty("timestamp", System.nanoTime())
+                appConfig.rulings = tree
+            }.onFailure {
+                Log.w("GuardJudgeUpdater", "Judge fucked up: $it")
+            }.getOrThrow()
     }
 }

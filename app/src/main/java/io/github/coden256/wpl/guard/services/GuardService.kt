@@ -71,18 +71,16 @@ class GuardService : Service() {
 
     private fun registerListeners(context: Context){
         remoteListeners.forEach { it.connect(context) }
-        appConfig.rulingsLive.observeForever { dispatchRulings(it) }
 
-    }
+        appConfig.rulingsLive.observeForever { tree ->
+            Log.i("GuardService", "New rulings: $tree")
 
-    private fun dispatchRulings(tree: RulingTree){
-        Log.i("GuardService", "New rulings: $tree")
-
-        remoteListeners.forEach {
-            it.onRulings(tree.getRulings("/apps/${it.target}").getOrNull() ?: emptyList())
+            remoteListeners.forEach {
+                it.onRulings(tree.getRulings("/apps/${it.target}/").getOrNull() ?: emptyList())
+            }
         }
-
     }
+
 
     //        val pack = "com.celzero.bravedns"
 //        val service = BudgetService(context, Owner(context), pack)
