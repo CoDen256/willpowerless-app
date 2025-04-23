@@ -49,7 +49,7 @@ data class RulingTree(
     }
 
     fun getRulings(path: String): Result<List<JudgeRuling>> {
-        val baseNode = getJsonElementAtPath(root, path.removeSuffix("/"))
+        val baseNode = root.at(path.removeSuffix("/"))
         if (baseNode == null || !baseNode.isJsonObject) {
             return Result.failure(IllegalArgumentException("Rulings container($path) should be object, but was: $baseNode"))
         }
