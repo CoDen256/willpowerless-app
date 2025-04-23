@@ -3,6 +3,7 @@ package io.github.coden256.wpl.judge
 import com.google.gson.Gson
 import com.google.gson.JsonElement
 import com.google.gson.JsonNull
+import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.google.gson.TypeAdapter
 import com.google.gson.stream.JsonReader
@@ -30,10 +31,11 @@ data class RulingTree(
         return tryParse(node, path)
     }
 
-    private fun JsonElement.at(path: String): JsonElement{
+    private fun JsonElement.at(path: String): JsonElement?{
         var current = this
         for (part in path.split('/').filter { it.isNotEmpty() }) {
-            current = current.asJsonObject.get(part)
+            if (!current.isJsonObject) return null
+            current = current.asJsonObject.get(part) ?: return null
         }
         return current
     }
@@ -47,23 +49,40 @@ data class RulingTree(
     }
 
     fun getRulings(path: String): Result<List<JudgeRuling>> {
-        val node = root.at(path.removeSuffix("/"))
-        if (!node.isJsonObject) return Result.failure(IllegalArgumentException("Rulings container($path) should be object, but was: $node"))
+        val baseNode = getJsonElementAtPath(root, path.removeSuffix("/"))
+        if (baseNode == null || !baseNode.isJsonObject) {
+            return Result.failure(IllegalArgumentException("Rulings container($path) should be object, but was: $baseNode"))
+        }
 
-        return Result.success(
-            node
-                .asJsonObject
-                .entrySet()
-            .asSequence()
-            .mapNotNull { entry ->
-                tryParse(entry.value.asJsonObject.get("ruling"), "").getOrNull()?.let { entry.key to it }
-            }
-            .map { JudgeRuling(it.second.action, it.first) }
-            .toList()
-        )
+        val rulings = mutableListOf<JudgeRuling>()
+        findRulingsRecursively(baseNode.asJsonObject, path.removeSuffix("/"), rulings)
+
+        return Result.success(rulings)
     }
 
-    class JsonApadter: TypeAdapter<RulingTree>() {
+    private fun findRulingsRecursively(
+        node: JsonObject,
+        currentPath: String,
+        results: MutableList<JudgeRuling>
+    ) {
+        // Check if current node has a "ruling" field
+        node.get("ruling")?.takeIf { it.isJsonObject }?.let { rulingElement ->
+            tryParse(rulingElement, currentPath).getOrNull()?.let { rulingNode ->
+                results.add(JudgeRuling(rulingNode.action, currentPath))
+            }
+        }
+
+        // Recursively check all object children
+        node.entrySet().forEach { (key, value) ->
+            if (value.isJsonObject) {
+                val newPath = if (currentPath.isEmpty()) key else "$currentPath/$key"
+                findRulingsRecursively(value.asJsonObject, newPath, results)
+            }
+        }
+    }
+
+
+    class Adapter: TypeAdapter<RulingTree>() {
         private val gson = Gson()
         override fun write(out: JsonWriter, value: RulingTree) {
             gson.toJson(value.root, out)

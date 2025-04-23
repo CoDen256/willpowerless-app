@@ -10,6 +10,7 @@ import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ListenableWorker
+import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import java.time.Duration
@@ -53,4 +54,15 @@ inline fun <reified T: ListenableWorker> Context.enqueuePeriodic(duration: Durat
             ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
             request
     )
+}
+
+inline fun <reified T: ListenableWorker> Context.enqueueOnce(init: Duration=Duration.ZERO){
+    val name = T::class.java.simpleName
+    Log.i(name, "Enqueueing $name once, starting in $init")
+    val request = OneTimeWorkRequestBuilder<T>()
+        .setInitialDelay(init)
+        .build()
+    WorkManager
+        .getInstance(this)
+        .enqueue(request)
 }

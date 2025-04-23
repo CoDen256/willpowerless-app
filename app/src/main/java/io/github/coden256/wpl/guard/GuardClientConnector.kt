@@ -8,7 +8,7 @@ import android.content.ServiceConnection
 import android.os.IBinder
 import android.util.Log
 
-class GuardConnector(val target: String): () -> GuardClient? {
+class GuardClientConnector(val target: String): () -> GuardClient? {
     companion object {
         const val ACTION = "io.github.coden256.wpl.guard.RULING_SETTING"
     }

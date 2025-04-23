@@ -22,11 +22,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
+import androidx.work.WorkerParameters
 import io.github.coden256.wpl.guard.GuardClient
-import io.github.coden256.wpl.guard.GuardConnector
+import io.github.coden256.wpl.guard.GuardClientConnector
 import io.github.coden256.wpl.guard.Ruling
 import io.github.coden256.wpl.guard.config.AppConfig
+import io.github.coden256.wpl.guard.core.enqueueOnce
+import io.github.coden256.wpl.guard.core.enqueuePeriodic
 import io.github.coden256.wpl.guard.ui.theme.GuardTheme
+import io.github.coden256.wpl.guard.workers.GuardJudgeUpdater
+import io.github.coden256.wpl.guard.workers.GuardServiceHealthChecker
+import io.github.coden256.wpl.judge.RulingTree
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
@@ -36,8 +42,8 @@ class MainActivity : ComponentActivity() {
     private val persistentState by inject<AppConfig>()
     private val appConfig by inject<AppConfig>()
 
-    private val braveConnector = GuardConnector("com.celzero.bravedns")
-    private val telConnector = GuardConnector("org.telegram.messenger.willpowerless")
+    private val braveConnector = GuardClientConnector("com.celzero.bravedns")
+    private val telConnector = GuardClientConnector("org.telegram.messenger.willpowerless")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -98,7 +104,7 @@ fun UpdatableTextComponent(context: Context, appConfig: AppConfig, persistentSta
     var apps by remember { mutableStateOf("apps Text") }
 
     persistentState.rulingsLive.observe(owner){
-        dns = it.toString()
+//        dns = it.toString()
     }
 
     Column(
@@ -147,6 +153,8 @@ fun UpdatableTextComponent(context: Context, appConfig: AppConfig, persistentSta
         Button(
             onClick = {
                 persistentState.firstTimeLaunch = !persistentState.firstTimeLaunch
+                appConfig.rulings = RulingTree.EMPTY
+                context.enqueueOnce<GuardJudgeUpdater>()
 //                dns = appConfig.dnsRulings.toString()
 //                domains = appConfig.domainRulings.toString()
 //                chats = appConfig.telegramChatRulings.toString()

@@ -50,9 +50,6 @@ android {
 dependencies {
     implementation(libs.koin.android)
     implementation(libs.okhttp)
-    implementation(libs.jackson.core)
-    implementation(libs.jackson.databind)
-    implementation(libs.jackson.module.kotlin)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
