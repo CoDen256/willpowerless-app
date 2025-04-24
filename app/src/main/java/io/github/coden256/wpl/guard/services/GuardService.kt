@@ -92,7 +92,7 @@ class GuardService : Service() {
         appConfig.rulingsLive.observeForever { tree ->
             Log.i("GuardService", "New rulings: $tree")
 
-            appController.onRulings(tree.getRulings("/apps/").getOrNull() ?: emptyList())
+            appController.onNewRulings(tree.getRulings("/apps/").getOrNull() ?: emptyList())
             vpnController.onRulings(tree.getRulings("/vpn/").getOrNull() ?: emptyList())
             remoteListeners.forEach {
                 it.onRulings(tree.getSubRulings("/apps/${it.target}/").getOrNull() ?: emptyList())

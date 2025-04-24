@@ -32,12 +32,12 @@ class Owner(private val context: Context) {
 
     fun hide(pkg: String, hide: Boolean=true){
         Log.i(tag, "hiding $pkg? $hide")
-        devicePolicyManager.setApplicationHidden(adminComponent, pkg, hide)
+//        devicePolicyManager.setApplicationHidden(adminComponent, pkg, hide)
     }
 
     fun blockUninstall(pkg: String, block: Boolean=true){
         Log.i(tag, "blocking uninstall $pkg? $block")
-        devicePolicyManager.setUninstallBlocked(adminComponent, pkg, block)
+//        devicePolicyManager.setUninstallBlocked(adminComponent, pkg, block)
     }
 
     fun enableBackupService(enable:Boolean=true){
@@ -47,19 +47,18 @@ class Owner(private val context: Context) {
 
     fun setAlwaysOnVpn(pkg: String){
         Log.i(tag, "set always on: $pkg")
-        devicePolicyManager.setAlwaysOnVpnPackage(adminComponent, pkg, true)
+//        devicePolicyManager.setAlwaysOnVpnPackage(adminComponent, pkg, true)
     }
 
     fun removeAlwaysOnVpn(){
-        verify("removeVpnOn")
         Log.i(tag, "remove always on vpn")
-        devicePolicyManager.setAlwaysOnVpnPackage(adminComponent, null, false)
+//        devicePolicyManager.setAlwaysOnVpnPackage(adminComponent, null, false)
     }
 
     fun transferOwnership(pkg: String, adminReceiver: String){
         Log.i(tag, "Transfering ownership to $pkg/$adminReceiver")
         val targetAdmin = ComponentName(pkg, "$pkg$adminReceiver")
-        devicePolicyManager.transferOwnership(adminComponent, targetAdmin, null)
+//        devicePolicyManager.transferOwnership(adminComponent, targetAdmin, null)
     }
 
     fun uninstall(packageName: String) {

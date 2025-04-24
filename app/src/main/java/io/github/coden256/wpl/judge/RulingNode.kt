@@ -120,7 +120,31 @@ data class JudgeRuling(val action: Action, val path: String){
     override fun toString(): String {
         return "$path -> $action"
     }
+    companion object {
+        val DEFAULT = JudgeRuling(Action.ALLOW, "*")
+    }
 }
 enum class Action {
     BLOCK, ALLOW, FORCE
+}
+
+data class Match(val value: JudgeRuling, val allMatching: List<JudgeRuling>)
+
+fun JudgeRuling.matches(target: String): Boolean{
+    return Regex(path
+        .replace(".", "\\.")
+        .replace("*", ".*"))
+        .matches(target)
+}
+
+fun List<JudgeRuling>.getPrimaryRuling(): JudgeRuling{
+    return firstOrNull { it.action == Action.FORCE } ?:
+          firstOrNull {it.action == Action.BLOCK} ?:
+          firstOrNull {it.action == Action.ALLOW} ?:
+          JudgeRuling.DEFAULT
+}
+
+fun List<JudgeRuling>.findMatch(path: String): Match{
+    val matching = filter { it.matches(path) }
+    return Match(matching.getPrimaryRuling(), matching)
 }
