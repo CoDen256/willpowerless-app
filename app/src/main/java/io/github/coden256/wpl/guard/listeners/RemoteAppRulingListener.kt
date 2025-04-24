@@ -13,7 +13,7 @@ class RemoteAppRulingListener (
 
     fun connect(context: Context) = connector.connect(context)
 
-    fun disconnect(context: Context) = connector.connect(context)
+    fun disconnect(context: Context) = connector.diconnect(context)
 
     fun onRulings(rulings: List<JudgeRuling>) {
         connector()?.onRulings(rulings.map { it.toRuling()})

@@ -68,7 +68,7 @@ inline fun <reified T: ListenableWorker> Context.enqueueOnce(
     init: Duration=Duration.ZERO,
     backoff: Duration=Duration.ofMillis(WorkRequest.DEFAULT_BACKOFF_DELAY_MILLIS)
 ){
-    val name = T::class.java.simpleName
+    val name = T::class.java.simpleName + "-single"
     Log.i(name, "Enqueueing $name once, starting in $init")
     val request = OneTimeWorkRequestBuilder<T>()
         .setInitialDelay(init)

@@ -12,15 +12,15 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.net.UnknownHostException
 
-class GuardJudgeUpdater(context: Context, params: WorkerParameters) :
+class GuardJudgeUpdater(context: Context, private val params: WorkerParameters) :
     Worker(context, params), KoinComponent {
 
     private val appConfig by inject<AppConfig>()
     private val judge by inject<Judge>()
 
     override fun doWork(): Result {
-        Log.i("GuardJudgeUpdater", "Running as service worker...")
-        return run().asWorkResult()
+        Log.i("GuardJudgeUpdater", "Running as service worker (${params.id})...")
+        return run().asWorkResult({it is UnknownHostException})
     }
 
     private fun run(): kotlin.Result<RulingTree> {
@@ -29,7 +29,7 @@ class GuardJudgeUpdater(context: Context, params: WorkerParameters) :
             .onSuccess { tree ->
                 Log.i("GuardJudgeUpdater", "Judge returned: $tree")
                 tree.root.asJsonObject.addProperty("timestamp", System.nanoTime())
-                appConfig.rulings = tree
+                appConfig.rulingsLive.postValue(tree)
             }.onFailure {
                 Log.w("GuardJudgeUpdater", "Judge fucked up: $it")
             }

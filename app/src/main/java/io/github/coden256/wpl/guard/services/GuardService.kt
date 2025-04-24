@@ -9,7 +9,9 @@ import android.content.Intent.ACTION_PACKAGE_REMOVED
 import android.util.Log
 import androidx.annotation.RequiresPermission
 import io.github.coden256.wpl.guard.config.AppConfig
+import io.github.coden256.wpl.guard.core.enqueueOnce
 import io.github.coden256.wpl.guard.core.enqueuePeriodic
+import io.github.coden256.wpl.guard.core.network.NetworkConnectionMonitor
 import io.github.coden256.wpl.guard.core.newNotificationChannel
 import io.github.coden256.wpl.guard.core.notify
 import io.github.coden256.wpl.guard.core.registerReceiver
@@ -30,6 +32,7 @@ class GuardService : Service() {
     private val appConfig by inject<AppConfig>()
     private val appController by inject<AppController>()
     private val vpnController by inject<VpnController>()
+    private val netMonitor by inject<NetworkConnectionMonitor>()
 
     private val remoteListeners = listOf(
         RemoteAppRulingListener("com.celzero.bravedns"),
@@ -41,10 +44,11 @@ class GuardService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.i(TAG, "Guard Service started: $intent")
 
-
         newNotificationChannel<GuardService>()
         val notification = notify<GuardService>("Willpowerless Guard is on!", NOTIFICATION_ID)
         startForeground(NOTIFICATION_ID, notification)
+
+        connectListeners(this)
 
         registerWorkers()
         registerReceivers()
@@ -53,19 +57,11 @@ class GuardService : Service() {
     }
 
     override fun onDestroy() {
-        remoteListeners.forEach { it.disconnect(this) }
+        disconnectListeners()
         super.onDestroy()
     }
 
     override fun onBind(intent: Intent) = null
-
-    private fun registerReceivers(){
-        registerReceiver<PackageUpdateReceiver> {
-            addAction(ACTION_PACKAGE_ADDED)
-            addAction(ACTION_PACKAGE_REMOVED)
-            addDataScheme("package")
-        }
-    }
 
     private fun registerWorkers(){
         enqueuePeriodic<GuardServiceHealthChecker>(
@@ -79,9 +75,20 @@ class GuardService : Service() {
         )
     }
 
-    private fun registerListeners(context: Context){
-        remoteListeners.forEach { it.connect(context) }
+    private fun registerReceivers(){
+        registerReceiver<PackageUpdateReceiver> {
+            addAction(ACTION_PACKAGE_ADDED)
+            addAction(ACTION_PACKAGE_REMOVED)
+            addDataScheme("package")
+        }
+    }
 
+    private fun connectListeners(context: Context){
+        remoteListeners.forEach { it.connect(context) }
+        netMonitor.startMonitoring()
+    }
+
+    private fun registerListeners(context: Context){
         appConfig.rulingsLive.observeForever { tree ->
             Log.i("GuardService", "New rulings: $tree")
 
@@ -91,34 +98,17 @@ class GuardService : Service() {
                 it.onRulings(tree.getSubRulings("/apps/${it.target}/").getOrNull() ?: emptyList())
             }
         }
+
+        netMonitor.onConnectionChanged = { enabled ->
+            Log.w("GuardService", "Network enabled: $enabled")
+            if (enabled) enqueueOnce<GuardJudgeUpdater>(backoff = Duration.ofSeconds(10))
+        }
     }
 
-
-    //        val pack = "com.celzero.bravedns"
-//        val service = BudgetService(context, Owner(context), pack)
-//        val a = service.getAlarm()
-//        if (a != null){
-//            if (Instant.ofEpochMilli(a).isAfter(Instant.now())){
-//                service.disableVPN()
-//            }
-//        }else{
-//            service.enableVPN()
-//        }
-
-
-//    try {
-//        asOwner(context){
-//            blockUninstall("org.telegram.messenger.beta", false)
-//            blockUninstall("com.celzero.bravedns", false)
-//
-//            clearUserRestriction(UserManager.DISALLOW_APPS_CONTROL)
-//            clearUserRestriction(UserManager.DISALLOW_CONFIG_VPN)
-//            hide("org.telegram.messenger", false)
-//            enableBackupService(true)
-//        }
-//    }catch (e: Exception){
-//        Log.e("Guard", "App Launch during init of apps failed", e)
-//    }
+    private fun disconnectListeners(){
+        remoteListeners.forEach { it.disconnect(this) }
+        netMonitor.stopMonitoring()
+    }
 }
 
 
