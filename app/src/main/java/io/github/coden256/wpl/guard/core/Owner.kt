@@ -12,7 +12,7 @@ import java.util.concurrent.Executors
 class Owner(private val context: Context) {
     private val executor = Executors.newSingleThreadExecutor()
     private val devicePolicyManager = context.getSystemService(DevicePolicyManager::class.java)
-    private val adminComponent = ComponentName(context, AdminReceiver::class.java)
+    val adminComponent = ComponentName(context, AdminReceiver::class.java)
     val isAdmin: Boolean = devicePolicyManager.isDeviceOwnerApp(context.packageName)
     private val tag = "GuardOwner"
 
