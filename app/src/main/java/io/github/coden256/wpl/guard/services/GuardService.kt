@@ -68,8 +68,15 @@ class GuardService : Service() {
     }
 
     private fun registerWorkers(){
-        enqueuePeriodic<GuardServiceHealthChecker>(Duration.ofMinutes(15), Duration.ofMinutes(15))
-        enqueuePeriodic<GuardJudgeUpdater>(Duration.ofMinutes(15), Duration.ZERO)
+        enqueuePeriodic<GuardServiceHealthChecker>(
+            duration = Duration.ofMinutes(15),
+            init = Duration.ofMinutes(15),
+            backoff = Duration.ofSeconds(10)
+        )
+        enqueuePeriodic<GuardJudgeUpdater>(
+            duration = Duration.ofMinutes(15),
+            init = Duration.ZERO
+        )
     }
 
     private fun registerListeners(context: Context){

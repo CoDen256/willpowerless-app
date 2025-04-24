@@ -16,14 +16,19 @@ class OkHttpJudge(private val client: OkHttpClient): Judge {
             .url(JUDGE_ENDPOINT+path)
             .build()
         val gson = Gson()
-        client.newCall(request).execute().use { response ->
-            try {
-                return Result.success(
-                    RulingTree(JsonParser.parseReader(response.body?.charStream()), gson)
-                )
-            } catch (e: Exception) {
-                return Result.failure(e)
+        try {
+            client.newCall(request).execute().use { response ->
+                try {
+                    return Result.success(
+                        RulingTree(JsonParser.parseReader(response.body?.charStream()), gson)
+                    )
+                } catch (e: Exception) {
+                    return Result.failure(e)
+                }
             }
+        }catch (e: Exception){
+            return Result.failure(e)
         }
+
     }
 }

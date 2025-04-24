@@ -8,11 +8,14 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.util.Log
 import androidx.core.content.ContextCompat
+import androidx.work.BackoffPolicy
 import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.ExistingWorkPolicy
 import androidx.work.ListenableWorker
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import androidx.work.WorkRequest
 import java.time.Duration
 
 
@@ -41,11 +44,16 @@ inline fun <reified T: Service> Context.isServiceRunning(): Boolean {
         .any { it.service.className == T::class.java.name }
 }
 
-inline fun <reified T: ListenableWorker> Context.enqueuePeriodic(duration: Duration=Duration.ofMinutes(15), init: Duration=Duration.ZERO){
+inline fun <reified T: ListenableWorker> Context.enqueuePeriodic(
+    duration: Duration=Duration.ofMinutes(15),
+    init: Duration=Duration.ZERO,
+    backoff: Duration=Duration.ofMillis(WorkRequest.DEFAULT_BACKOFF_DELAY_MILLIS),
+){
     val name = T::class.java.simpleName
     Log.i(name, "Enqueueing $name every $duration, starting in $init")
     val request = PeriodicWorkRequestBuilder<T>(duration)
         .setInitialDelay(init)
+        .setBackoffCriteria(BackoffPolicy.LINEAR, backoff)
         .build()
     WorkManager
         .getInstance(this)
@@ -56,13 +64,17 @@ inline fun <reified T: ListenableWorker> Context.enqueuePeriodic(duration: Durat
     )
 }
 
-inline fun <reified T: ListenableWorker> Context.enqueueOnce(init: Duration=Duration.ZERO){
+inline fun <reified T: ListenableWorker> Context.enqueueOnce(
+    init: Duration=Duration.ZERO,
+    backoff: Duration=Duration.ofMillis(WorkRequest.DEFAULT_BACKOFF_DELAY_MILLIS)
+){
     val name = T::class.java.simpleName
     Log.i(name, "Enqueueing $name once, starting in $init")
     val request = OneTimeWorkRequestBuilder<T>()
         .setInitialDelay(init)
+        .setBackoffCriteria(BackoffPolicy.LINEAR, backoff)
         .build()
     WorkManager
         .getInstance(this)
-        .enqueue(request)
+        .enqueueUniqueWork(name, ExistingWorkPolicy.REPLACE, request)
 }

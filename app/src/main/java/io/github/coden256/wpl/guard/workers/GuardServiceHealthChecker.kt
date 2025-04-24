@@ -21,11 +21,12 @@ class GuardServiceHealthChecker(private val context: Context, params: WorkerPara
             Log.i("GuardServiceHealthChecker", "Checking on guard")
             if (context.isServiceRunning<GuardService>()) {
                 Log.i("GuardServiceHealthChecker", "Guard is running, all good :)")
+                return Result.success()
             } else{
                 Log.i("GuardServiceHealthChecker", "Guard is not running, restarting :(")
                 context.startForegroundService<GuardService> { }
+                return Result.retry()
             }
-            return Result.success()
         }
     }
 }
