@@ -15,9 +15,9 @@ import io.github.coden256.wpl.guard.core.network.NetworkConnectionMonitor
 import io.github.coden256.wpl.guard.core.newNotificationChannel
 import io.github.coden256.wpl.guard.core.notify
 import io.github.coden256.wpl.guard.core.registerReceiver
-import io.github.coden256.wpl.guard.listeners.AppController
-import io.github.coden256.wpl.guard.listeners.RemoteAppRulingListener
-import io.github.coden256.wpl.guard.listeners.VpnController
+import io.github.coden256.wpl.guard.controllers.AppController
+import io.github.coden256.wpl.guard.controllers.RemoteAppRulingListener
+import io.github.coden256.wpl.guard.controllers.VpnController
 import io.github.coden256.wpl.guard.workers.GuardJudgeUpdater
 import io.github.coden256.wpl.guard.workers.GuardServiceHealthChecker
 import org.koin.android.ext.android.inject

@@ -1,4 +1,4 @@
-package io.github.coden256.wpl.guard.listeners
+package io.github.coden256.wpl.guard.controllers
 
 import android.content.Context
 import io.github.coden256.wpl.guard.core.Owner.Companion.asOwner

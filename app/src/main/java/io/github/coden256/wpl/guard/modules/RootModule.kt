@@ -2,8 +2,8 @@ package io.github.coden256.wpl.guard.modules
 
 import io.github.coden256.wpl.guard.config.AppConfig
 import io.github.coden256.wpl.guard.core.network.NetworkConnectionMonitor
-import io.github.coden256.wpl.guard.listeners.AppController
-import io.github.coden256.wpl.guard.listeners.VpnController
+import io.github.coden256.wpl.guard.controllers.AppController
+import io.github.coden256.wpl.guard.controllers.VpnController
 import io.github.coden256.wpl.judge.Judge
 import io.github.coden256.wpl.judge.OkHttpJudge
 import okhttp3.OkHttpClient
