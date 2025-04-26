@@ -22,22 +22,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
-import androidx.work.WorkerParameters
-import io.github.coden256.wpl.guard.GuardClient
-import io.github.coden256.wpl.guard.GuardClientConnector
 import io.github.coden256.wpl.guard.Ruling
 import io.github.coden256.wpl.guard.config.AppConfig
 import io.github.coden256.wpl.guard.core.enqueueOnce
-import io.github.coden256.wpl.guard.core.enqueuePeriodic
 import io.github.coden256.wpl.guard.ui.theme.GuardTheme
 import io.github.coden256.wpl.guard.workers.GuardJudgeUpdater
-import io.github.coden256.wpl.guard.workers.GuardServiceHealthChecker
-import io.github.coden256.wpl.judge.RulingTree
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 
-// (package: mine | package:com.celzero.bravedns | package:org.telegram.messenger.willpowerless ) tag:Guard
 class MainActivity : ComponentActivity() {
     private val persistentState by inject<AppConfig>()
     private val appConfig by inject<AppConfig>()
@@ -45,34 +38,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-//
-//
-//        val owner = Owner(this)
-//        if (owner.isAdmin.not()){
-//            Toast.makeText(this, "Not an admin, finishing...", Toast.LENGTH_LONG).show()
-//            finish()
-//            return
-//        }
-//
-//        val service = BudgetService(this, owner, pack)
-//
-//        if (service.isFirstStart()) {
-//            try {
-//            } catch (e: Exception) {
-//            }
-//
-//            service.setFirstStart(false)
-//        }
-//        service.cancelResetAlarm()
-//        service.setWeeklyVpnResetAlarm(LocalTime.of(6, 0))
-//        val a = service.getAlarm()
-//        if (a != null) {
-//            if (Instant.ofEpochMilli(a).isAfter(Instant.now())) {
-//                service.disableVPN()
-//            }
-//        } else {
-//            service.enableVPN()
-//        }
 
         setContent {
             GuardTheme {

@@ -1,13 +1,8 @@
 package io.github.coden256.wpl.guard.controllers
 
-import android.app.ActivityManager
-import android.app.ActivityOptions
-import android.app.admin.DevicePolicyManager
 import android.content.Context
-import android.content.Context.ACTIVITY_SERVICE
+import android.content.pm.PackageInfo
 import android.util.Log
-import androidx.core.content.ContextCompat.getSystemService
-import androidx.core.content.getSystemService
 import io.github.coden256.wpl.guard.config.AppConfig
 import io.github.coden256.wpl.guard.core.Owner
 import io.github.coden256.wpl.guard.core.Owner.Companion.asOwner
@@ -21,27 +16,23 @@ class AppController(
     private val context: Context,
     private val appConfig: AppConfig
 ) {
+
     fun onNewRulings(rulings: List<JudgeRuling>){
         appConfig.appRulings = rulings
 
-        val packages = context.getInstalledPackages().map { it.packageName }
+        val packages = context.getInstalledPackages()
         Log.i("GuardAppController", "Processing ${packages.size} packages against: $rulings")
 
         val lockdown = rulings.firstOrNull { it.path.contains("*") && it.path.length < 5 }
         if (lockdown != null){
             Log.e("GuardAppController", "WARNING: RULINGS CONTAIN LOCKDOWN RULING: $lockdown")
-            processLockdown(packages, rulings.filter { it.action == Action.FORCE}.map { it.path })
+            processLockdown(packages, rulings.filter { it.action == Action.FORCE})
             return
         }
-        processLockdown(packages, listOf(
-            "org.telegram.messenger.willpowerless",
-            "com.celzero.bravedns",
-            "io.github.coden256.wpl.guard "
-        ))
 
         asOwner(context){
             packages.forEach {
-                processPackage(it, rulings)
+                processPackage(it.packageName, rulings)
             }
         }
     }
@@ -73,21 +64,11 @@ class AppController(
         }
     }
 
-    private fun processLockdown(pkgs: List<String>, allowed: List<String>){
+    private fun processLockdown(pkgs: List<PackageInfo>, allowed: List<JudgeRuling>){
         Log.e("GuardAppController", "ENABLING TOTAL LOCKDOWN, EXCEPT: $allowed")
-        asOwner(context){
-            run {
-//                this.setLockTaskPackages(adminComponent, allowed.toTypedArray())
-//                val options = ActivityOptions.makeBasic()
-//                options.setLockTaskEnabled(true)
-//
-//                this.setLockTaskFeatures(adminComponent,
-//                    DevicePolicyManager.LOCK_TASK_FEATURE_HOME or
-//                            DevicePolicyManager.LOCK_TASK_FEATURE_OVERVIEW)
-//
-//                val am = context.getSystemService<ActivityManager>() as ActivityManager?
-//                am?.lockTaskModeState
-            }
-        }
+        // TODO proper locktask or something else
+        // - locktask (not working AND must have proper in between apps navigation, since only one locked app supported?) (implement in LocktastController /mi/lockdown/*apps -> FORCE)
+        // - hide everything (but the homescreen arrangement is broken afterwards) (implement here)
+        // - custom android launcher with selected packages (remoteapplistenre, force custom launcher, pass him rulings /com.launcher/lockdown/*.apps -> FORCE
     }
 }
