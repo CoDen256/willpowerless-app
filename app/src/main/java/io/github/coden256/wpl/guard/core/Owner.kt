@@ -31,13 +31,17 @@ class Owner(private val context: Context) {
     }
 
     fun hide(pkg: String, hide: Boolean=true){
-        Log.i(tag, "hiding $pkg? $hide")
-//        devicePolicyManager.setApplicationHidden(adminComponent, pkg, hide)
+        if (devicePolicyManager.isApplicationHidden(adminComponent, pkg) != hide){
+            Log.i(tag, "hiding $pkg? $hide")
+//            devicePolicyManager.setApplicationHidden(adminComponent, pkg, hide)
+        }
     }
 
     fun blockUninstall(pkg: String, block: Boolean=true){
-        Log.i(tag, "blocking uninstall $pkg? $block")
-//        devicePolicyManager.setUninstallBlocked(adminComponent, pkg, block)
+        if (devicePolicyManager.isUninstallBlocked(adminComponent, pkg) != block){
+            Log.i(tag, "blocking uninstall $pkg? $block")
+            devicePolicyManager.setUninstallBlocked(adminComponent, pkg, block)
+        }
     }
 
     fun enableBackupService(enable:Boolean=true){
@@ -46,7 +50,7 @@ class Owner(private val context: Context) {
     }
 
     fun setAlwaysOnVpn(pkg: String){
-        Log.i(tag, "set always on: $pkg")
+        Log.i(tag, "set always on vpn: $pkg")
 //        devicePolicyManager.setAlwaysOnVpnPackage(adminComponent, pkg, true)
     }
 

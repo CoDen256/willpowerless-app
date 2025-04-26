@@ -17,30 +17,45 @@ class AppController(
     private val appConfig: AppConfig
 ) {
 
-    fun onNewRulings(rulings: List<JudgeRuling>){
+    fun onNewRulings(rulings: List<JudgeRuling>) {
         appConfig.appRulings = rulings
 
         val packages = context.getInstalledPackages()
         Log.i("GuardAppController", "Processing ${packages.size} packages against: $rulings")
 
         val lockdown = rulings.firstOrNull { it.path.contains("*") && it.path.length < 5 }
-        if (lockdown != null){
+        if (lockdown != null) {
             Log.e("GuardAppController", "WARNING: RULINGS CONTAIN LOCKDOWN RULING: $lockdown")
-            processLockdown(packages, rulings.filter { it.action == Action.FORCE})
+            processLockdown(packages, rulings.filter { it.action == Action.FORCE })
             return
         }
 
-        asOwner(context){
+        val prevHidden = appConfig.appsHidden
+        val prevBlocked = appConfig.appsUninstallBlocked
+
+        appConfig.appsHidden = setOf()
+        appConfig.appsUninstallBlocked = setOf()
+        asOwner(context) {
             packages.forEach {
                 processPackage(it.packageName, rulings)
             }
+            prevBlocked.minus(appConfig.appsUninstallBlocked).forEach {
+                Log.i("GuardAppController", "Lifting up forcing unblock for $it")
+                blockUninstall(it, false)
+            }
+            prevHidden.minus(appConfig.appsHidden).forEach {
+                Log.i("GuardAppController", "Lifting up hiding for $it")
+                hide(it, false)
+            }
         }
+        Log.i("GuardAppController", "hidden"+appConfig.appsHidden.toString())
+        Log.i("GuardAppController", "blocked"+appConfig.appsUninstallBlocked.toString())
     }
 
-    fun onNewApp(pkg: String){
+    fun onNewApp(pkg: String) {
         val rulings = appConfig.appRulings
         Log.i("GuardAppController", "Processing $pkg packages against: $rulings")
-        asOwner(context){
+        asOwner(context) {
             processPackage(pkg, rulings)
         }
     }
@@ -53,18 +68,20 @@ class AppController(
             Action.FORCE -> {
                 Log.i("GuardAppController", "FORCING: $pkg, $reason")
                 blockUninstall(pkg)
+                appConfig.addUninstallBlockedPackage(pkg)
             }
 
             Action.BLOCK -> {
                 Log.i("GuardAppController", "BLOCKING: $pkg, $reason")
                 hide(pkg)
+                appConfig.addHiddenPackage(pkg)
             }
 
             Action.ALLOW -> {}
         }
     }
 
-    private fun processLockdown(pkgs: List<PackageInfo>, allowed: List<JudgeRuling>){
+    private fun processLockdown(pkgs: List<PackageInfo>, allowed: List<JudgeRuling>) {
         Log.e("GuardAppController", "ENABLING TOTAL LOCKDOWN, EXCEPT: $allowed")
         // TODO proper locktask or something else
         // - locktask (not working AND must have proper in between apps navigation, since only one locked app supported?) (implement in LocktastController /mi/lockdown/*apps -> FORCE)

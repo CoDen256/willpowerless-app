@@ -8,6 +8,7 @@ import hu.autsoft.krate.booleanPref
 import hu.autsoft.krate.default.withDefault
 import hu.autsoft.krate.gson.gson
 import hu.autsoft.krate.gson.gsonPref
+import hu.autsoft.krate.stringSetPref
 import io.github.coden256.wpl.judge.JudgeRuling
 import io.github.coden256.wpl.judge.RulingTree
 import org.koin.core.component.KoinComponent
@@ -25,6 +26,16 @@ class AppConfig(val context: Context) : SimpleKrate(context), KoinComponent {
     val rulingsLive = MutableLiveData<RulingTree>() // liveData(::rulings)
 
     var appRulings by gsonPref<List<JudgeRuling>>().withDefault(listOf())
+    var appsHidden by stringSetPref().withDefault(setOf())
+    var appsUninstallBlocked by stringSetPref().withDefault(setOf())
+
+    fun addHiddenPackage(pkg: String){
+        appsHidden = appsHidden.plus(pkg)
+    }
+
+    fun addUninstallBlockedPackage(pkg: String){
+        appsUninstallBlocked = appsUninstallBlocked.plus(pkg)
+    }
 
     operator fun get(key: String?): Any? {
         return sharedPreferences.all[key]
