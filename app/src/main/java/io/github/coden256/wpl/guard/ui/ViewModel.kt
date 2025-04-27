@@ -1,25 +1,18 @@
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
-import androidx.work.WorkManager
-import io.github.coden256.wpl.guard.core.WORK_TAG
+import io.github.coden256.wpl.guard.config.AppConfig
 import io.github.coden256.wpl.guard.core.enqueueOnce
+import io.github.coden256.wpl.guard.monitors.WorkResult
 import io.github.coden256.wpl.guard.workers.GuardJudgeUpdater
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-
-data class WorkResult(
-    val id: String,
-    val state: WorkInfo.State,
-    val value: Int = 100,
-    val timestamp: Long,
-    val scheduled: Long,
-    val type: String
-)
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 data class WorkResultsState(
     val results: List<WorkResult> = emptyList(),
@@ -27,39 +20,19 @@ data class WorkResultsState(
     val isWorkScheduled: Boolean = false
 )
 
-class WorkResultsViewModel(private val app: Application) : AndroidViewModel(app) {
-    private val _state = MutableStateFlow(WorkResultsState())
-    val state: StateFlow<WorkResultsState> = _state
+class WorkResultsViewModel(private val app: Application) : AndroidViewModel(app), KoinComponent {
+    val state = MutableStateFlow(WorkResultsState())
 
-    private val workManager = WorkManager.getInstance(app)
+    private val appConfig by inject<AppConfig>()
+
     init {
         viewModelScope.launch {
-            // Observe work results
-            workManager
-                .getWorkInfosByTagLiveData(WORK_TAG)
-                .asFlow()
-                .collect { workInfos ->
-                    val results = workInfos
-                        .map { workInfo ->
-                            WorkResult(
-                                id = workInfo.id.toString(),
-                                state = workInfo.state,
-                                value = when(workInfo.state){
-                                    WorkInfo.State.SUCCEEDED -> 100
-                                    WorkInfo.State.FAILED -> 100
-                                    WorkInfo.State.RUNNING -> 50
-                                    WorkInfo.State.ENQUEUED -> 25
-                                    WorkInfo.State.BLOCKED -> 10
-                                    WorkInfo.State.CANCELLED -> 0
-                                },
-                                scheduled = workInfo.nextScheduleTimeMillis,
-                                timestamp = workInfo.outputData.getLong("timestamp", 0L),
-                                type = workInfo.tags.first { it.startsWith("name=") }.removePrefix("name=")
-                            )
-                        }
-
-                    _state.update { it.copy(results = results.sortedByDescending { r -> r.timestamp }) }
-                }
+            appConfig.jobsLive.asFlow().collect { results ->
+                Log.w("GuardWorkersView", "jobs: $results")
+                state.update { it.copy(results = results
+                    .sortedByDescending { r -> r.timestamp }
+                ) }
+            }
         }
     }
 

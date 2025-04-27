@@ -1,4 +1,4 @@
-package io.github.coden256.wpl.guard.core.network
+package io.github.coden256.wpl.guard.monitors
 
 import android.content.Context
 import android.net.ConnectivityManager

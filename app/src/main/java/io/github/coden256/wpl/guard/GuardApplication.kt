@@ -3,7 +3,6 @@ package io.github.coden256.wpl.guard
 import android.app.Application
 import android.util.Log
 import androidx.work.Configuration
-import androidx.work.WorkManager
 import io.github.coden256.wpl.guard.modules.RootModule
 import io.github.coden256.wpl.guard.workers.GuardServiceHealthChecker
 import org.koin.android.ext.koin.androidContext
@@ -14,13 +13,8 @@ class GuardApplication : Application(), Configuration.Provider {
 
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
-            .setMinimumLoggingLevel(android.util.Log.INFO)
+            .setMinimumLoggingLevel(Log.INFO)
             .build()
-
-    companion object {
-        lateinit var workManager: WorkManager
-            private set
-    }
 
     override fun onCreate() {
         super.onCreate()
@@ -32,7 +26,6 @@ class GuardApplication : Application(), Configuration.Provider {
         }
 
         GuardServiceHealthChecker.runNow(this)
-        workManager = WorkManager.getInstance(this)
     }
 
     override fun onTerminate() {

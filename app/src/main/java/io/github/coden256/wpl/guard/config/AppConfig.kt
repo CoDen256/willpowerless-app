@@ -9,6 +9,8 @@ import hu.autsoft.krate.gson.gson
 import hu.autsoft.krate.gson.gsonPref
 import hu.autsoft.krate.stringPref
 import hu.autsoft.krate.stringSetPref
+import io.github.coden256.wpl.guard.monitors.WorkResult
+import io.github.coden256.wpl.guard.util.liveData
 import io.github.coden256.wpl.judge.JudgeRuling
 import io.github.coden256.wpl.judge.RulingTree
 import org.koin.core.component.KoinComponent
@@ -20,6 +22,9 @@ class AppConfig(val context: Context) : SimpleKrate(context), KoinComponent {
             .registerTypeAdapter(RulingTree::class.java, RulingTree.Adapter())
             .create()
     }
+
+    var jobs by gsonPref<Set<WorkResult>>().withDefault(setOf())
+    val jobsLive = liveData(::jobs)
 
     val rulingsLive = MutableLiveData<RulingTree>() // liveData(::rulings)
 

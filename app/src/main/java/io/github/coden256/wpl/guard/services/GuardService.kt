@@ -9,15 +9,16 @@ import android.content.Intent.ACTION_PACKAGE_REMOVED
 import android.util.Log
 import androidx.annotation.RequiresPermission
 import io.github.coden256.wpl.guard.config.AppConfig
-import io.github.coden256.wpl.guard.core.enqueueOnce
-import io.github.coden256.wpl.guard.core.enqueuePeriodic
-import io.github.coden256.wpl.guard.core.network.NetworkConnectionMonitor
-import io.github.coden256.wpl.guard.core.newNotificationChannel
-import io.github.coden256.wpl.guard.core.notify
-import io.github.coden256.wpl.guard.core.registerReceiver
 import io.github.coden256.wpl.guard.controllers.AppController
 import io.github.coden256.wpl.guard.controllers.RemoteAppRulingListener
 import io.github.coden256.wpl.guard.controllers.VpnController
+import io.github.coden256.wpl.guard.core.enqueueOnce
+import io.github.coden256.wpl.guard.core.enqueuePeriodic
+import io.github.coden256.wpl.guard.core.newNotificationChannel
+import io.github.coden256.wpl.guard.core.notify
+import io.github.coden256.wpl.guard.core.registerReceiver
+import io.github.coden256.wpl.guard.monitors.NetworkConnectionMonitor
+import io.github.coden256.wpl.guard.monitors.WorkMonitor
 import io.github.coden256.wpl.guard.workers.GuardJudgeUpdater
 import io.github.coden256.wpl.guard.workers.GuardServiceHealthChecker
 import org.koin.android.ext.android.inject
@@ -33,6 +34,8 @@ class GuardService : Service() {
     private val appController by inject<AppController>()
     private val vpnController by inject<VpnController>()
     private val netMonitor by inject<NetworkConnectionMonitor>()
+    private val workMonitor by inject<WorkMonitor> ()
+
 
     private val remoteListeners = listOf(
         RemoteAppRulingListener("com.celzero.bravedns"),
@@ -49,6 +52,7 @@ class GuardService : Service() {
         startForeground(NOTIFICATION_ID, notification)
 
         connectListeners(this)
+        appConfig.jobs = setOf()
 
         registerWorkers()
         registerReceivers()
@@ -102,6 +106,8 @@ class GuardService : Service() {
             Log.w("GuardService", "Network enabled: $enabled")
             if (enabled) enqueueOnce<GuardJudgeUpdater>(backoff = Duration.ofSeconds(10))
         }
+
+        workMonitor.register()
     }
 
     private fun disconnectListeners(){
