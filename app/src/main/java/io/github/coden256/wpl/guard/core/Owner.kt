@@ -37,21 +37,22 @@ class Owner(
     }
 
     fun hide(pkg: String, hide: Boolean=true){
+        if (hide) appConfig.addHiddenPackage(pkg) else appConfig.removeHiddenPackage(pkg)
+
         if (dpm.isApplicationHidden(admin, pkg) == hide) return // no change
         if (hide && dpm.isUninstallBlocked(admin, pkg)) blockUninstall(pkg, false) // unblock before hiding
 
         Log.i(tag, "Hiding $pkg? $hide")
         dpm.setApplicationHidden(admin, pkg, hide)
-        if (hide) appConfig.addHiddenPackage(pkg) else appConfig.removeHiddenPackage(pkg)
     }
 
     fun blockUninstall(pkg: String, block: Boolean=true){
+        if (block) appConfig.addUninstallablePackage(pkg) else appConfig.removeUninstallablePackage(pkg)
         if (dpm.isUninstallBlocked(admin, pkg) == block) return // no change
         if (block && dpm.isApplicationHidden(admin, pkg)) hide(pkg, false) // unhide before blocking
 
         Log.i(tag, "Blocking uninstall $pkg? $block")
         dpm.setUninstallBlocked(admin, pkg, block)
-        if (block) appConfig.addUninstallablePackage(pkg) else appConfig.removeUninstallablePackage(pkg)
     }
 
     fun enableBackupService(enable:Boolean=true){

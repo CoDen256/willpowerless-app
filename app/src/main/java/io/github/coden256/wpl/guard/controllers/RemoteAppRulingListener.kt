@@ -1,6 +1,7 @@
 package io.github.coden256.wpl.guard.controllers
 
 import android.content.Context
+import android.util.Log
 import io.github.coden256.wpl.guard.GuardClientConnector
 import io.github.coden256.wpl.guard.Ruling
 import io.github.coden256.wpl.judge.JudgeRuling
@@ -11,12 +12,16 @@ class RemoteAppRulingListener (
 
     private val connector = GuardClientConnector(target)
 
-    fun connect(context: Context) = connector.connect(context)
+    fun onRulings(context: Context, rulings: List<JudgeRuling>) {
+        connector.bind(context,
+            onConnected = { client ->
+                Log.i("GuardRemoteAppRulingListener", "Sending rulings: $rulings")
+                client.onRulings(rulings.map { it.toRuling() })
 
-    fun disconnect(context: Context) = connector.diconnect(context)
-
-    fun onRulings(rulings: List<JudgeRuling>) {
-        connector()?.onRulings(rulings.map { it.toRuling()})
+                connector.unbind(context)
+            },
+            onDisconnected = {}
+        )
     }
 
     fun JudgeRuling.toRuling() = Ruling().also {

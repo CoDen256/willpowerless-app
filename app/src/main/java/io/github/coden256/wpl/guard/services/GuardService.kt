@@ -84,7 +84,6 @@ class GuardService : Service() {
     }
 
     private fun connectListeners(context: Context){
-        remoteListeners.forEach { it.connect(context) }
         netMonitor.startMonitoring()
     }
 
@@ -95,7 +94,7 @@ class GuardService : Service() {
             appController.onNewRulings(tree.getRulings("/apps/").getOrNull() ?: emptyList())
             vpnController.onRulings(tree.getRulings("/vpn/").getOrNull() ?: emptyList())
             remoteListeners.forEach {
-                it.onRulings(tree.getSubRulings("/apps/${it.target}/").getOrNull() ?: emptyList())
+                it.onRulings(context,tree.getSubRulings("/apps/${it.target}/").getOrNull() ?: emptyList())
             }
         }
 
@@ -106,7 +105,6 @@ class GuardService : Service() {
     }
 
     private fun disconnectListeners(){
-        remoteListeners.forEach { it.disconnect(this) }
         netMonitor.stopMonitoring()
     }
 }
