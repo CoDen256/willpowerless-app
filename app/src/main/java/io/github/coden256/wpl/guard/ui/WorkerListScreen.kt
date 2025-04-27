@@ -13,13 +13,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.AlarmOff
+import androidx.compose.material.icons.filled.Cached
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Button
@@ -28,7 +29,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -45,6 +45,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.work.WorkInfo
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -64,14 +65,7 @@ fun WorkResultsScreen(viewModel: WorkResultsViewModel = androidx.lifecycle.viewm
                 )
             )
         },
-        floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = { viewModel.addMockResult() },
-                icon = { Icon(Icons.Default.Add, "Add") },
-                text = { Text("Add Test") },
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-        }
+        floatingActionButton = {}
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -97,19 +91,6 @@ fun WorkResultsScreen(viewModel: WorkResultsViewModel = androidx.lifecycle.viewm
                     Spacer(Modifier.width(8.dp))
                     Text("Start")
                 }
-
-                Button(
-                    onClick = { viewModel.cancelPeriodicWork() },
-                    enabled = state.isWorkScheduled,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.error,
-                        contentColor = MaterialTheme.colorScheme.onError
-                    )
-                ) {
-                    Icon(Icons.Default.Stop, contentDescription = "Stop")
-                    Spacer(Modifier.width(8.dp))
-                    Text("Stop")
-                }
             }
 
             // Stats Chip Group
@@ -133,7 +114,7 @@ fun WorkResultsScreen(viewModel: WorkResultsViewModel = androidx.lifecycle.viewm
 
                 AssistChip(
                     onClick = {},
-                    label = { Text("Success: ${state.results.count { it.success }}") },
+                    label = { Text("Success: ${state.results.count { it.state == WorkInfo.State.SUCCEEDED }}") },
                     leadingIcon = {
                         Icon(
                             Icons.Default.Check,
@@ -177,13 +158,20 @@ fun WorkResultCard(result: WorkResult) {
         dateFormat.format(Date(result.timestamp))
     }
 
+    val formattedScheduled = remember(result.timestamp) {
+        dateFormat.format(Date(result.scheduled))
+    }
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = if (result.success) {
-                MaterialTheme.colorScheme.surfaceVariant
-            } else {
-                MaterialTheme.colorScheme.errorContainer
+            containerColor = when(result.state){
+                WorkInfo.State.SUCCEEDED -> MaterialTheme.colorScheme.surfaceVariant
+                WorkInfo.State.FAILED -> MaterialTheme.colorScheme.errorContainer
+                WorkInfo.State.RUNNING -> MaterialTheme.colorScheme.surfaceDim
+                WorkInfo.State.ENQUEUED -> MaterialTheme.colorScheme.surfaceDim
+                WorkInfo.State.BLOCKED -> MaterialTheme.colorScheme.surfaceDim
+                WorkInfo.State.CANCELLED -> MaterialTheme.colorScheme.errorContainer
             }
         )
     ) {
@@ -198,10 +186,13 @@ fun WorkResultCard(result: WorkResult) {
                     text = result.type,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = if (result.success) {
-                        MaterialTheme.colorScheme.primary
-                    } else {
-                        MaterialTheme.colorScheme.error
+                    color = when(result.state){
+                        WorkInfo.State.SUCCEEDED -> MaterialTheme.colorScheme.primary
+                        WorkInfo.State.FAILED -> MaterialTheme.colorScheme.error
+                        WorkInfo.State.RUNNING -> MaterialTheme.colorScheme.secondary
+                        WorkInfo.State.ENQUEUED -> MaterialTheme.colorScheme.secondary
+                        WorkInfo.State.BLOCKED -> MaterialTheme.colorScheme.tertiary
+                        WorkInfo.State.CANCELLED -> MaterialTheme.colorScheme.error
                     }
                 )
 
@@ -219,13 +210,34 @@ fun WorkResultCard(result: WorkResult) {
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Icon(
-                    imageVector = if (result.success) Icons.Default.CheckCircle else Icons.Default.Error,
-                    contentDescription = if (result.success) "Success" else "Error",
-                    tint = if (result.success) Color(0xFF4CAF50) else MaterialTheme.colorScheme.error
+                    imageVector = when(result.state){
+                        WorkInfo.State.SUCCEEDED -> Icons.Default.CheckCircle
+                        WorkInfo.State.FAILED -> Icons.Default.Error
+                        WorkInfo.State.RUNNING -> Icons.Default.PlayArrow
+                        WorkInfo.State.ENQUEUED -> Icons.Default.AccessTime
+                        WorkInfo.State.BLOCKED -> Icons.Default.Cached
+                        WorkInfo.State.CANCELLED -> Icons.Default.AlarmOff
+                    },
+                    contentDescription = "state",
+                    tint = when(result.state){
+                        WorkInfo.State.SUCCEEDED -> Color(0xFF4CAF50)
+                        WorkInfo.State.FAILED -> MaterialTheme.colorScheme.error
+                        WorkInfo.State.RUNNING -> Color(0xFF4CAF50)
+                        WorkInfo.State.ENQUEUED -> Color(0xFF4CAF50)
+                        WorkInfo.State.BLOCKED -> MaterialTheme.colorScheme.error
+                        WorkInfo.State.CANCELLED -> MaterialTheme.colorScheme.error
+                    }
                 )
 
                 Text(
-                    text = if (result.success) "Completed successfully" else "Completed with errors",
+                    text = when(result.state){
+                        WorkInfo.State.SUCCEEDED -> "Completed successfully"
+                        WorkInfo.State.FAILED -> "Completed with errors"
+                        WorkInfo.State.RUNNING -> "Running"
+                        WorkInfo.State.ENQUEUED -> "Enqueued"
+                        WorkInfo.State.BLOCKED -> "Blocked"
+                        WorkInfo.State.CANCELLED -> "Cancelled"
+                    },
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
@@ -237,10 +249,13 @@ fun WorkResultCard(result: WorkResult) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(8.dp),
-                color = if (result.success) {
-                    MaterialTheme.colorScheme.primary
-                } else {
-                    MaterialTheme.colorScheme.error
+                color = when(result.state){
+                    WorkInfo.State.SUCCEEDED -> MaterialTheme.colorScheme.primary
+                    WorkInfo.State.FAILED -> MaterialTheme.colorScheme.error
+                    WorkInfo.State.RUNNING -> MaterialTheme.colorScheme.secondary
+                    WorkInfo.State.ENQUEUED -> MaterialTheme.colorScheme.secondary
+                    WorkInfo.State.BLOCKED -> MaterialTheme.colorScheme.tertiary
+                    WorkInfo.State.CANCELLED -> MaterialTheme.colorScheme.error
                 },
                 trackColor = MaterialTheme.colorScheme.surfaceVariant
             )
@@ -252,7 +267,7 @@ fun WorkResultCard(result: WorkResult) {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Value: ${result.value}",
+                    text = "Scheduled: $formattedScheduled",
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.Bold
                 )

@@ -11,14 +11,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.util.UUID
 
 data class WorkResult(
     val id: String,
-    val success: Boolean,
-    val value: Int,
+    val state: WorkInfo.State,
+    val value: Int = 100,
     val timestamp: Long,
-    val type: String = if ((0..1).random() == 0) "Analysis" else "Processing"
+    val scheduled: Long,
+    val type: String
 )
 
 data class WorkResultsState(
@@ -40,13 +40,21 @@ class WorkResultsViewModel(private val app: Application) : AndroidViewModel(app)
                 .asFlow()
                 .collect { workInfos ->
                     val results = workInfos
-//                        .filter { it.state == WorkInfo.State.SUCCEEDED }
                         .map { workInfo ->
                             WorkResult(
-                                id = UUID.randomUUID().toString(),
-                                success = false,
-                                value = 0,
-                                timestamp = 0L
+                                id = workInfo.id.toString(),
+                                state = workInfo.state,
+                                value = when(workInfo.state){
+                                    WorkInfo.State.SUCCEEDED -> 100
+                                    WorkInfo.State.FAILED -> 100
+                                    WorkInfo.State.RUNNING -> 50
+                                    WorkInfo.State.ENQUEUED -> 25
+                                    WorkInfo.State.BLOCKED -> 10
+                                    WorkInfo.State.CANCELLED -> 0
+                                },
+                                scheduled = workInfo.nextScheduleTimeMillis,
+                                timestamp = workInfo.outputData.getLong("timestamp", 0L),
+                                type = workInfo.tags.first { it.startsWith("name=") }.removePrefix("name=")
                             )
                         }
 
@@ -57,24 +65,5 @@ class WorkResultsViewModel(private val app: Application) : AndroidViewModel(app)
 
     fun schedulePeriodicWork() {
         app.enqueueOnce<GuardJudgeUpdater>()
-
-        _state.update { it.copy(isWorkScheduled = true) }
-    }
-
-    fun cancelPeriodicWork() {
-        _state.update { it.copy(isWorkScheduled = false) }
-    }
-
-    fun addMockResult() {
-        val newResult = WorkResult(
-            id = UUID.randomUUID().toString(),
-            success = (0..1).random() == 1,
-            value = (1..100).random(),
-            timestamp = System.currentTimeMillis()
-        )
-
-        _state.update { currentState ->
-            currentState.copy(results = listOf(newResult) + currentState.results)
-        }
     }
 }

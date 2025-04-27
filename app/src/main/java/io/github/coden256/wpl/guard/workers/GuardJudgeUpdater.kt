@@ -2,6 +2,7 @@ package io.github.coden256.wpl.guard.workers
 
 import android.content.Context
 import android.util.Log
+import androidx.work.Data
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import io.github.coden256.wpl.guard.config.AppConfig
@@ -20,7 +21,8 @@ class GuardJudgeUpdater(context: Context, private val params: WorkerParameters) 
 
     override fun doWork(): Result {
         Log.i("GuardJudgeUpdater", "Running as service worker (${params.id})...")
-        return run().asWorkResult({it is UnknownHostException})
+        val outputData = Data.Builder().putLong("timestamp", System.currentTimeMillis()).build()
+        return run().asWorkResult(outputData){it is UnknownHostException}
     }
 
     private fun run(): kotlin.Result<RulingTree> {

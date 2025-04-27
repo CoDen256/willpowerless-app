@@ -44,6 +44,9 @@ inline fun <reified T: Service> Context.isServiceRunning(): Boolean {
         .any { it.service.className == T::class.java.name }
 }
 
+const val WORK_TAG = "GuardWorker"
+
+
 inline fun <reified T: ListenableWorker> Context.enqueuePeriodic(
     duration: Duration=Duration.ofMinutes(15),
     init: Duration=Duration.ZERO,
@@ -54,6 +57,7 @@ inline fun <reified T: ListenableWorker> Context.enqueuePeriodic(
     val request = PeriodicWorkRequestBuilder<T>(duration)
         .setInitialDelay(init)
         .addTag(WORK_TAG)
+        .addTag("name=$name")
         .setBackoffCriteria(BackoffPolicy.LINEAR, backoff)
         .build()
     WorkManager
@@ -65,8 +69,6 @@ inline fun <reified T: ListenableWorker> Context.enqueuePeriodic(
     )
 }
 
-const val WORK_TAG = "Guard"
-
 inline fun <reified T: ListenableWorker> Context.enqueueOnce(
     init: Duration=Duration.ZERO,
     backoff: Duration=Duration.ofMillis(WorkRequest.DEFAULT_BACKOFF_DELAY_MILLIS)
@@ -76,6 +78,7 @@ inline fun <reified T: ListenableWorker> Context.enqueueOnce(
     val request = OneTimeWorkRequestBuilder<T>()
         .setInitialDelay(init)
         .addTag(WORK_TAG)
+        .addTag("name=$name")
         .setBackoffCriteria(BackoffPolicy.LINEAR, backoff)
         .build()
     WorkManager
