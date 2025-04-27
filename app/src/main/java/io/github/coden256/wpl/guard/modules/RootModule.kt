@@ -4,6 +4,7 @@ import io.github.coden256.wpl.guard.config.AppConfig
 import io.github.coden256.wpl.guard.core.network.NetworkConnectionMonitor
 import io.github.coden256.wpl.guard.controllers.AppController
 import io.github.coden256.wpl.guard.controllers.VpnController
+import io.github.coden256.wpl.guard.core.Owner
 import io.github.coden256.wpl.judge.Judge
 import io.github.coden256.wpl.judge.OkHttpJudge
 import okhttp3.OkHttpClient
@@ -17,6 +18,7 @@ object RootModule {
         single { VpnController(androidContext()) }
         single { AppController(androidContext(), get()) }
         single { NetworkConnectionMonitor(androidContext()) }
+        single { Owner(androidContext(), get()) }
     }
 
     private val configModule = module {

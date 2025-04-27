@@ -21,6 +21,7 @@ class GuardClientConnector(val target: String): () -> GuardClient? {
     )
 
     fun connect(context: Context){
+        Log.i("GuardClientConnector", "Trying to connect to $target")
         val intent = Intent(ACTION).apply { setPackage(target) }
         context.bindService(intent, connection, BIND_AUTO_CREATE)
     }

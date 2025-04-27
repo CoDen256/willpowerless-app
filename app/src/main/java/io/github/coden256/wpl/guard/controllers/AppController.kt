@@ -1,80 +1,85 @@
 package io.github.coden256.wpl.guard.controllers
 
-import android.content.Context
 import android.content.pm.PackageInfo
 import android.util.Log
 import io.github.coden256.wpl.guard.config.AppConfig
 import io.github.coden256.wpl.guard.core.Owner
-import io.github.coden256.wpl.guard.core.Owner.Companion.asOwner
-import io.github.coden256.wpl.guard.util.getInstalledPackages
 import io.github.coden256.wpl.judge.Action
 import io.github.coden256.wpl.judge.JudgeRuling
 import io.github.coden256.wpl.judge.findMatch
 
 
+private const val TAG = "GuardAppController"
+
 class AppController(
-    private val context: Context,
+    private val owner: Owner,
     private val appConfig: AppConfig
 ) {
+    var coutner = 0
 
-    fun onNewRulings(rulings: List<JudgeRuling>) {
+    fun onNewRulings(rulingss: List<JudgeRuling>) {
+        val rulings = listOf(
+            JudgeRuling(
+                if (coutner++ % 3 == 0) Action.BLOCK else Action.FORCE,
+                "com.reddit.frontpage"
+            )
+        )
+        // save to check against later
         appConfig.appRulings = rulings
 
-        val packages = context.getInstalledPackages()
-        Log.i("GuardAppController", "Processing ${packages.size} packages against: $rulings")
+        val packages = owner.getInstalledPackages()
+        Log.i(TAG, "Processing ${packages.size} packages against: $rulings")
 
         val lockdown = rulings.firstOrNull { it.path.contains("*") && it.path.length < 5 }
         if (lockdown != null) {
-            Log.e("GuardAppController", "WARNING: RULINGS CONTAIN LOCKDOWN RULING: $lockdown")
+            Log.e(TAG, "WARNING: RULINGS CONTAIN LOCKDOWN RULING: $lockdown")
             processLockdown(packages, rulings.filter { it.action == Action.FORCE })
             return
         }
 
-        val prevHidden = appConfig.appsHidden
-        val prevBlocked = appConfig.appsUninstallBlocked
 
-        appConfig.appsHidden = setOf()
-        appConfig.appsUninstallBlocked = setOf()
-        asOwner(context) {
-            packages.forEach {
-                processPackage(it.packageName, rulings)
-            }
-            prevBlocked.minus(appConfig.appsUninstallBlocked).forEach {
-                Log.i("GuardAppController", "Lifting up forcing unblock for $it")
-                blockUninstall(it, false)
-            }
-            prevHidden.minus(appConfig.appsHidden).forEach {
-                Log.i("GuardAppController", "Lifting up hiding for $it")
-                hide(it, false)
-            }
+        val prevBlocked = appConfig.uninstallablePackages
+        val prevHidden = appConfig.hiddenPackages
+
+        appConfig.uninstallablePackages = setOf()
+        appConfig.hiddenPackages = setOf()
+        packages.forEach {
+            processPackage(it.packageName, rulings)
         }
-        Log.i("GuardAppController", "hidden"+appConfig.appsHidden.toString())
-        Log.i("GuardAppController", "blocked"+appConfig.appsUninstallBlocked.toString())
+
+        prevHidden.minus(appConfig.hiddenPackages).forEach {
+            Log.i(TAG, "Lifting up HIDDEN of $it")
+            owner.hide(it, false)
+        }
+
+        prevBlocked.minus(appConfig.uninstallablePackages).forEach {
+            Log.i(TAG, "Lifting up UNINSTALLABLE of $it")
+            owner.blockUninstall(it, false)
+        }
+
+        Log.i(TAG, "hidden:" + appConfig.hiddenPackages)
+        Log.i(TAG, "uninstallable:" + appConfig.uninstallablePackages)
     }
 
     fun onNewApp(pkg: String) {
         val rulings = appConfig.appRulings
-        Log.i("GuardAppController", "Processing $pkg packages against: $rulings")
-        asOwner(context) {
-            processPackage(pkg, rulings)
-        }
+        Log.i(TAG, "Processing $pkg packages against: $rulings")
+        processPackage(pkg, rulings)
     }
 
-    private fun Owner.processPackage(pkg: String, rulings: List<JudgeRuling>) {
+    private fun processPackage(pkg: String, rulings: List<JudgeRuling>) {
         val (match, reasons) = rulings.findMatch(pkg)
         val (action, path) = match
-        val reason = "because matches: $path, out of $reasons"
+        val reason = "because: $path, out of $reasons"
         when (action) {
             Action.FORCE -> {
-                Log.i("GuardAppController", "FORCING: $pkg, $reason")
-                blockUninstall(pkg)
-                appConfig.addUninstallBlockedPackage(pkg)
+                Log.i(TAG, "FORCING: $pkg, $reason")
+                owner.blockUninstall(pkg)
             }
 
             Action.BLOCK -> {
-                Log.i("GuardAppController", "BLOCKING: $pkg, $reason")
-                hide(pkg)
-                appConfig.addHiddenPackage(pkg)
+                Log.i(TAG, "BLOCKING: $pkg, $reason")
+                owner.hide(pkg)
             }
 
             Action.ALLOW -> {}
@@ -82,7 +87,7 @@ class AppController(
     }
 
     private fun processLockdown(pkgs: List<PackageInfo>, allowed: List<JudgeRuling>) {
-        Log.e("GuardAppController", "ENABLING TOTAL LOCKDOWN, EXCEPT: $allowed")
+        Log.e(TAG, "ENABLING TOTAL LOCKDOWN, EXCEPT: $allowed")
         // TODO proper locktask or something else
         // - locktask (not working AND must have proper in between apps navigation, since only one locked app supported?) (implement in LocktastController /mi/lockdown/*apps -> FORCE)
         // - hide everything (but the homescreen arrangement is broken afterwards) (implement here)

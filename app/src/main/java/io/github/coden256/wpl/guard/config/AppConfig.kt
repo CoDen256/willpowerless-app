@@ -8,6 +8,7 @@ import hu.autsoft.krate.booleanPref
 import hu.autsoft.krate.default.withDefault
 import hu.autsoft.krate.gson.gson
 import hu.autsoft.krate.gson.gsonPref
+import hu.autsoft.krate.stringPref
 import hu.autsoft.krate.stringSetPref
 import io.github.coden256.wpl.judge.JudgeRuling
 import io.github.coden256.wpl.judge.RulingTree
@@ -26,15 +27,25 @@ class AppConfig(val context: Context) : SimpleKrate(context), KoinComponent {
     val rulingsLive = MutableLiveData<RulingTree>() // liveData(::rulings)
 
     var appRulings by gsonPref<List<JudgeRuling>>().withDefault(listOf())
-    var appsHidden by stringSetPref().withDefault(setOf())
-    var appsUninstallBlocked by stringSetPref().withDefault(setOf())
+
+    var hiddenPackages by stringSetPref().withDefault(setOf())
+    var uninstallablePackages by stringSetPref().withDefault(setOf())
+    var vpnOnPackage by stringPref()
 
     fun addHiddenPackage(pkg: String){
-        appsHidden = appsHidden.plus(pkg)
+        hiddenPackages = hiddenPackages.plus(pkg)
     }
 
-    fun addUninstallBlockedPackage(pkg: String){
-        appsUninstallBlocked = appsUninstallBlocked.plus(pkg)
+    fun removeHiddenPackage(pkg: String){
+        hiddenPackages = hiddenPackages.minus(pkg)
+    }
+
+    fun addUninstallablePackage(pkg: String){
+        uninstallablePackages = uninstallablePackages.plus(pkg)
+    }
+
+    fun removeUninstallablePackage(pkg: String){
+        uninstallablePackages = uninstallablePackages.minus(pkg)
     }
 
     operator fun get(key: String?): Any? {
