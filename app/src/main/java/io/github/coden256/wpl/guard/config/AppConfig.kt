@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
 import hu.autsoft.krate.SimpleKrate
-import hu.autsoft.krate.booleanPref
 import hu.autsoft.krate.default.withDefault
 import hu.autsoft.krate.gson.gson
 import hu.autsoft.krate.gson.gsonPref
@@ -21,13 +20,10 @@ class AppConfig(val context: Context) : SimpleKrate(context), KoinComponent {
             .registerTypeAdapter(RulingTree::class.java, RulingTree.Adapter())
             .create()
     }
-    var firstTimeLaunch by booleanPref().withDefault(true)
 
-//    var rulings by gsonPref<RulingTree>().withDefault(RulingTree.EMPTY) TODO do we need to persist the rulings?
     val rulingsLive = MutableLiveData<RulingTree>() // liveData(::rulings)
 
     var appRulings by gsonPref<List<JudgeRuling>>().withDefault(listOf())
-
     var hiddenPackages by stringSetPref().withDefault(setOf())
     var uninstallablePackages by stringSetPref().withDefault(setOf())
     var vpnOnPackage by stringPref()
