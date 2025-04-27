@@ -2,6 +2,7 @@ package io.github.coden256.wpl.guard
 
 import android.app.Application
 import android.util.Log
+import io.github.coden256.wpl.guard.core.Owner
 import io.github.coden256.wpl.guard.modules.RootModule
 import io.github.coden256.wpl.guard.workers.GuardServiceHealthChecker
 import org.koin.android.ext.koin.androidContext

@@ -144,6 +144,11 @@ class Owner(
                 || it.packageName.startsWith("com.fido")
                 || it.packageName.startsWith("com.tencent")
                 || it.packageName.startsWith("com.modemdebug")
+                || it.packageName.startsWith("com.goodix")
+                || it.packageName.startsWith("com.wapi")
+                || it.packageName.startsWith("se.dirac")
+                || it.packageName.startsWith("com.dsi")
+                || it.packageName.startsWith("com.longcheertel")
                 || it.applicationInfo?.dataDir?.startsWith("/data/system") == true
     }
 }

@@ -15,8 +15,8 @@ object RootModule {
     private val coreModule = module {
         single { OkHttpClient() }
         single<Judge> { OkHttpJudge(get()) }
-        single { VpnController(androidContext()) }
-        single { AppController(androidContext(), get()) }
+        single { VpnController(get()) }
+        single { AppController(get(), get()) }
         single { NetworkConnectionMonitor(androidContext()) }
         single { Owner(androidContext(), get()) }
     }
