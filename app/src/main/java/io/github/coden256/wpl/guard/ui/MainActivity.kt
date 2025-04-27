@@ -1,151 +1,90 @@
 package io.github.coden256.wpl.guard.ui
 
-import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.lifecycleScope
-import io.github.coden256.wpl.guard.Ruling
-import io.github.coden256.wpl.guard.config.AppConfig
-import io.github.coden256.wpl.guard.core.enqueueOnce
-import io.github.coden256.wpl.guard.ui.theme.GuardTheme
-import io.github.coden256.wpl.guard.workers.GuardJudgeUpdater
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import org.koin.android.ext.android.inject
+import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import io.github.coden256.wpl.guard.ui.theme.GuardServiceMonitorTheme
+import androidx.compose.material3.TabRow
 
 class MainActivity : ComponentActivity() {
-    private val persistentState by inject<AppConfig>()
-    private val appConfig by inject<AppConfig>()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
         setContent {
-            GuardTheme {
-                UpdatableTextComponent(this, appConfig, persistentState, this)
+            GuardServiceMonitorTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    GuardServiceApp()
+                }
             }
         }
-    }
-
-    private fun io(f: suspend () -> Unit) {
-        lifecycleScope.launch(Dispatchers.IO) { f() }
     }
 
 }
 
 @Composable
-fun UpdatableTextComponent(context: Context, appConfig: AppConfig, persistentState: AppConfig, owner: LifecycleOwner) {
-    // State to hold our text value
-    var dns by remember { mutableStateOf("dns Text") }
-    var domains by remember { mutableStateOf("domains Text") }
-    var chats by remember { mutableStateOf("chats Text") }
-    var users by remember { mutableStateOf("users Text") }
-    var vpn by remember { mutableStateOf("vpn Text") }
-    var apps by remember { mutableStateOf("apps Text") }
+fun GuardServiceApp() {
+    val systemUiController = rememberSystemUiController()
+    val useDarkIcons = !isSystemInDarkTheme()
 
-    persistentState.rulingsLive.observe(owner){
-//        dns = it.toString()
-    }
-
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        // Display the current text
-        Text(
-            text = dns,
-            fontSize = 10.sp,
-            modifier = Modifier.padding(16.dp)
+    SideEffect {
+        systemUiController.setSystemBarsColor(
+            color = Color.Transparent,
+            darkIcons = useDarkIcons
         )
-
-//        Text(
-//            text = domains,
-//            fontSize = 24.sp,
-//            modifier = Modifier.padding(16.dp)
-//        )
-//
-//        Text(
-//            text = chats,
-//            fontSize = 24.sp,
-//            modifier = Modifier.padding(16.dp)
-//        )
-//
-//        Text(
-//            text = users,
-//            fontSize = 24.sp,
-//            modifier = Modifier.padding(16.dp)
-//        )
-//
-//        Text(
-//            text = vpn,
-//            fontSize = 24.sp,
-//            modifier = Modifier.padding(16.dp)
-//        )
-//
-//        Text(
-//            text = apps,
-//            fontSize = 24.sp,
-//            modifier = Modifier.padding(16.dp)
-//        )
-
-        // Button to update the text
-        Button(
-            onClick = {
-                persistentState.firstTimeLaunch = !persistentState.firstTimeLaunch
-                context.enqueueOnce<GuardJudgeUpdater>()
-//                dns = appConfig.dnsRulings.toString()
-//                domains = appConfig.domainRulings.toString()
-//                chats = appConfig.telegramChatRulings.toString()
-////                users = appConfig.telegramUserRulings.toString()
-////                vpn = appConfig.vpnRulings.toString()
-//                connect()?.onRulings(listOf(Ruling().apply {
-//                    this.path = "/domains/*.youtube.com"
-//                    this.action = "BLOCK"
-//                }, Ruling().apply {
-//                    this.path = "/domains/*.reddits.com"
-//                    this.action = "FORCE"
-//                },Ruling().apply {
-//                    this.path = "/domains/*.reddit.com/community"
-//                    this.action = "BLOCK"},
-//
-//                    ruling("/dns/max:", "FORCE"),
-////                    ruling("/dns/1-bdaacaaaeaaia", "FORCE"),
-//                    ruling("/chats/*-p*-***", "BLOCK"),
-//                    ruling("/users/*-*", "FORCE")
-//                )
-//                )
-//                apps = appConfig.appRulings.toString()
-            },
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Text("Update Text")
-        }
     }
+
+    val viewModel: GuardServiceViewModel = viewModel()
+    GuardServiceScreen(viewModel)
 }
 
-fun ruling(path: String, action: String): Ruling {
-    return  Ruling().apply {
-        this.path = path
-        this.action = action
+@Composable
+fun GuardServiceScreen(viewModel: GuardServiceViewModel) {
+    val tabTitles = listOf("Workers", "Information", "Status")
+    var selectedTabIndex by remember { mutableIntStateOf(0) }
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        // Tab Row
+        TabRow(
+            selectedTabIndex = selectedTabIndex,
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+        ) {
+            tabTitles.forEachIndexed { index, title ->
+                Tab(
+                    selected = selectedTabIndex == index,
+                    onClick = { selectedTabIndex = index },
+                    text = { Text(text = title) }
+                )
+            }
+        }
+
+        // Tab Content
+        when (selectedTabIndex) {
+            0 -> WorkerListScreen(viewModel.workerItems)
+            1 -> InformationListScreen(viewModel.infoItems)
+            2 -> StatusScreen(viewModel.statusItems)
+        }
     }
 }
