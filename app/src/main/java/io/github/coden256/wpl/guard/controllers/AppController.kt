@@ -15,14 +15,8 @@ class AppController(
     private val owner: Owner,
     private val appConfig: AppConfig
 ) {
-    var cnt = 0
 
-    fun onNewRulings(rulingss: List<JudgeRuling>) {
-        val rulings = listOf(
-            JudgeRuling(Action.BLOCK, "com.reddit.frontpage"),
-            JudgeRuling(Action.ALLOW, "com.reddit.frontpage"),
-            JudgeRuling(Action.FORCE, "com.reddit.frontpage"),
-        ).subList((++cnt) % 3, (cnt%3)+1)
+    fun onNewRulings(rulings: List<JudgeRuling>) {
         appConfig.appRulings = rulings  // cache to check against later
 
         val packages = owner.getInstalledPackages()
