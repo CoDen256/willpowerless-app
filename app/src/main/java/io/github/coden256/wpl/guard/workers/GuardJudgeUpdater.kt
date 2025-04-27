@@ -21,7 +21,7 @@ class GuardJudgeUpdater(context: Context, private val params: WorkerParameters) 
 
     override fun doWork(): Result {
         Log.i("GuardJudgeUpdater", "Running as service worker (${params.id})...")
-        val outputData = Data.Builder().putLong("timestamp", System.currentTimeMillis()).build()
+        val outputData = Data.Builder().putLong("timestamp", System.currentTimeMillis())
         return run().asWorkResult(outputData){it is UnknownHostException}
     }
 

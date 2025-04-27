@@ -52,7 +52,7 @@ class GuardService : Service() {
         startForeground(NOTIFICATION_ID, notification)
 
         connectListeners(this)
-        appConfig.jobs = setOf()
+//        appConfig.jobs = setOf()
 
         registerWorkers()
         registerReceivers()

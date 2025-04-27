@@ -17,7 +17,8 @@ import org.koin.core.component.inject
 data class WorkResultsState(
     val results: List<WorkResult> = emptyList(),
     val isLoading: Boolean = false,
-    val isWorkScheduled: Boolean = false
+    val isWorkScheduled: Boolean = false,
+    val timestamp: Long = 0L
 )
 
 class WorkResultsViewModel(private val app: Application) : AndroidViewModel(app), KoinComponent {
@@ -29,8 +30,9 @@ class WorkResultsViewModel(private val app: Application) : AndroidViewModel(app)
         viewModelScope.launch {
             appConfig.jobsLive.asFlow().collect { results ->
                 Log.w("GuardWorkersView", "jobs: $results")
-                state.update { it.copy(results = results
-                    .sortedByDescending { r -> r.timestamp }
+                state.update { it.copy(
+                    results = results.sortedByDescending { r -> r.timestamp },
+                    timestamp = System.nanoTime()
                 ) }
             }
         }

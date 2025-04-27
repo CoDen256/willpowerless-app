@@ -233,7 +233,7 @@ fun WorkResultCard(result: WorkResult) {
                 Text(
                     text = when(result.state){
                         WorkInfo.State.SUCCEEDED -> "Completed successfully"
-                        WorkInfo.State.FAILED -> "Completed with errors"
+                        WorkInfo.State.FAILED -> "Error: ${result.error ?: ""}"
                         WorkInfo.State.RUNNING -> "Running"
                         WorkInfo.State.ENQUEUED -> "Enqueued"
                         WorkInfo.State.BLOCKED -> "Blocked"

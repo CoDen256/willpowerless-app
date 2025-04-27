@@ -21,7 +21,8 @@ class WorkMonitor(private val workManager: WorkManager, private val appConfig: A
     }
 
     fun WorkResult.isExpired(): Boolean{
-        return timestamp < java.time.Instant.now().minus(1, java.time.temporal.ChronoUnit.DAYS).nano && state.isFinished
+        return timestamp < java.time.Instant.now().minus(1, java.time.temporal.ChronoUnit.DAYS).nano
+                && state.isFinished
     }
 
     fun WorkInfo.toWorkResult(): WorkResult {
@@ -38,7 +39,9 @@ class WorkMonitor(private val workManager: WorkManager, private val appConfig: A
             },
             scheduled = nextScheduleTimeMillis,
             timestamp = outputData.getLong("timestamp", nextScheduleTimeMillis),
-            type = tags.first { it.startsWith("name=") }.removePrefix("name=")
+            type = tags.first { it.startsWith("name=") }.removePrefix("name="),
+            error = outputData.getString("error"),
+            data = outputData.getString("data")
         )
     }
 
@@ -50,7 +53,9 @@ data class WorkResult(
     val value: Int = 100,
     val timestamp: Long,
     val scheduled: Long,
-    val type: String
+    val type: String,
+    val error: String?,
+    val data: String?,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
