@@ -53,6 +53,7 @@ inline fun <reified T: ListenableWorker> Context.enqueuePeriodic(
     Log.i(name, "Enqueueing $name every $duration, starting in $init")
     val request = PeriodicWorkRequestBuilder<T>(duration)
         .setInitialDelay(init)
+        .addTag(WORK_TAG)
         .setBackoffCriteria(BackoffPolicy.LINEAR, backoff)
         .build()
     WorkManager
@@ -64,6 +65,8 @@ inline fun <reified T: ListenableWorker> Context.enqueuePeriodic(
     )
 }
 
+const val WORK_TAG = "Guard"
+
 inline fun <reified T: ListenableWorker> Context.enqueueOnce(
     init: Duration=Duration.ZERO,
     backoff: Duration=Duration.ofMillis(WorkRequest.DEFAULT_BACKOFF_DELAY_MILLIS)
@@ -72,6 +75,7 @@ inline fun <reified T: ListenableWorker> Context.enqueueOnce(
     Log.i(name, "Enqueueing $name once, starting in $init")
     val request = OneTimeWorkRequestBuilder<T>()
         .setInitialDelay(init)
+        .addTag(WORK_TAG)
         .setBackoffCriteria(BackoffPolicy.LINEAR, backoff)
         .build()
     WorkManager

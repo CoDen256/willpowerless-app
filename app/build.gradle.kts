@@ -69,6 +69,8 @@ dependencies {
     implementation(libs.androidx.material)
     implementation(libs.androidx.material3.window.size.class1)
     implementation(libs.androidx.compose.material3.material3)
+    implementation(libs.androidx.material.icons.extended)
+    implementation(libs.core.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
