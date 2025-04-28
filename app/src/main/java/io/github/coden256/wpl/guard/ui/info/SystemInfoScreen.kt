@@ -38,7 +38,7 @@ fun SystemInfoCard(info: SystemInfo) {
         colors = CardDefaults.cardColors(
             containerColor = when{
                 info.value == "hidden" -> MaterialTheme.colorScheme.errorContainer
-                info.value == "uninstallable" -> Color(0xABC3B74A)
+                info.value == "unremovable" -> Color(0xABC3B74A)
                 info.title == "Always on VPN" -> Color(0x408BC34A)
                 else -> MaterialTheme.colorScheme.surfaceVariant
             }

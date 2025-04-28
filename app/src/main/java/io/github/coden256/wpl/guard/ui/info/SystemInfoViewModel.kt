@@ -15,7 +15,6 @@ import androidx.lifecycle.viewModelScope
 import io.github.coden256.wpl.guard.config.AppConfig
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -92,8 +91,8 @@ class SystemInfoViewModel(application: Application) : AndroidViewModel(applicati
             newInfo.add(SystemInfo(UUID.randomUUID().toString(), it, "hidden"))
         }
 
-        appConfig.uninstallablePackages.forEach {
-            newInfo.add(SystemInfo(UUID.randomUUID().toString(), it, "uninstallable"))
+        appConfig.unremovablePackages.forEach {
+            newInfo.add(SystemInfo(UUID.randomUUID().toString(), it, "unremovable"))
         }
 
         systemInfo.value = newInfo

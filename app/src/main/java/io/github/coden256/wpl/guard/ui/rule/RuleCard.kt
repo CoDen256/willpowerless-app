@@ -2,6 +2,12 @@ package io.github.coden256.wpl.guard.ui.rule
 
 // RuleCard.kt
 // RulesScreen.kt
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -16,6 +22,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Badge
 import androidx.compose.material3.Button
@@ -61,7 +69,7 @@ fun RuleAction.toContainerColor() =
 fun RuleAction.toSelectedContainerColor() =
     when (this) {
         RuleAction.ALLOW -> MaterialTheme.colorScheme.onPrimaryContainer
-        RuleAction.BLOCK ->  MaterialTheme.colorScheme.onErrorContainer
+        RuleAction.BLOCK -> MaterialTheme.colorScheme.onErrorContainer
         RuleAction.FORCE -> MaterialTheme.colorScheme.onTertiaryContainer
     }
 
@@ -77,7 +85,7 @@ fun RuleAction.toColor() =
 fun RuleAction.toSelectedColor() =
     when (this) {
         RuleAction.ALLOW -> MaterialTheme.colorScheme.onPrimary
-        RuleAction.BLOCK ->  MaterialTheme.colorScheme.onError
+        RuleAction.BLOCK -> MaterialTheme.colorScheme.onError
         RuleAction.FORCE -> MaterialTheme.colorScheme.onTertiary
     }
 
@@ -111,23 +119,28 @@ fun RulesScreen(
 fun RuleCard(
     rule: RuleEntry,
     modifier: Modifier = Modifier,
+    onDelete: (() -> Unit)? = null
 ) {
+    var expanded by remember { mutableStateOf(false) }
     val dateFormat = remember { SimpleDateFormat("MMM dd, HH:mm", Locale.getDefault()) }
-    val formattedDate = remember(rule.timestamp) {
-        dateFormat.format(Date(rule.timestamp))
-    }
+    val formattedDate = remember(rule.timestamp) { dateFormat.format(Date(rule.timestamp)) }
 
+    val (containerColor, contentColor) = rule.action.toContainerColor() to rule.action.toSelectedContainerColor()
 
     Card(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .animateContentSize(),  // Smooth expansion animation
         colors = CardDefaults.cardColors(
-            containerColor = rule.action.toContainerColor(),
-            contentColor = rule.action.toSelectedContainerColor()
-        )
+            containerColor = containerColor,
+            contentColor = contentColor
+        ),
+        onClick = { expanded = !expanded }  // Toggle expansion on click
     ) {
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
+            // Always visible content
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -135,10 +148,11 @@ fun RuleCard(
             ) {
                 Text(
                     text = rule.path,
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
                 )
 
                 Badge(
@@ -152,25 +166,34 @@ fun RuleCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            if (rule.description.isNotBlank()) {
-                Text(
-                    text = rule.description,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            // Expandable content
+            AnimatedVisibility(
+                visible = expanded,
+                enter = fadeIn() + expandVertically(),
+                exit = fadeOut() + shrinkVertically()
             ) {
-                Text(
-                    text = formattedDate,
-                    style = MaterialTheme.typography.labelSmall
-                )
+                Column {
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    if (rule.description.isNotBlank()) {
+                        Text(
+                            text = rule.description,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = formattedDate,
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                    }
+                }
             }
         }
     }

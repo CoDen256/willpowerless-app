@@ -48,7 +48,7 @@ class Owner(
     }
 
     fun blockUninstall(pkg: String, block: Boolean=true){
-        if (block) appConfig.addUninstallablePackage(pkg) else appConfig.removeUninstallablePackage(pkg)
+        if (block) appConfig.addUnremovablePackage(pkg) else appConfig.removeUnremovablePackage(pkg)
         if (dpm.isUninstallBlocked(admin, pkg) == block) return // no change
         if (block && dpm.isApplicationHidden(admin, pkg)) hide(pkg, false) // unhide before blocking
 

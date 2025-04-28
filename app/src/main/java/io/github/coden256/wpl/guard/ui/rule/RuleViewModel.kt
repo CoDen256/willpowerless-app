@@ -4,10 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import io.github.coden256.wpl.guard.config.AppConfig
-import io.github.coden256.wpl.judge.Action
 import io.github.coden256.wpl.judge.JudgeRuling
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -32,7 +31,7 @@ fun JudgeRuling.toEntry(): RuleEntry {
         UUID.randomUUID().toString(),
         path,
         action = RuleAction.valueOf(action.toString()),
-        description =  "",
+        description =  reason ?: "no reason specified",
         timestamp = timestamp
     )
 }
@@ -45,19 +44,10 @@ class RulesViewModel : ViewModel(), KoinComponent {
 
     init {
         viewModelScope.launch {
-            appConfig.appRulingsLive.asFlow().collect {
-                var total = it.map { it.toEntry() }
-                val vpn = appConfig.vpnOnPackage
-                if (vpn != null) {
-                    total = total.plus(
-                        JudgeRuling(
-                            Action.FORCE,
-                            "/vpn/$vpn",
-                            null,
-                            System.currentTimeMillis()
-                        ).toEntry()
-                    )
-                }
+            appConfig.appRulingsLive.asFlow()
+                .map{it.map{ruling -> ruling.copy(path = "/apps/"+ruling.path)}}
+                .collect {
+                val total = it.map { it.toEntry() }
                 rules.value = total.sortedWith(
                     compareByDescending<RuleEntry> { it.action == RuleAction.FORCE }.thenByDescending { it.timestamp }
                 )

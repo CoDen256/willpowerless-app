@@ -35,7 +35,7 @@ class AppConfig(val context: Context) : SimpleKrate(context), KoinComponent {
     val vpnOnPackageLive = liveData(::vpnOnPackage)
 
     var hiddenPackages by stringSetPref().withDefault(setOf())
-    var uninstallablePackages by stringSetPref().withDefault(setOf())
+    var unremovablePackages by stringSetPref().withDefault(setOf())
 
     var sentRulings by gsonPref<Map<String, List<JudgeRuling>>>().withDefault(mapOf())
     var sentRulingsLive = liveData(::sentRulings)
@@ -48,12 +48,12 @@ class AppConfig(val context: Context) : SimpleKrate(context), KoinComponent {
         hiddenPackages = hiddenPackages.minus(pkg)
     }
 
-    fun addUninstallablePackage(pkg: String){
-        uninstallablePackages = uninstallablePackages.plus(pkg)
+    fun addUnremovablePackage(pkg: String){
+        unremovablePackages = unremovablePackages.plus(pkg)
     }
 
-    fun removeUninstallablePackage(pkg: String){
-        uninstallablePackages = uninstallablePackages.minus(pkg)
+    fun removeUnremovablePackage(pkg: String){
+        unremovablePackages = unremovablePackages.minus(pkg)
     }
 
     operator fun get(key: String?): Any? {

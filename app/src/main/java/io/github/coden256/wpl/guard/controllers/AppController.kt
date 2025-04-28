@@ -29,12 +29,12 @@ class AppController(
             return
         }
 
-        val prevUninstallable = appConfig.uninstallablePackages
+        val prevUninstallable = appConfig.unremovablePackages
         val prevHidden = appConfig.hiddenPackages
         Log.i(TAG, "hidden before:" + prevHidden)
         Log.i(TAG, "uninstallable before:" + prevUninstallable)
 
-        appConfig.uninstallablePackages = setOf()
+        appConfig.unremovablePackages = setOf()
         appConfig.hiddenPackages = setOf()
         (packages.map { it.packageName }+prevHidden).forEach { // also process hidden, since they are...well, hidden
             processPackage(it, rulings)
@@ -45,13 +45,13 @@ class AppController(
             owner.hide(it, false)
         }
 
-        prevUninstallable.minus(appConfig.uninstallablePackages).forEach {
-            Log.i(TAG, "Lifting up UNINSTALLABLE of $it")
+        prevUninstallable.minus(appConfig.unremovablePackages).forEach {
+            Log.i(TAG, "Lifting up UNREMOVABLE of $it")
             owner.blockUninstall(it, false)
         }
 
         Log.i(TAG, "hidden:" + appConfig.hiddenPackages)
-        Log.i(TAG, "uninstallable:" + appConfig.uninstallablePackages)
+        Log.i(TAG, "unremovable:" + appConfig.unremovablePackages)
     }
 
     fun onNewApp(pkg: String) {
@@ -60,7 +60,7 @@ class AppController(
         processPackage(pkg, rulings)
 
         Log.i(TAG, "hidden:" + appConfig.hiddenPackages)
-        Log.i(TAG, "uninstallable:" + appConfig.uninstallablePackages)
+        Log.i(TAG, "unremovable:" + appConfig.unremovablePackages)
     }
 
     private fun processPackage(pkg: String, rulings: List<JudgeRuling>) {
