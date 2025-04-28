@@ -1,4 +1,4 @@
-package io.github.coden256.wpl.guard.ui
+package io.github.coden256.wpl.guard.ui.work
 
 import android.app.Application
 import android.util.Log

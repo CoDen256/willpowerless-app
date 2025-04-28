@@ -1,4 +1,4 @@
-package io.github.coden256.wpl.guard.ui
+package io.github.coden256.wpl.guard.ui.info
 
 import android.app.Application
 import android.app.ActivityManager

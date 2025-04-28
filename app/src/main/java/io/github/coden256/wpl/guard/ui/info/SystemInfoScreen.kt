@@ -1,4 +1,4 @@
-package io.github.coden256.wpl.guard.ui
+package io.github.coden256.wpl.guard.ui.info
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
