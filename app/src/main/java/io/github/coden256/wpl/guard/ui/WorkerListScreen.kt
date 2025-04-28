@@ -1,3 +1,5 @@
+package io.github.coden256.wpl.guard.ui
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -47,7 +49,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.work.WorkInfo
 import io.github.coden256.wpl.guard.monitors.WorkResult
-import io.github.coden256.wpl.guard.ui.WorkResultsViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -58,15 +59,7 @@ fun WorkResultsScreen(viewModel: WorkResultsViewModel = androidx.lifecycle.viewm
     val state by viewModel.state.collectAsState()
 
     Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text("Periodic Work Results") },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.primary
-                )
-            )
-        },
+        topBar = {},
         floatingActionButton = {}
     ) { innerPadding ->
         Column(

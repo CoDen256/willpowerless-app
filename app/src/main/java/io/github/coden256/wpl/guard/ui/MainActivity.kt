@@ -1,10 +1,11 @@
 package io.github.coden256.wpl.guard.ui
 
-import WorkResultsScreen
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import io.github.coden256.wpl.guard.ui.theme.GuardServiceMonitorTheme
 
 class MainActivity : ComponentActivity() {
@@ -13,8 +14,12 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            GuardServiceMonitorTheme {
-                MainScreen()
+            CompositionLocalProvider(
+                LocalViewModelStoreOwner provides this
+            ) {
+                GuardServiceMonitorTheme {
+                    MainScreen()
+                }
             }
         }
     }

@@ -1,35 +1,26 @@
-package io.github.coden256.wpl.guard.ui
 
-import WorkResultsScreen
+package io.github.coden256.wpl.guard.ui
+// MainScreen.kt
 import android.app.Application
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun MainScreen() {
-    val mainViewModel: MainViewModel = viewModel()
-    val workViewModel: WorkResultsViewModel = viewModel(factory = object : ViewModelProvider.Factory {
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            val application = LocalContext.current.applicationContext as Application
-            return WorkResultsViewModel(application) as T
-        }
-    })
-    val systemViewModel: SystemInfoViewModel = viewModel(factory = object : ViewModelProvider.Factory {
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            val application = LocalContext.current.applicationContext as Application
-            return SystemInfoViewModel(application) as T
-        }
-    })
-
+fun MainScreen(
+    workViewModel: WorkResultsViewModel = viewModel(factory = ViewModelFactory(LocalContext.current.applicationContext as Application)),
+    systemViewModel: SystemInfoViewModel = viewModel(factory = ViewModelFactory(LocalContext.current.applicationContext as Application)),
+    mainViewModel: MainViewModel = viewModel()
+) {
     Scaffold(
         topBar = {
             Column {
