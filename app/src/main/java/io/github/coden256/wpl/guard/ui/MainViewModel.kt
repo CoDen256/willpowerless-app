@@ -3,7 +3,9 @@ package io.github.coden256.wpl.guard.ui
 // MainViewModel.kt
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Message
 import androidx.compose.material.icons.filled.Rule
+import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Work
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -17,7 +19,9 @@ class MainViewModel : ViewModel() {
     val tabs = listOf(
         TabItem("Work Results", Icons.Default.Work),
         TabItem("System Info", Icons.Default.Info),
-        TabItem("Rules", Icons.Default.Rule)
+        TabItem("Apps", Icons.Default.Rule),
+        TabItem("Telegram", Icons.Default.Message),
+        TabItem("Rethink", Icons.Default.Shield)
     )
 }
 

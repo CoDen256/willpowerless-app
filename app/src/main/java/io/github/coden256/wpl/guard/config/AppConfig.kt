@@ -32,8 +32,6 @@ class AppConfig(val context: Context) : SimpleKrate(context), KoinComponent {
     val appRulingsLive = liveData(::appRulings)
 
     var vpnOnPackage by stringPref()
-    val vpnOnPackageLive = liveData(::vpnOnPackage)
-
     var hiddenPackages by stringSetPref().withDefault(setOf())
     var unremovablePackages by stringSetPref().withDefault(setOf())
 
