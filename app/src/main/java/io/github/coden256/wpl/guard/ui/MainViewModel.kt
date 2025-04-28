@@ -18,16 +18,16 @@ class MainViewModel : ViewModel() {
     var selectedTabIndex by mutableIntStateOf(0)
 
     val tabs = listOf(
-        TabItem("Work Results", Icons.Default.Work),
-        TabItem("System Info", Icons.Default.Info),
-        TabItem("Apps", Icons.Default.Rule),
-        TabItem("Telegram", Icons.Default.Message),
-        TabItem("Rethink", Icons.Default.Shield),
-        TabItem("Tree", Icons.Default.AccountTree)
+        TabItem( Icons.Default.Work),
+        TabItem( Icons.Default.Info),
+        TabItem( Icons.Default.Rule),
+        TabItem( Icons.Default.Message),
+        TabItem( Icons.Default.Shield),
+        TabItem( Icons.Default.AccountTree)
     )
 }
 
 data class TabItem(
-    val title: String,
+
     val icon: ImageVector
 )

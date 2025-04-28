@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.AlarmOff
@@ -23,6 +24,9 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Button
@@ -44,6 +48,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.work.WorkInfo
 import io.github.coden256.wpl.guard.monitors.WorkResult
@@ -51,30 +56,37 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun WorkResultsScreen(viewModel: WorkResultsViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
     val state by viewModel.state.collectAsState()
+    val isRefreshing by viewModel.isRefreshing.collectAsState()
+
+    val refreshState = rememberPullRefreshState(
+        refreshing = isRefreshing,
+        onRefresh = { viewModel.refresh() }
+    )
 
     Scaffold(
         topBar = {},
-        floatingActionButton = {}
+        floatingActionButton = {},
+         modifier = Modifier.pullRefresh(refreshState)
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
         ) {
-            // Control Panel
+            // Stats Chip Group
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
+                    .padding(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 Button(
                     onClick = { viewModel.schedulePeriodicWork() },
-                    enabled = !state.isWorkScheduled,
+                    enabled = true,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary,
                         contentColor = MaterialTheme.colorScheme.onPrimary
@@ -84,15 +96,6 @@ fun WorkResultsScreen(viewModel: WorkResultsViewModel = androidx.lifecycle.viewm
                     Spacer(Modifier.width(8.dp))
                     Text("Start")
                 }
-            }
-
-            // Stats Chip Group
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
                 AssistChip(
                     onClick = {},
                     label = { Text("Total: ${state.results.size}") },
@@ -104,7 +107,6 @@ fun WorkResultsScreen(viewModel: WorkResultsViewModel = androidx.lifecycle.viewm
                         )
                     }
                 )
-
                 AssistChip(
                     onClick = {},
                     label = { Text("Success: ${state.results.count { it.state == WorkInfo.State.SUCCEEDED }}") },
@@ -135,12 +137,23 @@ fun WorkResultsScreen(viewModel: WorkResultsViewModel = androidx.lifecycle.viewm
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    items(state.results) { result ->
+                    items(state.results,
+                        key = { result -> "${result.id}-${result.state}-${result.timestamp}" }
+                    ) { result ->
                         WorkResultCard(result = result)
                     }
                 }
             }
         }
+        // Pull-to-refresh indicator
+        PullRefreshIndicator(
+            refreshing = isRefreshing,
+            state = refreshState,
+            modifier = Modifier.padding(start = 175.dp),
+            backgroundColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.primary
+        )
+
     }
 }
 

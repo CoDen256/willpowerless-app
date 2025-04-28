@@ -49,8 +49,8 @@ fun MainScreen(
                         Tab(
                             selected = mainViewModel.selectedTabIndex == index,
                             onClick = { mainViewModel.selectedTabIndex = index },
-                            text = { Text(tab.title) },
-                            icon = { Icon(tab.icon, contentDescription = tab.title) }
+                            text = { Text("") },
+                            icon = { Icon(tab.icon, contentDescription = "") }
                         )
                     }
                 }
