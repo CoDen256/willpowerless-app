@@ -22,6 +22,8 @@ import io.github.coden256.wpl.guard.ui.rule.BraveRulesViewModel
 import io.github.coden256.wpl.guard.ui.rule.RulesScreen
 import io.github.coden256.wpl.guard.ui.rule.RulesViewModel
 import io.github.coden256.wpl.guard.ui.rule.TelegramRulesViewModel
+import io.github.coden256.wpl.guard.ui.tree.JsonViewModel
+import io.github.coden256.wpl.guard.ui.tree.JsonViewerScreen
 import io.github.coden256.wpl.guard.ui.work.WorkResultsScreen
 import io.github.coden256.wpl.guard.ui.work.WorkResultsViewModel
 
@@ -32,7 +34,8 @@ fun MainScreen(
     appRulesViewModel: AppRulesViewModel = viewModel(),
     telRulesViewModel: TelegramRulesViewModel = viewModel(),
     vpnRulesViewModel: BraveRulesViewModel = viewModel(),
-    mainViewModel: MainViewModel = viewModel()
+    mainViewModel: MainViewModel = viewModel(),
+    jsonViewModel: JsonViewModel = viewModel()
 ) {
     Scaffold(
         topBar = {
@@ -57,6 +60,7 @@ fun MainScreen(
                 2 -> RulesScreen(appRulesViewModel)
                 3 -> RulesScreen(telRulesViewModel)
                 4 -> RulesScreen(vpnRulesViewModel)
+                5 -> JsonViewerScreen(jsonViewModel)
             }
         }
     }

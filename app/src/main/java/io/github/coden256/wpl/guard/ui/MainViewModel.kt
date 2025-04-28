@@ -2,6 +2,7 @@ package io.github.coden256.wpl.guard.ui
 
 // MainViewModel.kt
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountTree
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Message
 import androidx.compose.material.icons.filled.Rule
@@ -21,7 +22,8 @@ class MainViewModel : ViewModel() {
         TabItem("System Info", Icons.Default.Info),
         TabItem("Apps", Icons.Default.Rule),
         TabItem("Telegram", Icons.Default.Message),
-        TabItem("Rethink", Icons.Default.Shield)
+        TabItem("Rethink", Icons.Default.Shield),
+        TabItem("Tree", Icons.Default.AccountTree)
     )
 }
 

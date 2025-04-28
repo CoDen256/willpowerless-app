@@ -1,6 +1,7 @@
 package io.github.coden256.wpl.judge
 
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.google.gson.JsonElement
 import com.google.gson.JsonNull
 import com.google.gson.JsonObject
@@ -21,6 +22,10 @@ data class RulingTree(
 
     override fun toString(): String {
         return gson.toJson(root)
+    }
+
+    fun pretty(): String{
+        return GsonBuilder().setPrettyPrinting().create().toJson(root)
     }
 
     fun getRuling(path: String): Result<RulingNode> {
