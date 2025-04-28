@@ -1,9 +1,10 @@
+package io.github.coden256.wpl.guard.ui
+
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
-import androidx.work.WorkInfo
 import io.github.coden256.wpl.guard.config.AppConfig
 import io.github.coden256.wpl.guard.core.enqueueOnce
 import io.github.coden256.wpl.guard.monitors.WorkResult

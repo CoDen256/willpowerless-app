@@ -47,6 +47,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.work.WorkInfo
 import io.github.coden256.wpl.guard.monitors.WorkResult
+import io.github.coden256.wpl.guard.ui.WorkResultsViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
