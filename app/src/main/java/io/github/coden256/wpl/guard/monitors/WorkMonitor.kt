@@ -14,8 +14,8 @@ class WorkMonitor(private val workManager: WorkManager, private val appConfig: A
                 Log.w("GuardWorkMonitor", "infos: $it")
                 appConfig.jobs = it
                     .map { it.toWorkResult() }
-                    .plus(appConfig.jobs.filter { it.state.isFinished })
-                    .filterNot { it.isExpired() }
+//                    .plus(appConfig.jobs.filter { it.state.isFinished })
+//                    .filterNot { it.isExpired() }
                     .toSet()
             }
     }
@@ -38,7 +38,7 @@ class WorkMonitor(private val workManager: WorkManager, private val appConfig: A
                 WorkInfo.State.CANCELLED -> 0
             },
             scheduled = nextScheduleTimeMillis,
-            timestamp = outputData.getLong("timestamp", nextScheduleTimeMillis),
+            timestamp = outputData.getLong("timestamp", 0L),
             type = tags.first { it.startsWith("name=") }.removePrefix("name="),
             error = outputData.getString("error"),
             data = outputData.getString("data")

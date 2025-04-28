@@ -203,7 +203,7 @@ fun WorkResultCard(result: WorkResult) {
                 )
 
                 Text(
-                    text = formattedDate,
+                    text = if(result.timestamp!=0L) formattedDate else "Scheduled\n$formattedScheduled",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -272,11 +272,6 @@ fun WorkResultCard(result: WorkResult) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(
-                    text = "Scheduled: $formattedScheduled",
-                    style = MaterialTheme.typography.bodySmall,
-                    fontWeight = FontWeight.Bold
-                )
 
                 Text(
                     text = result.id.take(8),
