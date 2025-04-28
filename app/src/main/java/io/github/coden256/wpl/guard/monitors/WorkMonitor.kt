@@ -11,25 +11,12 @@ class WorkMonitor(private val workManager: WorkManager, private val appConfig: A
         workManager
             .getWorkInfosByTagLiveData(WORK_TAG)
             .observeForever {
-                Log.w("GuardWorkMonitor", "infos: $it")
-                val current = it.map { it.toWorkResult() }.groupBy { it.id }
-                val saved = appConfig.jobs.groupBy { it.id }
-
-                val final = (current+saved)
-                    .map { it.key }
-                    .distinct()
-                    .flatMap {resoveNew(saved[it], current[it])}
-
-                appConfig.jobs = final.filterNot { it.isExpired() }.toSet()
+                val infos = it.filter { it.state != WorkInfo.State.SUCCEEDED && it.state != WorkInfo.State.FAILED }
+                Log.w("GuardWorkMonitor", "infos: $infos")
+                appConfig.jobs = (infos.map { it.toWorkResult() }.toSet() + appConfig.jobs.toSet().filterNot { it.state != WorkInfo.State.SUCCEEDED && it.state != WorkInfo.State.FAILED })
+                    .filterNot {  it.isExpired()}
+                    .toSet()
             }
-    }
-
-    fun resoveNew(prev: List<WorkResult>?, new: List<WorkResult>?): List<WorkResult>{
-        if (prev == null) return new ?: emptyList()
-        if (new == null) return prev
-
-        val finishedPrev = prev.filter { it.state.isFinished }
-        val finishedNew = prev.filter { it.state.isFinished }
     }
 
     fun WorkResult.isExpired(): Boolean{
@@ -39,7 +26,7 @@ class WorkMonitor(private val workManager: WorkManager, private val appConfig: A
 
     fun WorkInfo.toWorkResult(): WorkResult {
         return WorkResult(
-            id = id.toString(),
+            id = "$id-incomplete",
             state = state,
             value = when (state) {
                 WorkInfo.State.SUCCEEDED -> 100
@@ -68,4 +55,17 @@ data class WorkResult(
     val type: String,
     val error: String?,
     val data: String?,
-)
+){
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as WorkResult
+
+        return id == other.id
+    }
+
+    override fun hashCode(): Int {
+        return id.hashCode()
+    }
+}

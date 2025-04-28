@@ -138,7 +138,7 @@ fun WorkResultsScreen(viewModel: WorkResultsViewModel = androidx.lifecycle.viewm
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(state.results,
-                        key = { result -> "${result.id}-${result.state}-${result.timestamp}" }
+                        key = { result -> "${result.id}-${result.state}-${result.timestamp}-${result.scheduled}" }
                     ) { result ->
                         WorkResultCard(result = result)
                     }
