@@ -38,8 +38,8 @@ class GuardService : Service() {
 
 
     private val remoteListeners = listOf(
-        RemoteAppRulingListener("com.celzero.bravedns"),
-        RemoteAppRulingListener("org.telegram.messenger.willpowerless")
+        RemoteAppRulingListener("com.celzero.bravedns", appConfig),
+        RemoteAppRulingListener("org.telegram.messenger.willpowerless", appConfig)
     )
 
 

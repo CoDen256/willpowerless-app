@@ -29,9 +29,16 @@ class AppConfig(val context: Context) : SimpleKrate(context), KoinComponent {
     val rulingsLive = MutableLiveData<RulingTree>() // liveData(::rulings)
 
     var appRulings by gsonPref<List<JudgeRuling>>().withDefault(listOf())
+    val appRulingsLive = liveData(::appRulings)
+
+    var vpnOnPackage by stringPref()
+    val vpnOnPackageLive = liveData(::vpnOnPackage)
+
     var hiddenPackages by stringSetPref().withDefault(setOf())
     var uninstallablePackages by stringSetPref().withDefault(setOf())
-    var vpnOnPackage by stringPref()
+
+    var sentRulings by gsonPref<Map<String, List<JudgeRuling>>>().withDefault(mapOf())
+    var sentRulingsLive = liveData(::sentRulings)
 
     fun addHiddenPackage(pkg: String){
         hiddenPackages = hiddenPackages.plus(pkg)

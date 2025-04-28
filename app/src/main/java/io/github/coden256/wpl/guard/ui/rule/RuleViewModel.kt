@@ -1,14 +1,21 @@
 package io.github.coden256.wpl.guard.ui.rule
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
+import io.github.coden256.wpl.guard.config.AppConfig
+import io.github.coden256.wpl.judge.Action
+import io.github.coden256.wpl.judge.JudgeRuling
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import java.util.UUID
 
 
 // Rule.kt
-data class Rule(
+data class RuleEntry(
     val id: String,
     val path: String,
     val action: RuleAction,
@@ -20,58 +27,43 @@ enum class RuleAction {
     BLOCK, ALLOW, FORCE
 }
 
+fun JudgeRuling.toEntry(): RuleEntry {
+    return RuleEntry(
+        UUID.randomUUID().toString(),
+        path,
+        action = RuleAction.valueOf(action.toString()),
+        description =  "",
+        timestamp = timestamp
+    )
+}
+
 // RulesViewModel.kt
 
-class RulesViewModel : ViewModel() {
-    private val _rules = MutableStateFlow<List<Rule>>(emptyList())
-    val rules: StateFlow<List<Rule>> = _rules
+class RulesViewModel : ViewModel(), KoinComponent {
+    val rules = MutableStateFlow<List<RuleEntry>>(emptyList())
+    val appConfig by inject<AppConfig>()
 
     init {
-        loadSampleRules()
-    }
-
-    private fun loadSampleRules() {
         viewModelScope.launch {
-            _rules.value = listOf(
-                Rule(
-                    id = "1",
-                    path = "/api/user/*",
-                    action = RuleAction.ALLOW,
-                    description = "Allow all user API access"
-                ),
-                Rule(
-                    id = "2",
-                    path = "/api/admin/*",
-                    action = RuleAction.BLOCK,
-                    description = "Block admin API access"
-                ),
-                Rule(
-                    id = "3",
-                    path = "/system/update",
-                    action = RuleAction.FORCE,
-                    description = "Force system updates"
-                ),
-                Rule(
-                    id = "4",
-                    path = "/images/public/*",
-                    action = RuleAction.ALLOW,
-                    description = "Allow public image access"
-                ),
-                Rule(
-                    id = "5",
-                    path = "/config/*",
-                    action = RuleAction.BLOCK,
-                    description = "Block configuration access"
+            appConfig.appRulingsLive.asFlow().collect {
+                var total = it.map { it.toEntry() }
+                val vpn = appConfig.vpnOnPackage
+                if (vpn != null) {
+                    total = total.plus(
+                        JudgeRuling(
+                            Action.FORCE,
+                            "/vpn/$vpn",
+                            null,
+                            System.currentTimeMillis()
+                        ).toEntry()
+                    )
+                }
+                rules.value = total.sortedWith(
+                    compareByDescending<RuleEntry> { it.action == RuleAction.FORCE }.thenByDescending { it.timestamp }
                 )
-            )
+
+            }
         }
     }
 
-    fun addRule(rule: Rule) {
-        _rules.value = _rules.value + rule
-    }
-
-    fun removeRule(id: String) {
-        _rules.value = _rules.value.filter { it.id != id }
-    }
 }

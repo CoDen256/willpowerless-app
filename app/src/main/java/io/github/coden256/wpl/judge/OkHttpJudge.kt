@@ -20,7 +20,7 @@ class OkHttpJudge(private val client: OkHttpClient): Judge {
             client.newCall(request).execute().use { response ->
                 try {
                     return Result.success(
-                        RulingTree(JsonParser.parseReader(response.body?.charStream()), gson)
+                        RulingTree(JsonParser.parseReader(response.body?.charStream()), gson, System.currentTimeMillis())
                     )
                 } catch (e: Exception) {
                     return Result.failure(e)

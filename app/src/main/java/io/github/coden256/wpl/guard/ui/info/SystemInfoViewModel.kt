@@ -12,9 +12,14 @@ import android.os.StatFs
 import android.text.format.Formatter
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import io.github.coden256.wpl.guard.config.AppConfig
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import java.util.UUID
 
 data class SystemInfo(
     val id: String,
@@ -23,60 +28,75 @@ data class SystemInfo(
     val iconRes: Int? = null
 )
 
-class SystemInfoViewModel(application: Application) : AndroidViewModel(application) {
-    private val _systemInfo = MutableStateFlow<List<SystemInfo>>(emptyList())
-    val systemInfo: StateFlow<List<SystemInfo>> = _systemInfo
+class SystemInfoViewModel(application: Application) : AndroidViewModel(application), KoinComponent {
+    val systemInfo = MutableStateFlow<List<SystemInfo>>(emptyList())
+    val appConfig by inject<AppConfig>()
 
     init {
-        refreshSystemInfo()
+        viewModelScope.launch {
+            while (true) {
+                refreshSystemInfo()
+                delay(5000)
+            }
+        }
     }
 
     fun refreshSystemInfo() {
-        viewModelScope.launch {
-            val newInfo = listOf(
-                SystemInfo(
-                    id = "os_version",
-                    title = "Android Version",
-                    value = "${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})"
-                ),
-                SystemInfo(
-                    id = "device_model",
-                    title = "Device Model",
-                    value = "${Build.MANUFACTURER} ${Build.MODEL}"
-                ),
-                SystemInfo(
-                    id = "screen_resolution",
-                    title = "Screen Resolution",
-                    value = getScreenResolution()
-                ),
-                SystemInfo(
-                    id = "battery_status",
-                    title = "Battery Status",
-                    value = getBatteryStatus()
-                ),
-                SystemInfo(
-                    id = "storage_space",
-                    title = "Storage Space",
-                    value = getStorageSpace()
-                ),
-                SystemInfo(
-                    id = "memory_info",
-                    title = "Memory Info",
-                    value = getMemoryInfo()
-                ),
-                SystemInfo(
-                    id = "cpu_cores",
-                    title = "CPU Cores",
-                    value = "${Runtime.getRuntime().availableProcessors()} cores"
-                ),
-                SystemInfo(
-                    id = "architecture",
-                    title = "CPU Architecture",
-                    value = Build.SUPPORTED_ABIS.joinToString()
-                )
+        val newInfo = mutableListOf(
+            SystemInfo(
+                id = "os_version",
+                title = "Android Version",
+                value = "${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})"
+            ),
+            SystemInfo(
+                id = "device_model",
+                title = "Device Model",
+                value = "${Build.MANUFACTURER} ${Build.MODEL}"
+            ),
+            SystemInfo(
+                id = "screen_resolution",
+                title = "Screen Resolution",
+                value = getScreenResolution()
+            ),
+            SystemInfo(
+                id = "battery_status",
+                title = "Battery Status",
+                value = getBatteryStatus()
+            ),
+            SystemInfo(
+                id = "storage_space",
+                title = "Storage Space",
+                value = getStorageSpace()
+            ),
+            SystemInfo(
+                id = "memory_info",
+                title = "Memory Info",
+                value = getMemoryInfo()
+            ),
+            SystemInfo(
+                id = "cpu_cores",
+                title = "CPU Cores",
+                value = "${Runtime.getRuntime().availableProcessors()} cores"
+            ),
+            SystemInfo(
+                id = "architecture",
+                title = "CPU Architecture",
+                value = Build.SUPPORTED_ABIS.joinToString()
             )
-            _systemInfo.value = newInfo
+        )
+        appConfig.vpnOnPackage?.let {
+            newInfo.add(SystemInfo(UUID.randomUUID().toString(), "Always on VPN", it))
         }
+
+        appConfig.hiddenPackages.forEach {
+            newInfo.add(SystemInfo(UUID.randomUUID().toString(), it, "hidden"))
+        }
+
+        appConfig.uninstallablePackages.forEach {
+            newInfo.add(SystemInfo(UUID.randomUUID().toString(), it, "uninstallable"))
+        }
+
+        systemInfo.value = newInfo
     }
 
     private fun getScreenResolution(): String {
@@ -110,11 +130,17 @@ class SystemInfoViewModel(application: Application) : AndroidViewModel(applicati
         val available = statFs.availableBlocksLong * statFs.blockSizeLong
         val used = total - available
 
-        return "Used: ${Formatter.formatFileSize(getApplication(), used)} / ${Formatter.formatFileSize(getApplication(), total)} (${(used * 100 / total)}%)"
+        return "Used: ${
+            Formatter.formatFileSize(
+                getApplication(),
+                used
+            )
+        } / ${Formatter.formatFileSize(getApplication(), total)} (${(used * 100 / total)}%)"
     }
 
     private fun getMemoryInfo(): String {
-        val activityManager = getApplication<Application>().getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        val activityManager =
+            getApplication<Application>().getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         val memoryInfo = ActivityManager.MemoryInfo()
         activityManager.getMemoryInfo(memoryInfo)
 
@@ -122,6 +148,11 @@ class SystemInfoViewModel(application: Application) : AndroidViewModel(applicati
         val available = memoryInfo.availMem
         val used = total - available
 
-        return "Used: ${Formatter.formatFileSize(getApplication(), used)} / ${Formatter.formatFileSize(getApplication(), total)} (${(used * 100 / total)}%)"
+        return "Used: ${
+            Formatter.formatFileSize(
+                getApplication(),
+                used
+            )
+        } / ${Formatter.formatFileSize(getApplication(), total)} (${(used * 100 / total)}%)"
     }
 }

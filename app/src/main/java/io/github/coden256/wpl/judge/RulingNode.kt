@@ -12,10 +12,11 @@ import com.google.gson.stream.JsonWriter
 
 data class RulingTree(
      val root: JsonElement,
-     val gson: Gson
+     val gson: Gson,
+    val timestamp: Long
 ) {
     companion object {
-        val EMPTY = RulingTree(JsonNull.INSTANCE, Gson())
+        val EMPTY = RulingTree(JsonNull.INSTANCE, Gson(), 0L)
     }
 
     override fun toString(): String {
@@ -60,7 +61,7 @@ data class RulingTree(
                 .mapNotNull { entry ->
                     tryParse(entry.value.asJsonObject.get("ruling"), "").getOrNull()?.let { entry.key to it }
                 }
-                .map { JudgeRuling(it.second.action, it.first) }
+                .map { JudgeRuling(it.second.action, it.first, it.second.reason, timestamp) }
                 .toList()
         )
     }
@@ -90,7 +91,10 @@ data class RulingTree(
                 // Check if this child has a "ruling" field
                 value.asJsonObject.get("ruling")?.takeIf { it.isJsonObject }?.let { rulingElement ->
                     tryParse(rulingElement, newRelativePath).getOrNull()?.let { rulingNode ->
-                        results.add(JudgeRuling(rulingNode.action, "/$newRelativePath"))
+                        results.add(JudgeRuling(rulingNode.action,
+                            "/$newRelativePath",
+                            rulingNode.reason, timestamp
+                        ))
                     }
                 }
 
@@ -109,19 +113,23 @@ data class RulingTree(
 
         override fun read(`in`: JsonReader): RulingTree {
             val jsonElement = JsonParser.parseReader(`in`)
-            return RulingTree(jsonElement, gson)
+            return RulingTree(jsonElement, gson, System.currentTimeMillis())
         }
     }
-
+     data class RulingNode(val action: Action, val reason: String? = null) {}
 }
 
-data class RulingNode(val action: Action, val reason: String? = null) {}
-data class JudgeRuling(val action: Action, val path: String){
+
+data class JudgeRuling(val action: Action,
+                       val path: String,
+                        val reason: String? = null,
+    val timestamp: Long
+){
     override fun toString(): String {
         return "$path -> $action"
     }
     companion object {
-        val DEFAULT = JudgeRuling(Action.ALLOW, "*")
+        val DEFAULT = JudgeRuling(Action.ALLOW, "*", "Default rule", 0)
     }
 }
 enum class Action {

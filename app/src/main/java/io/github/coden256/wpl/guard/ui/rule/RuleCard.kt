@@ -89,16 +89,9 @@ fun RulesScreen(
     modifier: Modifier = Modifier
 ) {
     val rules by viewModel.rules.collectAsStateWithLifecycle()
-    var showAddDialog by remember { mutableStateOf(false) }
 
     Scaffold(
-        floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = { showAddDialog = true },
-                icon = { Icon(Icons.Default.Add, contentDescription = "Add rule") },
-                text = { Text("Add Rule") }
-            )
-        }
+        floatingActionButton = {}
     ) { padding ->
         LazyColumn(
             modifier = modifier.padding(padding),
@@ -108,100 +101,16 @@ fun RulesScreen(
             items(rules, key = { it.id }) { rule ->
                 RuleCard(
                     rule = rule,
-                    onDelete = { viewModel.removeRule(rule.id) }
                 )
             }
-        }
-
-        if (showAddDialog) {
-            AddRuleDialog(
-                onDismiss = { showAddDialog = false },
-                onAdd = { newRule ->
-                    viewModel.addRule(newRule)
-                    showAddDialog = false
-                }
-            )
         }
     }
 }
 
 @Composable
-private fun AddRuleDialog(
-    onDismiss: () -> Unit,
-    onAdd: (Rule) -> Unit
-) {
-    var path by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
-    var action by remember { mutableStateOf(RuleAction.ALLOW) }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Add New Rule") },
-        text = {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                OutlinedTextField(
-                    value = path,
-                    onValueChange = { path = it },
-                    label = { Text("Path Pattern") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                OutlinedTextField(
-                    value = description,
-                    onValueChange = { description = it },
-                    label = { Text("Description (optional)") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    RuleAction.values().forEach { ruleAction ->
-                        FilterChip(
-                            selected = action == ruleAction,
-                            onClick = { action = ruleAction },
-                            label = { Text(ruleAction.name) },
-                            colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = ruleAction.toContainerColor(),
-                                selectedLabelColor = ruleAction.toSelectedContainerColor()
-                            )
-                        )
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            Button(
-                onClick = {
-                    if (path.isNotBlank()) {
-                        onAdd(
-                            Rule(
-                                id = UUID.randomUUID().toString(),
-                                path = path,
-                                action = action,
-                                description = description
-                            )
-                        )
-                    }
-                },
-                enabled = path.isNotBlank()
-            ) {
-                Text("Add")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        }
-    )
-}
-@Composable
 fun RuleCard(
-    rule: Rule,
+    rule: RuleEntry,
     modifier: Modifier = Modifier,
-    onDelete: (() -> Unit)? = null
 ) {
     val dateFormat = remember { SimpleDateFormat("MMM dd, HH:mm", Locale.getDefault()) }
     val formattedDate = remember(rule.timestamp) {
@@ -262,19 +171,6 @@ fun RuleCard(
                     text = formattedDate,
                     style = MaterialTheme.typography.labelSmall
                 )
-
-                if (onDelete != null) {
-                    IconButton(
-                        onClick = onDelete,
-                        modifier = Modifier.size(24.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = "Delete rule",
-                            tint = rule.action.toSelectedContainerColor()
-                        )
-                    }
-                }
             }
         }
     }

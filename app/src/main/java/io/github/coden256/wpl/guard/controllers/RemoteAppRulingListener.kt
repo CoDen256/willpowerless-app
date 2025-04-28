@@ -4,10 +4,12 @@ import android.content.Context
 import android.util.Log
 import io.github.coden256.wpl.guard.GuardClientConnector
 import io.github.coden256.wpl.guard.Ruling
+import io.github.coden256.wpl.guard.config.AppConfig
 import io.github.coden256.wpl.judge.JudgeRuling
 
 class RemoteAppRulingListener (
-    val target: String
+    val target: String,
+    private val appConfig: AppConfig
 ) {
 
     private val connector = GuardClientConnector(target)
@@ -17,6 +19,10 @@ class RemoteAppRulingListener (
             onConnected = { client ->
                 Log.i("GuardRemoteAppRulingListener", "Sending rulings: $rulings")
                 client.onRulings(rulings.map { it.toRuling() })
+
+                val current = HashMap(appConfig.sentRulings)
+                current.remove(target)
+                appConfig.sentRulings = current.plus(target to rulings)
 
                 connector.unbind(context)
             },

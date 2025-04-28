@@ -28,7 +28,7 @@ abstract class SharedPreferenceLiveData<T>(val sharedPrefs: SharedPreferences,
     }
 }
 
-fun <T : Any> Krate.liveData(property: KMutableProperty0<T>): SharedPreferenceLiveData<T> {
+fun <T : Any?> Krate.liveData(property: KMutableProperty0<T>): SharedPreferenceLiveData<T> {
     return object : SharedPreferenceLiveData<T>(sharedPreferences, property.name) {
         override fun getValueFromPreferences(): T {
             return property.get()

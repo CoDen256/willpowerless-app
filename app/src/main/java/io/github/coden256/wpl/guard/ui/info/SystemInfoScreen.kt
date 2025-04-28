@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
@@ -27,17 +28,6 @@ fun SystemInfoScreen(
         items(systemInfo) { info ->
             SystemInfoCard(info = info)
         }
-
-        item {
-            Button(
-                onClick = { viewModel.refreshSystemInfo() },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Icon(Icons.Default.Refresh, contentDescription = "Refresh")
-                Spacer(Modifier.width(8.dp))
-                Text("Refresh System Info")
-            }
-        }
     }
 }
 
@@ -46,7 +36,12 @@ fun SystemInfoCard(info: SystemInfo) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
+            containerColor = when{
+                info.value == "hidden" -> MaterialTheme.colorScheme.errorContainer
+                info.value == "uninstallable" -> Color(0xABC3B74A)
+                info.title == "Always on VPN" -> Color(0x408BC34A)
+                else -> MaterialTheme.colorScheme.surfaceVariant
+            }
         )
     ) {
         Row(
@@ -61,6 +56,7 @@ fun SystemInfoCard(info: SystemInfo) {
                     "Battery Status" -> Icons.Default.BatteryStd
                     "Storage Space" -> Icons.Default.Storage
                     "Memory Info" -> Icons.Default.Memory
+                    "Always on VPN" -> Icons.Default.Shield
                     else -> Icons.Default.Info
                 },
                 contentDescription = null,
