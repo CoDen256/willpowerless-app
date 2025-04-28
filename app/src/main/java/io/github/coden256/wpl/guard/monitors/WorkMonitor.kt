@@ -12,12 +12,24 @@ class WorkMonitor(private val workManager: WorkManager, private val appConfig: A
             .getWorkInfosByTagLiveData(WORK_TAG)
             .observeForever {
                 Log.w("GuardWorkMonitor", "infos: $it")
-                appConfig.jobs = it
-                    .map { it.toWorkResult() }
-//                    .plus(appConfig.jobs.filter { it.state.isFinished })
-//                    .filterNot { it.isExpired() }
-                    .toSet()
+                val current = it.map { it.toWorkResult() }.groupBy { it.id }
+                val saved = appConfig.jobs.groupBy { it.id }
+
+                val final = (current+saved)
+                    .map { it.key }
+                    .distinct()
+                    .flatMap {resoveNew(saved[it], current[it])}
+
+                appConfig.jobs = final.filterNot { it.isExpired() }.toSet()
             }
+    }
+
+    fun resoveNew(prev: List<WorkResult>?, new: List<WorkResult>?): List<WorkResult>{
+        if (prev == null) return new ?: emptyList()
+        if (new == null) return prev
+
+        val finishedPrev = prev.filter { it.state.isFinished }
+        val finishedNew = prev.filter { it.state.isFinished }
     }
 
     fun WorkResult.isExpired(): Boolean{
@@ -56,17 +68,4 @@ data class WorkResult(
     val type: String,
     val error: String?,
     val data: String?,
-) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as WorkResult
-
-        return id == other.id
-    }
-
-    override fun hashCode(): Int {
-        return id.hashCode()
-    }
-}
+)

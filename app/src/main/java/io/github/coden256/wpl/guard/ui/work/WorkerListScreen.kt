@@ -270,7 +270,7 @@ fun WorkResultCard(result: WorkResult) {
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.End
             ) {
 
                 Text(

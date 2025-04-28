@@ -70,7 +70,7 @@ class GuardService : Service() {
     private fun registerWorkers(){
         enqueuePeriodic<GuardServiceHealthChecker>(
             duration = Duration.ofMinutes(15),
-            init = Duration.ofMinutes(15),
+            init = Duration.ofMinutes(5),
             backoff = Duration.ofSeconds(10)
         )
         enqueuePeriodic<GuardJudgeUpdater>(

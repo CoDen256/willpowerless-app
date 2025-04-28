@@ -20,14 +20,14 @@ class GuardServiceHealthChecker(private val context: Context, params: WorkerPara
 
         fun runNow(context: Context): Result{
             Log.i("GuardServiceHealthChecker", "Checking on guard")
+            val outputData = Data.Builder().putLong("timestamp", System.currentTimeMillis()).build()
             if (context.isServiceRunning<GuardService>()) {
                 Log.i("GuardServiceHealthChecker", "Guard is running, all good :)")
-                val outputData = Data.Builder().putLong("timestamp", System.currentTimeMillis()).build()
                 return Result.success(outputData)
             } else{
                 Log.i("GuardServiceHealthChecker", "Guard is not running, restarting :(")
                 context.startForegroundService<GuardService> { }
-                return Result.retry()
+                return Result.failure(outputData)
             }
         }
     }
