@@ -5,6 +5,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
+import android.os.UserManager
 import android.util.Log
 import android.widget.Toast
 import io.github.coden256.wpl.guard.config.AppConfig
@@ -63,6 +64,7 @@ class Owner(
     fun setAlwaysOnVpn(pkg: String){
         if (appConfig.vpnOnPackage != pkg){
             Log.i(tag, "Setting always on vpn: $pkg")
+            dpm.addUserRestriction(admin, UserManager.DISALLOW_CONFIG_VPN)
             dpm.setAlwaysOnVpnPackage(admin, pkg, true)
             appConfig.vpnOnPackage = pkg
         }
@@ -71,6 +73,7 @@ class Owner(
     fun removeAlwaysOnVpn(){
         if (appConfig.vpnOnPackage != null){
             Log.i(tag, "Removing always on vpn: ${appConfig.vpnOnPackage}")
+            dpm.clearUserRestriction(admin, UserManager.DISALLOW_CONFIG_VPN)
             dpm.setAlwaysOnVpnPackage(admin, null, false)
             appConfig.vpnOnPackage = null
         }
