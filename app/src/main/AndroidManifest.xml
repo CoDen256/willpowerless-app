@@ -78,7 +78,7 @@
                 <action android:name="io.github.coden256.wpl.guard.WAKEUP"/>
             </intent-filter>
         </service>
-
+<!--        NOT WORKING AUTOSTART FOR REDMI 7, don't know what to do-->
         <receiver android:name=".services.SystemUpdateReceiver"
             android:directBootAware="false"
             android:enabled="true"
