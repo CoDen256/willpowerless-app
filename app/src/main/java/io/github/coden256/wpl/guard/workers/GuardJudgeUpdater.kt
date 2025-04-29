@@ -40,7 +40,7 @@ class GuardJudgeUpdater(context: Context, private val params: WorkerParameters) 
             .onSuccess { tree ->
                 Log.i("GuardJudgeUpdater", "Judge returned: $tree")
                 tree.root.asJsonObject.addProperty("timestamp", tree.timestamp)
-                appConfig.rulingsLive.postValue(tree)
+                appConfig.rulings = tree
             }.onFailure {
                 Log.w("GuardJudgeUpdater", "Judge fucked up: $it")
             }

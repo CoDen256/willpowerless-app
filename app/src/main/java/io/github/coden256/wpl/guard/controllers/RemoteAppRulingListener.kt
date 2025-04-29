@@ -17,14 +17,19 @@ class RemoteAppRulingListener (
     fun onRulings(context: Context, rulings: List<JudgeRuling>) {
         connector.bind(context,
             onConnected = { client ->
-                Log.i("GuardRemoteAppRulingListener", "Sending rulings: $rulings")
-                client.onRulings(rulings.map { it.toRuling() })
+                try{
+                    Log.i("GuardRemoteAppRulingListener", "Sending rulings: $rulings")
+                    client.onRulings(rulings.map { it.toRuling() })
 
-                val current = HashMap(appConfig.sentRulings)
-                current.remove(target)
-                appConfig.sentRulings = current.plus(target to rulings)
+                    val current = HashMap(appConfig.sentRulings)
+                    current.remove(target)
+                    appConfig.sentRulings = current.plus(target to rulings)
 
-                connector.unbind(context)
+                    connector.unbind(context)
+                }catch (e: Exception){
+                    Log.e("GuardRemoteAppRulingListener", "Failed during connection to $target", e)
+                }
+
             },
             onDisconnected = {}
         )

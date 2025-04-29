@@ -26,7 +26,8 @@ class AppConfig(val context: Context) : SimpleKrate(context), KoinComponent {
     var jobs by gsonPref<Set<WorkResult>>().withDefault(setOf())
     val jobsLive = liveData(::jobs)
 
-    val rulingsLive = MutableLiveData<RulingTree>() // liveData(::rulings)
+    var rulings by gsonPref<RulingTree>().withDefault(RulingTree.EMPTY)
+    val rulingsLive = liveData(::rulings)
 
     var appRulings by gsonPref<List<JudgeRuling>>().withDefault(listOf())
     val appRulingsLive = liveData(::appRulings)
