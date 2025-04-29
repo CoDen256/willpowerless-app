@@ -24,6 +24,7 @@ material3WindowSizeClass = "1.4.0-alpha13"
 material3Version = "1.3.2"
 materialIconsExtended = "1.7.8"
 coreKtxVersion = "1.6.1"
+autostarter = "1.1.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -58,6 +59,7 @@ androidx-material3-window-size-class1 = { group = "androidx.compose.material3", 
 androidx-compose-material3-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3Version" }
 androidx-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "materialIconsExtended" }
 core-ktx = { group = "androidx.test", name = "core-ktx", version.ref = "coreKtxVersion" }
+autostarter = { group = "com.github.judemanutd", name = "autostarter", version.ref = "autostarter" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

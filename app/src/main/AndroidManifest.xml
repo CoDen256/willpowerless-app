@@ -33,10 +33,6 @@
     <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
     <uses-permission android:name="android.permission.BATTERY_STATS" />
 
-<!--    <queries>-->
-<!--        <package android:name="io.github.coden.dictator" />-->
-<!--    </queries>-->
-
     <application
             android:name=".GuardApplication"
             android:testOnly="true"
@@ -76,18 +72,24 @@
             android:foregroundServiceType="systemExempted|connectedDevice"
             android:name=".services.GuardService"
             android:enabled="true"
-            android:exported="false"
+            android:exported="true"
             android:stopWithTask="false">
+            <intent-filter>
+                <action android:name="io.github.coden256.wpl.guard.WAKEUP"/>
+            </intent-filter>
         </service>
 
         <receiver android:name=".services.SystemUpdateReceiver"
-            android:directBootAware="true"
+            android:directBootAware="false"
             android:enabled="true"
             android:exported="true"
             android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
             <intent-filter android:priority="999">
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="android.intent.action.REBOOT" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
 
