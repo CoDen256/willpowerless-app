@@ -20,7 +20,7 @@ class WorkMonitor(private val workManager: WorkManager, private val appConfig: A
     }
 
     fun WorkResult.isExpired(): Boolean{
-        return timestamp < java.time.Instant.now().minus(1, java.time.temporal.ChronoUnit.DAYS).nano
+        return timestamp < java.time.Instant.now().minus(1, java.time.temporal.ChronoUnit.DAYS).toEpochMilli()
                 && state.isFinished
     }
 

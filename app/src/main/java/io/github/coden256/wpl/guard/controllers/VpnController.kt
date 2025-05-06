@@ -12,6 +12,12 @@ class VpnController(
         val target = rulings.firstOrNull {it.action == Action.FORCE}
         Log.i("GuardVpnController", "Setting vpn by: $target out of $rulings")
 
-        target?.let { owner.setAlwaysOnVpn(it.path) } ?: owner.removeAlwaysOnVpn()
+        target?.let { owner.setAlwaysOnVpn(it.path) }
+
+        rulings.forEach {
+            if (it.action == Action.BLOCK){
+                owner.removeAlwaysOnVpn(it.path)
+            }
+        }
     }
 }

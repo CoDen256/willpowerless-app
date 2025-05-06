@@ -48,6 +48,10 @@ class Owner(
     }
 
     fun blockUninstall(pkg: String, block: Boolean=true){
+        if (!block && appConfig.vpnOnPackage == pkg) {
+            Log.i(tag, "FORBIDDEN to lift the uninstall block of the always on vpn package!")
+            return
+        }
         if (block) appConfig.addUnremovablePackage(pkg) else appConfig.removeUnremovablePackage(pkg)
         if (dpm.isUninstallBlocked(admin, pkg) == block) return // no change
         if (block && dpm.isApplicationHidden(admin, pkg)) hide(pkg, false) // unhide before blocking
@@ -70,8 +74,8 @@ class Owner(
         }
     }
 
-    fun removeAlwaysOnVpn(){
-        if (appConfig.vpnOnPackage != null){
+    fun removeAlwaysOnVpn(packageName: String){
+        if (appConfig.vpnOnPackage == packageName){
             Log.i(tag, "Removing always on vpn: ${appConfig.vpnOnPackage}")
             dpm.clearUserRestriction(admin, UserManager.DISALLOW_CONFIG_VPN)
             dpm.setAlwaysOnVpnPackage(admin, null, false)

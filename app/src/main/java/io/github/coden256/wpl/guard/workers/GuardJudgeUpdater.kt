@@ -11,6 +11,7 @@ import io.github.coden256.wpl.guard.monitors.WorkResult
 import io.github.coden256.wpl.guard.util.asWorkResult
 import io.github.coden256.wpl.judge.Judge
 import io.github.coden256.wpl.judge.RulingTree
+import okio.IOException
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.net.UnknownHostException
@@ -31,17 +32,24 @@ class GuardJudgeUpdater(context: Context, private val params: WorkerParameters) 
         }.onFailure {
             appConfig.jobs += WorkResult(params.id.toString(), WorkInfo.State.FAILED, 50, timestamp, Long.MAX_VALUE, "GuardJudgeUpdater", it.message, null)
         }
-        return result.asWorkResult(outputData){it is UnknownHostException}
+        return result.asWorkResult(outputData){
+            it is java.io.IOException || it is IllegalStateException }
     }
 
     private fun run(): kotlin.Result<RulingTree> {
         return judge
             .getRulingTree("/dev/mi")
-            .onSuccess { tree ->
+            .mapCatching { tree ->
                 Log.i("GuardJudgeUpdater", "Judge returned: $tree")
                 tree.root.asJsonObject.addProperty("timestamp", tree.timestamp)
                 appConfig.rulings = tree
-            }.onFailure {
+                if (tree.root.isJsonObject && tree.root.asJsonObject.has("status")
+                    && tree.root.asJsonObject.getAsJsonPrimitive("status").asString == "error"){
+                    throw IllegalStateException("Response has errors")
+                }
+                tree
+            }
+            .onFailure {
                 Log.w("GuardJudgeUpdater", "Judge fucked up: $it")
             }
     }
