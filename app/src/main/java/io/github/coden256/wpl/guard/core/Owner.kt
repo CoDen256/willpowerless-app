@@ -25,6 +25,11 @@ class Owner(
 
     init {
         verify("initialize owner")
+        initRestrictions()
+    }
+
+    private fun initRestrictions() {
+        dpm.addUserRestriction(admin, UserManager.DISALLOW_CONFIG_TETHERING)
     }
 
     fun run(action: DevicePolicyManager.()->(Unit)): DevicePolicyManager?{
