@@ -29,7 +29,7 @@ class Owner(
     }
 
     private fun initRestrictions() {
-        dpm.addUserRestriction(admin, UserManager.DISALLOW_CONFIG_TETHERING)
+        dpm.addUserRestriction(admin, UserManager.DISALLOW_CONFIG_TETHERING) // TODO config from Judge
     }
 
     fun run(action: DevicePolicyManager.()->(Unit)): DevicePolicyManager?{

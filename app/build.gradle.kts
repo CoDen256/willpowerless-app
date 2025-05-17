@@ -7,7 +7,7 @@ plugins {
 android {
     signingConfigs {
         getByName("debug") {
-            storeFile = file("/home/coden/.android/debug.keystore")
+            storeFile = file("/home/coden/.android/judge.keystore")
             storePassword = "android"
             keyAlias = "androiddebugkey"
         }
