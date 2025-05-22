@@ -30,6 +30,7 @@ class Owner(
 
     private fun initRestrictions() {
         dpm.addUserRestriction(admin, UserManager.DISALLOW_CONFIG_TETHERING) // TODO config from Judge
+        // /mi/restrictions/no_config_tethering -> FORCE ... etc
     }
 
     fun run(action: DevicePolicyManager.()->(Unit)): DevicePolicyManager?{

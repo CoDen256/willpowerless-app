@@ -8,7 +8,7 @@ import okhttp3.Request
 
 class OkHttpJudge(private val client: OkHttpClient): Judge {
 
-    private val JUDGE_ENDPOINT = "https://willpowerless-judge.up.railway.app/rulings"
+    private val JUDGE_ENDPOINT = "http://217.154.222.188/rulings"
 
     override fun getRulingTree(path: String): Result<RulingTree> {
         if (!path.startsWith("/")) throw IllegalStateException("Path should start with /, was: $path")
